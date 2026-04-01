@@ -12,6 +12,7 @@ services:
       - db-postgres
     volumes:
       - dp-keys:/home/app/.aspnet/DataProtection-Keys
+      - uploads-data:/app/Uploads
     deploy:
       resources:
         limits:
@@ -40,6 +41,8 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
@@ -73,3 +76,4 @@ services:
 volumes:
   pgdata:
   dp-keys:
+  uploads-data:

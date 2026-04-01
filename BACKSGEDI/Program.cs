@@ -16,6 +16,7 @@ using Serilog;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
 
+DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((context, configuration) => 
     configuration.ReadFrom.Configuration(context.Configuration));
