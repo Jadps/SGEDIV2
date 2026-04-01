@@ -1,0 +1,118 @@
+using FastEndpoints;
+using FastEndpoints.Security;
+using FastEndpoints.Swagger;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
+using System.Text;
+using BACKSGEDI.Infrastructure.Data;
+using BACKSGEDI.Infrastructure.Services;
+using BACKSGEDI.Infrastructure.Middleware;
+using BACKSGEDI.Configuration;
+using Serilog;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Mvc;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog((context, configuration) => 
+    configuration.ReadFrom.Configuration(context.Configuration));
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+    ?? "Host=localhost;Database=SGEDI;Username=postgres;Password=DefaultPassword";
+
+builder.Services.AddDbContext<ApplicationDbContext>(opts => 
+    opts.UseNpgsql(connectionString));
+
+builder.Services.AddOptions<JwtOptions>()
+    .Bind(builder.Configuration.GetSection(JwtOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services.AddOptions<AppOptions>()
+    .Bind(builder.Configuration.GetSection(AppOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services.AddScoped<IStorageService, LocalFileStorageService>();
+
+var appOptions = builder.Configuration.GetSection(AppOptions.SectionName).Get<AppOptions>() 
+                 ?? new AppOptions { FrontendUrl = "http://localhost:4200" };
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy",
+        corsBuilder => corsBuilder
+            .WithOrigins(appOptions.FrontendUrl)
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
+
+var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
+                 ?? new JwtOptions { SecretKey = "x38472h4x32h,8947-=.;['´ø«o-;2h84!!" };
+
+builder.Services.AddAuthenticationJwtBearer(s =>
+{
+    s.SigningKey = jwtOptions.SecretKey;
+});
+
+builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+{
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            if (context.Request.Cookies.TryGetValue("AccessToken", out var token))
+                context.Token = token;
+            return Task.CompletedTask;
+        }
+    };
+});
+builder.Services.AddAuthorization();
+
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = appOptions.AntiforgeryHeaderName;
+});
+
+builder.Services.AddFastEndpoints();
+builder.Services.SwaggerDocument(o => 
+{
+    o.DocumentSettings = s =>
+    {
+        s.Title = "API REST SGEDI V2";
+        s.Version = "v1";
+    };
+});
+
+var app = builder.Build();
+
+app.UseExceptionHandler();
+
+app.UseCors("CorsPolicy");
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseAntiforgery();
+
+app.UseAntiforgeryTokenMiddleware();
+
+app.UseFastEndpoints();
+if (app.Environment.IsDevelopment())
+{
+    app.UseOpenApi(c => c.Path = "/openapi/{documentName}.json"); 
+
+    app.MapScalarApiReference(options =>
+    {
+        options.WithOpenApiRoutePattern("/openapi/v1.json");
+    });
+}
+
+app.UseHttpsRedirection();
+
+app.Run();
