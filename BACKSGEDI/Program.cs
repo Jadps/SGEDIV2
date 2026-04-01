@@ -10,6 +10,7 @@ using System.Text;
 using BACKSGEDI.Infrastructure.Data;
 using BACKSGEDI.Infrastructure.Services;
 using BACKSGEDI.Infrastructure.Middleware;
+using BACKSGEDI.Infrastructure.Data.Interceptors;
 using BACKSGEDI.Configuration;
 using Serilog;
 using Microsoft.Extensions.Options;
@@ -21,12 +22,17 @@ builder.Host.UseSerilog((context, configuration) =>
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<AuditInterceptor>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
     ?? "Host=localhost;Database=SGEDI;Username=postgres;Password=DefaultPassword";
 
-builder.Services.AddDbContext<ApplicationDbContext>(opts => 
-    opts.UseNpgsql(connectionString));
+builder.Services.AddDbContext<ApplicationDbContext>((sp, opts) => 
+{
+    opts.UseNpgsql(connectionString);
+    opts.AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
+});
 
 builder.Services.AddOptions<JwtOptions>()
     .Bind(builder.Configuration.GetSection(JwtOptions.SectionName))
