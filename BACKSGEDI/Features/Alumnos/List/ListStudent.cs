@@ -2,6 +2,7 @@ using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using BACKSGEDI.Infrastructure.Data;
 using BACKSGEDI.Domain.Common;
+using BACKSGEDI.Infrastructure.Extensions;
 
 namespace BACKSGEDI.Features.Alumnos.List;
 
@@ -73,6 +74,9 @@ public class ListStudentEndpoint : Endpoint<ListStudentRequest, PagedResponse<Al
             })
             .ToListAsync(ct);
 
-        await SendAsync(PagedResponse<AlumnoDto>.Create(items, totalCount, req.Page, pageSize), cancellation: ct);
+        await Result<PagedResponse<AlumnoDto>>
+            .Success(PagedResponse<AlumnoDto>.Create(items, totalCount, req.Page, pageSize))
+            .ToResult()
+            .ExecuteAsync(HttpContext);
     }
 }

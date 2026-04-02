@@ -45,6 +45,10 @@ builder.Services.AddOptions<AppOptions>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
+builder.Services.AddOptions<AdminOptions>()
+    .Bind(builder.Configuration.GetSection(AdminOptions.SectionName))
+    .ValidateOnStart();
+
 builder.Services.AddScoped<IStorageService, LocalFileStorageService>();
 
 var appOptions = builder.Configuration.GetSection(AppOptions.SectionName).Get<AppOptions>() 
@@ -121,5 +125,21 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        var adminOptions = services.GetRequiredService<IOptions<AdminOptions>>();
+        await DbInitializer.SeedAsync(context, adminOptions);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocurrió un error al sembrar la base de datos.");
+    }
+}
 
 app.Run();
