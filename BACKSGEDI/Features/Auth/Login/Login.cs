@@ -1,11 +1,15 @@
 using FastEndpoints;
+using FastEndpoints.Security;
 using FluentValidation;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using BACKSGEDI.Configuration;
 using BACKSGEDI.Infrastructure.Data;
 using BACKSGEDI.Domain.Common;
 using BACKSGEDI.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace BACKSGEDI.Features.Auth.Login;
 
@@ -19,7 +23,9 @@ public class LoginResponse
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
+    public string RefreshToken { get; set; } = string.Empty;
 }
 
 public class LoginValidator : Validator<LoginRequest>
@@ -39,11 +45,13 @@ public class LoginEndpoint : FastEndpoints.Endpoint<LoginRequest, LoginResponse>
 {
     private readonly ApplicationDbContext _db;
     private readonly IAntiforgery _antiforgery;
+    private readonly JwtOptions _jwtOptions;
 
-    public LoginEndpoint(ApplicationDbContext db, IAntiforgery antiforgery)
+    public LoginEndpoint(ApplicationDbContext db, IAntiforgery antiforgery, IOptions<JwtOptions> jwtOptions)
     {
         _db = db;
         _antiforgery = antiforgery;
+        _jwtOptions = jwtOptions.Value;
     }
 
     public override void Configure()
@@ -70,26 +78,41 @@ public class LoginEndpoint : FastEndpoints.Endpoint<LoginRequest, LoginResponse>
 
     private async Task<Result<LoginResponse>> LoginAsync(LoginRequest req, CancellationToken ct)
     {
-        var user = await _db.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Email == req.Email, ct);
+        var user = await _db.Usuarios.FirstOrDefaultAsync(u => u.Email == req.Email, ct);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
         {
             return Result<LoginResponse>.Failure(Error.Unauthorized("Auth.InvalidCredentials", "Credenciales inválidas."));
         }
 
+        var refreshToken = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(64));
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+
+        await _db.SaveChangesAsync(ct);
+
         return new LoginResponse
         {
             Id = user.Id,
             Name = user.Name,
-            Role = user.Role
+            Email = user.Email,
+            Role = user.Role,
+            RefreshToken = refreshToken
         };
     }
 
     private void SetupAuthCookies(LoginResponse user)
     {
-        var accessToken = "mock.jwt.acccess.firmado.pronto." + user.Id;
-        var refreshToken = "mock.jwt.refresh." + Guid.NewGuid();
-
+        var accessToken = JwtBearer.CreateToken(o =>
+        {
+            o.SigningKey = _jwtOptions.SecretKey;
+            o.ExpireAt = DateTime.UtcNow.AddMinutes(_jwtOptions.ExpirationInMinutes);
+            o.User.Roles.Add(user.Role);
+            o.User.Claims.Add((ClaimTypes.NameIdentifier, user.Id.ToString()));
+            o.User.Claims.Add((ClaimTypes.Name, user.Name));
+            o.User.Claims.Add((ClaimTypes.Email, user.Email));
+        });
+        
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
@@ -107,7 +130,7 @@ public class LoginEndpoint : FastEndpoints.Endpoint<LoginRequest, LoginResponse>
         };
 
         HttpContext.Response.Cookies.Append("AccessToken", accessToken, cookieOptions);
-        HttpContext.Response.Cookies.Append("RefreshToken", refreshToken, refreshCookieOptions);
+        HttpContext.Response.Cookies.Append("RefreshToken", user.RefreshToken, refreshCookieOptions);
 
         _antiforgery.GetAndStoreTokens(HttpContext);
     }
