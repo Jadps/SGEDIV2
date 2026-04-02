@@ -1,0 +1,12 @@
+<div class="flex flex-col min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 transition-colors duration-300">
+    <p-toast></p-toast>
+    <app-navbar></app-navbar>
+
+    <div class="flex flex-1 overflow-hidden">
+        <app-sidebar></app-sidebar>
+
+        <main class="flex-1 p-6 overflow-y-auto animate-fade-in-up">
+            <router-outlet></router-outlet>
+        </main>
+    </div>
+</div>

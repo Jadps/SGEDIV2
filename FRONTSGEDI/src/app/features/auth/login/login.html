@@ -1,0 +1,66 @@
+<div
+  class="relative h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 overflow-hidden transition-colors duration-300">
+
+  <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full"></div>
+  <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full"></div>
+
+  <div class="relative z-10 w-full max-w-[420px] px-6 animate-in fade-in zoom-in-95 duration-500">
+    <div class="p-8 rounded-[2.5rem] glass-dark border-black/5 dark:border-white/10 shadow-2xl">
+
+      <div class="flex flex-col items-center gap-4 mb-10">
+        <div
+          class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/20 rotate-3">
+          <i class="pi pi-box text-white text-2xl"></i>
+        </div>
+        <div class="text-center">
+          <h1 class="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">Bienvenido</h1>
+          <p class="text-zinc-500 text-sm font-medium">Panel de Control <span class="text-blue-500">MVP</span></p>
+        </div>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-6">
+
+        <div class="flex flex-col gap-2">
+          <label for="email" class="text-[11px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Correo
+            Electrónico</label>
+          <div class="group relative">
+            <i
+              class="pi pi-envelope absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-blue-500 transition-colors"></i>
+            <input id="email" type="email" pInputText formControlName="email"
+              class="w-full !pl-12 !py-3.5 !rounded-2xl !bg-black/5 dark:!bg-white/5 !border-black/5 dark:!border-white/10 focus:!border-blue-500/50 focus:!ring-4 focus:ring-blue-500/10 transition-all !text-sm !text-zinc-900 dark:!text-zinc-100"
+              placeholder="nombre@empresa.com" />
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="password"
+            class="text-[11px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Contraseña</label>
+          <div class="group relative">
+            <i
+              class="pi pi-lock absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-blue-500 transition-colors z-10"></i>
+            <p-password inputId="password" formControlName="password" [feedback]="false" [toggleMask]="true"
+              styleClass="w-full"
+              inputStyleClass="w-full !pl-12 !py-3.5 !rounded-2xl !bg-black/5 dark:!bg-white/5 !border-black/5 dark:!border-white/10 focus:!border-blue-500/50 focus:!ring-4 focus:ring-blue-500/10 transition-all !text-sm !text-zinc-900 dark:!text-zinc-100"
+              placeholder="••••••••"></p-password>
+          </div>
+        </div>
+
+        <p-button type="submit" [loading]="isLoading()" [disabled]="loginForm.invalid || isLoading()"
+          class="w-full mt-2"
+          styleClass="w-full !rounded-2xl !py-4 !bg-blue-600 !border-blue-600 hover:!bg-blue-500 hover:!border-blue-500 shadow-xl shadow-blue-500/20 transition-all">
+          <ng-template pTemplate="content">
+            <span class="font-bold tracking-wide">Acceder al Sistema</span>
+          </ng-template>
+        </p-button>
+
+      </form>
+
+      <div class="mt-8 text-center">
+        <p class="text-xs text-zinc-500">¿No tienes acceso? <span (click)="fillDemoCredentials()"
+            class="text-zinc-900 dark:text-white font-semibold cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Entrar
+            como Demo</span></p>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,52 @@
+<nav
+    class="sticky top-0 z-50 glass-dark px-8 py-4 flex justify-between items-center border-b border-white/5 shadow-2xl">
+
+    <div class="flex items-center gap-4">
+        <div
+            class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 rotate-3">
+            <i class="pi pi-box text-white text-lg"></i>
+        </div>
+        <div class="flex flex-col">
+            <span class="font-bold text-lg tracking-tight text-zinc-900 dark:text-white leading-none">
+                Mi SaaS <span class="text-blue-600 dark:text-blue-500">MVP</span>
+            </span>
+            <span class="text-[9px] font-bold text-zinc-500 dark:text-zinc-500 uppercase tracking-widest mt-1">Enterprise Console</span>
+        </div>
+    </div>
+
+    <div class="flex items-center gap-8">
+        @if (authService.currentUser(); as user) {
+
+        <p-button [icon]="layoutService.isDarkMode() ? 'pi pi-moon' : 'pi pi-sun'" 
+            [rounded]="true" [text]="true" severity="secondary" (onClick)="toggleDarkMode()"
+            pTooltip="Cambiar Tema" tooltipPosition="bottom"
+            styleClass="navbar-btn navbar-btn-theme">
+        </p-button>
+
+        <div class="h-6 w-px bg-black/5 dark:bg-white/5"></div>
+
+        <div class="flex items-center gap-4 pl-2">
+            <div class="user-profile-badge group">
+                <div class="text-right hidden sm:block">
+                    <p class="text-[13px] font-bold text-zinc-900 dark:text-zinc-100 leading-none mb-1.5">{{ user.fullName }}</p>
+                    <div class="flex items-center justify-end gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        <p class="text-[9px] font-bold text-zinc-600 dark:text-zinc-500 uppercase tracking-widest leading-none">{{
+                            user.roles[0]?.name }}</p>
+                    </div>
+                </div>
+                <div
+                    class="w-9 h-9 rounded-xl bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-900 flex items-center justify-center border border-black/5 dark:border-white/10 group-hover:border-blue-500/50 transition-all shadow-inner">
+                    <span class="text-sm font-black text-zinc-700 dark:text-white">{{ user.fullName?.charAt(0) }}</span>
+                </div>
+            </div>
+
+            <p-button icon="pi pi-sign-out" [rounded]="true" [text]="true" severity="secondary" (onClick)="logout()"
+                pTooltip="Finalizar Sesión" tooltipPosition="bottom"
+                styleClass="navbar-btn navbar-btn-logout">
+            </p-button>
+        </div>
+        }
+    </div>
+
+</nav>

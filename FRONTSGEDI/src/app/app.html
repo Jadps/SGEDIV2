@@ -1,0 +1,4 @@
+<div class="fixed top-0 left-0 w-full z-[9999]" *ngIf="loadingService.isLoading()">
+    <p-progressBar mode="indeterminate" [style]="{'height': '4px', 'border-radius': '0'}"></p-progressBar>
+</div>
+<router-outlet></router-outlet>
