@@ -414,7 +414,7 @@ FodyWeavers.xsd
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio,dotnetcore
 
 # Docker volumes / Persistent Data
-data/
+/data/
 letsencrypt/
 dp-keys/
 pgdata/
