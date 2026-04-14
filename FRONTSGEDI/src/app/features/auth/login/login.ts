@@ -50,10 +50,7 @@ export class LoginComponent {
         });
     }
 
-    fillDemoCredentials(): void {
-        this.loginForm.patchValue({
-            email: 'demo@mail.com',
-            password: 'Demo.2026!',
-        });
+    registerStudent(): void {
+        this.router.navigate(['/register']);
     }
 }

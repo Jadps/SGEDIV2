@@ -1,79 +1,200 @@
-<div class="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4 sm:p-8 animate-in fade-in duration-700">
+<div
+    class="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4 sm:p-8 animate-in fade-in duration-700">
     <div class="w-full max-w-2xl space-y-8">
         <div class="text-center space-y-2">
             <h1 class="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Registro de Estudiante</h1>
-            <p class="text-zinc-500 dark:text-zinc-400">Completa el formulario para solicitar tu acceso al sistema SGEDI.</p>
+            <p class="text-zinc-500 dark:text-zinc-400">Completa el formulario para solicitar tu acceso al sistema
+                SGEDI.</p>
         </div>
 
-        <p-card styleClass="shadow-2xl rounded-3xl border-0 overflow-hidden glass-dark">
+        <p-card styleClass="glass-dark border-0 overflow-hidden shadow-2xl">
             <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-6 p-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="flex flex-col gap-2">
-                        <label for="name" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Nombre Completo</label>
-                        <input id="name" pInputText formControlName="name" placeholder="Ej. Juan Pérez" 
-                            class="rounded-xl border-zinc-200 dark:border-white/10 dark:bg-white/5 focus:ring-blue-500" />
+                        <label for="name" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Nombre
+                            Completo</label>
+                        <input id="name" pInputText formControlName="name" placeholder="Ej. Juan Pérez"
+                            class="w-full transition-all font-medium" />
+                        @if (registerForm.get('name')?.hasError('required') && registerForm.get('name')?.touched) {
+                        <small class="text-red-500 font-medium">El nombre es requerido.</small>
+                        }
                     </div>
 
                     <div class="flex flex-col gap-2">
-                        <label for="email" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Email Académico</label>
-                        <input id="email" pInputText formControlName="email" type="email" placeholder="email@universidad.edu.mx" 
-                            class="rounded-xl border-zinc-200 dark:border-white/10 dark:bg-white/5 focus:ring-blue-500" />
+                        <label for="email" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Email
+                            Institucional</label>
+                        <input id="email" pInputText formControlName="email" type="email"
+                            placeholder="Ej. L22251003@tlalnepantla.tecnm.mx"
+                            class="w-full transition-all font-medium" />
+                        @if (registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched) {
+                        <small class="text-red-500 font-medium">El correo es requerido.</small>
+                        } @else if (registerForm.get('email')?.hasError('pattern') &&
+                        registerForm.get('email')?.touched) {
+                        <small class="text-red-500 font-medium">Debe ser un correo institucional del TecNM.</small>
+                        }
                     </div>
 
                     <div class="flex flex-col gap-2">
-                        <label for="password" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Contraseña</label>
+                        <label for="password"
+                            class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Contraseña</label>
                         <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false"
                             placeholder="••••••••" styleClass="w-full"
-                            inputStyleClass="w-full rounded-xl border-zinc-200 dark:border-white/10 dark:bg-white/5 focus:ring-blue-500" />
+                            inputStyleClass="w-full transition-all font-medium" />
+                        @if (registerForm.get('password')?.hasError('required') &&
+                        registerForm.get('password')?.touched) {
+                        <small class="text-red-500 font-medium">La contraseña es requerida.</small>
+                        } @else if (registerForm.get('password')?.hasError('minlength') &&
+                        registerForm.get('password')?.touched) {
+                        <small class="text-red-500 font-medium">Mínimo 6 caracteres.</small>
+                        }
                     </div>
 
                     <div class="flex flex-col gap-2">
-                        <label for="matricula" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Matrícula</label>
-                        <input id="matricula" pInputText formControlName="matricula" placeholder="Ej. 12345678" 
-                            class="rounded-xl border-zinc-200 dark:border-white/10 dark:bg-white/5 focus:ring-blue-500" />
+                        <label for="matricula"
+                            class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Matrícula</label>
+                        <input id="matricula" pInputText formControlName="matricula" placeholder="Ej. 22251003"
+                            class="w-full transition-all font-medium" />
+                        @if (registerForm.get('matricula')?.hasError('required') &&
+                        registerForm.get('matricula')?.touched) {
+                        <small class="text-red-500 font-medium">La matrícula es requerida.</small>
+                        }
                     </div>
 
-                    <div class="flex flex-col gap-2 md:col-span-2">
-                        <label for="carrera" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Carrera</label>
-                        <p-select id="carrera" [options]="careers" formControlName="carreraId" optionLabel="name" optionValue="id"
-                            placeholder="Selecciona tu carrera" [fluid]="true" styleClass="rounded-xl border-zinc-200 dark:border-white/10 dark:bg-white/5" />
+                    <div class="flex flex-col gap-2">
+                        <label for="carrera"
+                            class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Carrera</label>
+                        <p-select id="carrera" [options]="careers()" formControlName="carreraId" optionLabel="name"
+                            optionValue="id" placeholder="Selecciona tu carrera" [fluid]="true"
+                            styleClass="transition-all" />
+                        @if (registerForm.get('carreraId')?.hasError('required') &&
+                        registerForm.get('carreraId')?.touched) {
+                        <small class="text-red-500 font-medium">Selecciona una carrera.</small>
+                        }
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label for="semestre"
+                            class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Semestre</label>
+                        <p-select id="semestre" [options]="semesters" formControlName="semestreId" optionLabel="name"
+                            optionValue="id" placeholder="Selecciona tu semestre" [fluid]="true"
+                            styleClass="transition-all" />
+                        @if (registerForm.get('semestreId')?.hasError('required') &&
+                        registerForm.get('semestreId')?.touched) {
+                        <small class="text-red-500 font-medium">Selecciona un semestre.</small>
+                        } @else if (registerForm.get('semestreId')?.hasError('min') &&
+                        registerForm.get('semestreId')?.touched) {
+                        <small class="text-red-500 font-medium">Debe cursar al menos el 6to semestre.</small>
+                        }
                     </div>
                 </div>
 
                 <div class="space-y-4 pt-4 border-t border-black/5 dark:border-white/5">
-                    <p class="text-sm font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Documentación Requerida (PDF)</p>
-                    
+                    <p class="text-sm font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
+                        Documentación Requerida (PDF)
+                    </p>
+
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
                         <div class="flex flex-col gap-2">
-                            <span class="text-xs font-medium text-zinc-500">Horario Actual</span>
-                            <p-fileUpload mode="basic" chooseLabel="Subir Horario" accept="application/pdf" [maxFileSize]="5000000" 
-                                (onSelect)="onFileSelect($event, 'horario')" styleClass="p-button-outlined w-full rounded-xl" />
-                            @if (horarioFile) { <span class="text-[10px] text-emerald-500 truncate">{{ horarioFile.name }}</span> }
+                            <span
+                                class="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">Horario
+                                Actual</span>
+                            <label for="file-horario" class="group relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200 px-3 py-5 min-h-[96px] text-center
+                       border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.03]
+                       hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-500/10"
+                                [class.!border-blue-400]="horarioFile" [class.dark:!border-blue-500]="horarioFile"
+                                [class.!bg-blue-50]="horarioFile" [class.dark:!bg-blue-500/10]="horarioFile">
+                                <input id="file-horario" type="file" accept="application/pdf" class="sr-only"
+                                    (change)="onNativeFileSelect($event, 'horario')" />
+                                @if (!horarioFile) {
+                                <i
+                                    class="pi pi-cloud-upload text-xl text-zinc-300 dark:text-zinc-600 group-hover:text-blue-400 transition-colors duration-200"></i>
+                                <span
+                                    class="text-xs font-semibold text-zinc-400 dark:text-zinc-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors duration-200">
+                                    Subir Horario
+                                </span>
+                                <span class="text-[10px] text-zinc-300 dark:text-zinc-600">PDF · máx 5MB</span>
+                                } @else {
+                                <i class="pi pi-file-pdf text-xl text-blue-500 dark:text-blue-400"></i>
+                                <span
+                                    class="text-[10px] font-bold text-blue-600 dark:text-blue-400 truncate w-full px-1 leading-tight">
+                                    {{ horarioFile.name }}
+                                </span>
+                                <span class="text-[9px] text-zinc-400 dark:text-zinc-500">Toca para cambiar</span>
+                                }
+                            </label>
                         </div>
 
                         <div class="flex flex-col gap-2">
-                            <span class="text-xs font-medium text-zinc-500">Anexo 1</span>
-                            <p-fileUpload mode="basic" chooseLabel="Subir Anexo 1" accept="application/pdf" [maxFileSize]="5000000" 
-                                (onSelect)="onFileSelect($event, 'anexo')" styleClass="p-button-outlined w-full rounded-xl" />
-                            @if (anexo1File) { <span class="text-[10px] text-emerald-500 truncate">{{ anexo1File.name }}</span> }
+                            <span
+                                class="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">Anexo
+                                1</span>
+                            <label for="file-anexo" class="group relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200 px-3 py-5 min-h-[96px] text-center
+                       border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.03]
+                       hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-500/10"
+                                [class.!border-blue-400]="anexo1File" [class.dark:!border-blue-500]="anexo1File"
+                                [class.!bg-blue-50]="anexo1File" [class.dark:!bg-blue-500/10]="anexo1File">
+                                <input id="file-anexo" type="file" accept="application/pdf" class="sr-only"
+                                    (change)="onNativeFileSelect($event, 'anexo')" />
+                                @if (!anexo1File) {
+                                <i
+                                    class="pi pi-cloud-upload text-xl text-zinc-300 dark:text-zinc-600 group-hover:text-blue-400 transition-colors duration-200"></i>
+                                <span
+                                    class="text-xs font-semibold text-zinc-400 dark:text-zinc-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors duration-200">
+                                    Subir Anexo 1
+                                </span>
+                                <span class="text-[10px] text-zinc-300 dark:text-zinc-600">PDF · máx 5MB</span>
+                                } @else {
+                                <i class="pi pi-file-pdf text-xl text-blue-500 dark:text-blue-400"></i>
+                                <span
+                                    class="text-[10px] font-bold text-blue-600 dark:text-blue-400 truncate w-full px-1 leading-tight">
+                                    {{ anexo1File.name }}
+                                </span>
+                                <span class="text-[9px] text-zinc-400 dark:text-zinc-500">Toca para cambiar</span>
+                                }
+                            </label>
                         </div>
 
                         <div class="flex flex-col gap-2">
-                            <span class="text-xs font-medium text-zinc-500">Kardex</span>
-                            <p-fileUpload mode="basic" chooseLabel="Subir Kardex" accept="application/pdf" [maxFileSize]="5000000" 
-                                (onSelect)="onFileSelect($event, 'kardex')" styleClass="p-button-outlined w-full rounded-xl" />
-                            @if (kardexFile) { <span class="text-[10px] text-emerald-500 truncate">{{ kardexFile.name }}</span> }
+                            <span
+                                class="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">Kardex</span>
+                            <label for="file-kardex" class="group relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200 px-3 py-5 min-h-[96px] text-center
+                       border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.03]
+                       hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-500/10"
+                                [class.!border-blue-400]="kardexFile" [class.dark:!border-blue-500]="kardexFile"
+                                [class.!bg-blue-50]="kardexFile" [class.dark:!bg-blue-500/10]="kardexFile">
+                                <input id="file-kardex" type="file" accept="application/pdf" class="sr-only"
+                                    (change)="onNativeFileSelect($event, 'kardex')" />
+                                @if (!kardexFile) {
+                                <i
+                                    class="pi pi-cloud-upload text-xl text-zinc-300 dark:text-zinc-600 group-hover:text-blue-400 transition-colors duration-200"></i>
+                                <span
+                                    class="text-xs font-semibold text-zinc-400 dark:text-zinc-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors duration-200">
+                                    Subir Kardex
+                                </span>
+                                <span class="text-[10px] text-zinc-300 dark:text-zinc-600">PDF · máx 5MB</span>
+                                } @else {
+                                <i class="pi pi-file-pdf text-xl text-blue-500 dark:text-blue-400"></i>
+                                <span
+                                    class="text-[10px] font-bold text-blue-600 dark:text-blue-400 truncate w-full px-1 leading-tight">
+                                    {{ kardexFile.name }}
+                                </span>
+                                <span class="text-[9px] text-zinc-400 dark:text-zinc-500">Toca para cambiar</span>
+                                }
+                            </label>
                         </div>
+
                     </div>
                 </div>
-
                 <div class="pt-6 flex flex-col gap-4">
-                    <p-button type="submit" label="Registrarse" icon="pi pi-user-plus" [loading]="isLoading()"
-                        styleClass="w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 border-0 shadow-lg shadow-blue-500/20 text-lg font-bold" />
-                    
+                    <p-button type="submit" label="Completar Registro" icon="pi pi-user-plus" [loading]="isLoading()"
+                        [disabled]="registerForm.invalid || !horarioFile || !anexo1File || !kardexFile"
+                        styleClass="w-full !py-4 !rounded-2xl !bg-blue-600 !border-blue-600 hover:!bg-blue-500 hover:!border-blue-500 shadow-xl shadow-blue-500/20 text-lg font-bold transition-all" />
+
                     <p class="text-center text-sm text-zinc-500 dark:text-zinc-400">
-                        ¿Ya tienes cuenta? 
-                        <a routerLink="/auth/login" class="text-blue-600 dark:text-blue-400 font-bold hover:underline">Inicia Sesión</a>
+                        ¿Ya tienes cuenta?
+                        <a routerLink="/auth/login"
+                            class="text-blue-600 dark:text-blue-400 font-bold hover:underline">Inicia Sesión</a>
                     </p>
                 </div>
             </form>

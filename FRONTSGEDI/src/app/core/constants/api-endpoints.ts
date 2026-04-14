@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
   },
   CATALOGS: {
     MODULES: '/catalogs/modules',
-    ROLES: '/catalogs/roles'
+    ROLES: '/catalogs/roles',
+    CARRERAS: '/catalogs/carreras'
   }
 };

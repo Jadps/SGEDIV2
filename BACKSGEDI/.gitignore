@@ -417,4 +417,6 @@ FodyWeavers.xsd
 /data/
 letsencrypt/
 dp-keys/
-pgdata/
+pgdata/
+
+uploads/

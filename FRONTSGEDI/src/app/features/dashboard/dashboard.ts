@@ -15,11 +15,4 @@ import { MessageModule } from 'primeng/message';
 })
 export class DashboardComponent {
   public readonly authService = inject(AuthService);
-
-  public get isAdmin(): boolean {
-    const roles = this.authService.currentUser()?.roles;
-    if (!roles) return false;
-    return roles.some(r => r.name === 'Admin' || r.name === 'TenantAdmin');
-  }
-
 }

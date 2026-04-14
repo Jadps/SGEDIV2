@@ -18,6 +18,7 @@ public class RegisterStudentRequest
     public string Password { get; set; } = string.Empty;
     public string Matricula { get; set; } = string.Empty;
     public int CarreraId { get; set; }
+    public int SemestreId { get; set; }
 
     public IFormFile HorarioFile { get; set; } = null!;
     public IFormFile Anexo1File { get; set; } = null!;
@@ -31,10 +32,16 @@ public class RegisterStudentValidator : Validator<RegisterStudentRequest>
     public RegisterStudentValidator()
     {
         RuleFor(x => x.Name).NotEmpty().WithMessage("El nombre es requerido.");
-        RuleFor(x => x.Email).NotEmpty().EmailAddress().WithMessage("Se requiere un formato de email válido.");
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage("El correo es obligatorio.")
+            .Matches(@"^L\d{2}25\d{4}@tlalnepantla\.tecnm\.mx$")
+            .WithMessage("El correo debe ser institucional del TecNM.");
         RuleFor(x => x.Password).NotEmpty().MinimumLength(6).WithMessage("La contraseña requiere al menos 6 caracteres.");
         RuleFor(x => x.Matricula).NotEmpty().WithMessage("La matrícula es requerida.");
         RuleFor(x => x.CarreraId).GreaterThan(0).WithMessage("Selecciona una carrera válida.");
+        RuleFor(x => x.SemestreId)
+            .GreaterThanOrEqualTo(6)
+            .WithMessage("El alumno debe cursar al menos el sexto semestre para el modelo dual.");
 
         RuleFor(x => x.HorarioFile).NotNull().Must(IsValidPdfAndSize!).When(x => x.HorarioFile != null);
         RuleFor(x => x.Anexo1File).NotNull().Must(IsValidPdfAndSize!).When(x => x.Anexo1File != null);
@@ -98,7 +105,8 @@ public class RegisterStudentEndpoint : FastEndpoints.Endpoint<RegisterStudentReq
         {
             Usuario = user,
             Matricula = req.Matricula,
-            CarreraId = req.CarreraId
+            CarreraId = req.CarreraId,
+            SemestreId = req.SemestreId
         };
 
         try 

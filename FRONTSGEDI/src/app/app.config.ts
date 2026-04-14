@@ -4,6 +4,7 @@ import { provideHttpClient, withInterceptors, withFetch, withXsrfConfiguration }
 import { providePrimeNG } from 'primeng/config';
 import { MessageService } from 'primeng/api';
 import Aura from '@primeng/themes/aura';
+import { definePreset } from '@primeng/themes';
 import { firstValueFrom } from 'rxjs';
 
 import { routes } from './app.routes';
@@ -22,7 +23,31 @@ export function initializeApp() {
     return Promise.resolve(true);
   };
 }
-
+const SgediPreset = definePreset(Aura, {
+  semantic: {
+    primary: {
+      50: '{blue.50}',
+      100: '{blue.100}',
+      200: '{blue.200}',
+      300: '{blue.300}',
+      400: '{blue.400}',
+      500: '{blue.500}',
+      600: '{blue.600}',
+      700: '{blue.700}',
+      800: '{blue.800}',
+      900: '{blue.900}',
+      950: '{blue.950}'
+    }
+  },
+  components: {
+    card: {
+      root: {
+        borderRadius: '1.5rem',
+        shadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
+      }
+    }
+  }
+});
 export const appConfig: ApplicationConfig = {
   providers: [
     MessageService,
@@ -38,9 +63,13 @@ export const appConfig: ApplicationConfig = {
     ),
     providePrimeNG({
       theme: {
-        preset: Aura,
+        preset: SgediPreset,
         options: {
-          darkModeSelector: '.dark'
+          darkModeSelector: '.dark',
+          cssLayer: {
+            name: 'primeng',
+            order: 'theme, base, primeng, components, utilities'
+          }
         }
       }
     }),
@@ -51,3 +80,5 @@ export const appConfig: ApplicationConfig = {
     }
   ]
 };
+
+

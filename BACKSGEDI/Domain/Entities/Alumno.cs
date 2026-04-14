@@ -7,5 +7,6 @@ public class Alumno
     public Usuario Usuario { get; set; } = null!;
     public string Matricula { get; set; } = string.Empty;
     public int CarreraId { get; set; }
+    public int SemestreId { get; set; }
     public virtual ICollection<DocumentoAlumno> Documentos { get; set; } = new List<DocumentoAlumno>();
 }
