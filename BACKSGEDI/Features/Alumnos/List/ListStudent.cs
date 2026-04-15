@@ -2,7 +2,9 @@ using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using BACKSGEDI.Infrastructure.Data;
 using BACKSGEDI.Domain.Common;
+using BACKSGEDI.Domain.Constants;
 using BACKSGEDI.Infrastructure.Extensions;
+using System.Security.Claims;
 
 namespace BACKSGEDI.Features.Alumnos.List;
 
@@ -34,14 +36,54 @@ public class ListStudentEndpoint : Endpoint<ListStudentRequest, PagedResponse<Al
     public override void Configure()
     {
         Get("/api/alumnos");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(ListStudentRequest req, CancellationToken ct)
     {
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            await Result.Failure(Error.Unauthorized("Auth.Unauthorized", "No autorizado.")).ToResult().ExecuteAsync(HttpContext);
+            return;
+        }
+
+        var roles = User.Claims
+            .Where(c => c.Type == ClaimTypes.Role || c.Type == "role")
+            .Select(c => c.Value)
+            .ToList();
+
+        var isAdmin = roles.Any(r => string.Equals(r, SystemRoles.Admin, StringComparison.OrdinalIgnoreCase));
+        var isCoordinador = roles.Any(r => string.Equals(r, SystemRoles.Coordinador, StringComparison.OrdinalIgnoreCase));
+        var isJefe = roles.Any(r => string.Equals(r, SystemRoles.JefeDepartamento, StringComparison.OrdinalIgnoreCase));
+
         var pageSize = req.GetSanitizedPageSize(maxPageSize: 50); 
         var skip = (req.Page - 1) * pageSize;
+        
         var query = _db.Alumnos.AsNoTracking().AsQueryable();
+
+        if (!isAdmin)
+        {
+            if (isCoordinador)
+            {
+                var carreraId = await _db.Coordinadores
+                    .Where(c => c.UsuarioId == userId)
+                    .Select(c => c.CarreraId)
+                    .FirstOrDefaultAsync(ct);
+                
+                if (carreraId != 0)
+                    query = query.Where(a => a.CarreraId == carreraId);
+            }
+            else if (isJefe)
+            {
+                var carreraId = await _db.JefesDepartamento
+                    .Where(j => j.UsuarioId == userId)
+                    .Select(j => j.CarreraId)
+                    .FirstOrDefaultAsync(ct);
+                
+                if (carreraId != 0)
+                    query = query.Where(a => a.CarreraId == carreraId);
+            }
+        }
 
         if (!string.IsNullOrWhiteSpace(req.SearchTerm))
         {
@@ -69,7 +111,7 @@ public class ListStudentEndpoint : Endpoint<ListStudentRequest, PagedResponse<Al
                 Name = a.Usuario.Name,
                 Email = a.Usuario.Email,
                 Matricula = a.Matricula,
-                Carrera = "Carrera " + a.CarreraId, 
+                Carrera = _db.Carreras.Where(c => c.Id == a.CarreraId).Select(c => c.Nombre).FirstOrDefault() ?? "N/A",
                 CreatedAt = a.Usuario.CreatedAt
             })
             .ToListAsync(ct);

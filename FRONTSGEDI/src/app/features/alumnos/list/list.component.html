@@ -1,0 +1,94 @@
+<div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Lista de Alumnos</h1>
+            <p class="text-zinc-500 dark:text-zinc-400">Administra y consulta los estudiantes registrados en el sistema.
+            </p>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <p-iconfield>
+                <p-inputicon class="pi pi-search"></p-inputicon>
+                <input pInputText type="text" placeholder="Buscar por nombre o matrícula..." (input)="onSearch($event)"
+                    class="w-full md:w-80 rounded-2xl glass-dark border-white/10" />
+            </p-iconfield>
+            <button pButton icon="pi pi-plus" label="Nuevo Alumno" class="rounded-2xl"></button>
+        </div>
+    </div>
+
+    <div class="rounded-3xl glass-dark border-white/10 overflow-hidden shadow-2xl">
+        <p-table [value]="alumnos()" [lazy]="true" (onLazyLoad)="onLazyLoad($event)" [rows]="10"
+            [totalRecords]="totalRecords()" [loading]="loading()" [paginator]="true" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} alumnos"
+            [rowsPerPageOptions]="[5, 10, 20]" styleClass="p-datatable-sm custom-table">
+
+            <ng-template pTemplate="header">
+                <tr class="!bg-transparent border-b border-white/5">
+                    <th
+                        class="!bg-transparent text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider text-[11px] py-4">
+                        Matrícula</th>
+                    <th
+                        class="!bg-transparent text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider text-[11px] py-4">
+                        Nombre Completo</th>
+                    <th
+                        class="!bg-transparent text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider text-[11px] py-4">
+                        Carrera</th>
+                    <th
+                        class="!bg-transparent text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider text-[11px] py-4">
+                        Email</th>
+                    <th
+                        class="!bg-transparent text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider text-[11px] py-4">
+                        Status</th>
+                    <th class="!bg-transparent py-4"></th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-alumno>
+                <tr class="!bg-transparent hover:!bg-white/5 transition-colors group">
+                    <td class="py-4">
+                        <span class="font-mono text-blue-600 dark:text-blue-400 font-medium">{{ alumno.matricula
+                            }}</span>
+                    </td>
+                    <td class="py-4">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 text-xs font-bold border border-blue-500/20">
+                                {{ alumno.name.substring(0, 1) }}
+                            </div>
+                            <span class="text-zinc-900 dark:text-zinc-200 font-medium">{{ alumno.name }}</span>
+                        </div>
+                    </td>
+                    <td class="py-4">
+                        <p-tag [value]="alumno.carrera" severity="secondary"
+                            styleClass="glass-dark border-white/5 !text-[10px]"></p-tag>
+                    </td>
+                    <td class="py-4 text-zinc-500 dark:text-zinc-400 text-sm">
+                        {{ alumno.email }}
+                    </td>
+                    <td class="py-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]">
+                            </div>
+                            <span class="text-emerald-500 text-xs font-medium">Activo</span>
+                        </div>
+                    </td>
+                    <td class="py-4 text-right">
+                        <button pButton icon="pi pi-ellipsis-v"
+                            class="p-button-text p-button-rounded p-button-secondary opacity-0 group-hover:opacity-100 transition-opacity"></button>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6" class="py-20 text-center">
+                        <div class="flex flex-col items-center gap-3">
+                            <i class="pi pi-users text-4xl text-zinc-700"></i>
+                            <p class="text-zinc-500">No se encontraron alumnos registrados.</p>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

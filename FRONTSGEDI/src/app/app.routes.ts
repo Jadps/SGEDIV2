@@ -28,7 +28,7 @@ export const routes: Routes = [
             {
                 path: 'dashboard/alumnos',
                 title: 'Lista de Alumnos | SGEDI',
-                loadComponent: () => import('./features/dashboard/dashboard').then(m => m.DashboardComponent),
+                loadComponent: () => import('./features/alumnos/list/list.component').then(m => m.AlumnoListComponent),
                 canActivate: [permissionGuard, roleGuard],
                 data: { roles: ['Admin', 'Profesor', 'Coordinador', 'JefeDepartamento', 'AsesorInterno', 'AsesorExterno'] }
             },
