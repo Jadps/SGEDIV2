@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using FastEndpoints;
 using BACKSGEDI.Domain.Common;
+using BACKSGEDI.Domain.Constants;
 using BACKSGEDI.Infrastructure.Extensions;
 
 namespace BACKSGEDI.Features.Catalogs.Modules;
@@ -13,6 +15,7 @@ public class SubModuleDto
     public int Order { get; set; }
     public int ModuleTypeId { get; set; }
     public string? ParentId { get; set; }
+    public List<string> AllowedRoles { get; set; } = [];
     public List<SubModuleDto> SubModules { get; set; } = [];
 }
 
@@ -25,6 +28,7 @@ public class ModuleDto
     public int Order { get; set; }
     public int ModuleTypeId { get; set; }
     public string? ParentId { get; set; }
+    public List<string> AllowedRoles { get; set; } = [];
     public List<SubModuleDto> SubModules { get; set; } = [];
 }
 
@@ -37,8 +41,27 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var modules = new List<ModuleDto>
+        var roleClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value
+                        ?? User.Claims.FirstOrDefault(c => c.Type == "role")?.Value
+                        ?? string.Empty;
+
+        var allModules = GetDefaultModules();
+
+        if (roleClaim.Contains(SystemRoles.Admin, StringComparison.OrdinalIgnoreCase))
         {
+            await Result<List<ModuleDto>>.Success(allModules).ToResult().ExecuteAsync(HttpContext);
+            return;
+        }
+
+        var filteredModules = FilterModules(allModules, roleClaim);
+
+        await Result<List<ModuleDto>>.Success(filteredModules).ToResult().ExecuteAsync(HttpContext);
+    }
+
+    private List<ModuleDto> GetDefaultModules()
+    {
+        return
+        [
             new()
             {
                 Id = "dashboard",
@@ -47,7 +70,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                 Action = "/dashboard",
                 Order = 1,
                 ModuleTypeId = 1,
-                SubModules = []
+                AllowedRoles = [SystemRoles.Alumno, SystemRoles.Profesor, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno]
             },
             new()
             {
@@ -57,6 +80,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                 Action = null,
                 Order = 2,
                 ModuleTypeId = 1,
+                AllowedRoles = [SystemRoles.Profesor, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno],
                 SubModules =
                 [
                     new SubModuleDto
@@ -67,12 +91,64 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                         Action = "/dashboard/alumnos",
                         Order = 1,
                         ModuleTypeId = 2,
-                        SubModules = []
+                        AllowedRoles = [SystemRoles.Profesor, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno]
                     }
                 ]
             }
-        };
+        ];
+    }
 
-        await Result<List<ModuleDto>>.Success(modules).ToResult().ExecuteAsync(HttpContext);
+    private List<ModuleDto> FilterModules(List<ModuleDto> modules, string role)
+    {
+        var filtered = new List<ModuleDto>();
+
+        foreach (var m in modules)
+        {
+            if (m.AllowedRoles.Count == 0 || m.AllowedRoles.Contains(role, StringComparer.OrdinalIgnoreCase))
+            {
+                var mClone = new ModuleDto
+                {
+                    Id = m.Id,
+                    Description = m.Description,
+                    Icon = m.Icon,
+                    Action = m.Action,
+                    Order = m.Order,
+                    ModuleTypeId = m.ModuleTypeId,
+                    ParentId = m.ParentId,
+                    AllowedRoles = m.AllowedRoles,
+                    SubModules = FilterSubModules(m.SubModules, role)
+                };
+                filtered.Add(mClone);
+            }
+        }
+
+        return filtered;
+    }
+
+    private List<SubModuleDto> FilterSubModules(List<SubModuleDto> subModules, string role)
+    {
+        var filtered = new List<SubModuleDto>();
+
+        foreach (var sm in subModules)
+        {
+            if (sm.AllowedRoles.Count == 0 || sm.AllowedRoles.Contains(role, StringComparer.OrdinalIgnoreCase))
+            {
+                var smClone = new SubModuleDto
+                {
+                    Id = sm.Id,
+                    Description = sm.Description,
+                    Icon = sm.Icon,
+                    Action = sm.Action,
+                    Order = sm.Order,
+                    ModuleTypeId = sm.ModuleTypeId,
+                    ParentId = sm.ParentId,
+                    AllowedRoles = sm.AllowedRoles,
+                    SubModules = FilterSubModules(sm.SubModules, role)
+                };
+                filtered.Add(smClone);
+            }
+        }
+
+        return filtered;
     }
 }

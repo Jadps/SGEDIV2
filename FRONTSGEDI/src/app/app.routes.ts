@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { permissionGuard } from './core/guards/permission.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
     {
@@ -20,7 +22,15 @@ export const routes: Routes = [
             {
                 path: 'dashboard',
                 title: 'Dashboard | SGEDI',
-                loadComponent: () => import('./features/dashboard/dashboard').then(m => m.DashboardComponent)
+                loadComponent: () => import('./features/dashboard/dashboard').then(m => m.DashboardComponent),
+                canActivate: [permissionGuard]
+            },
+            {
+                path: 'dashboard/alumnos',
+                title: 'Lista de Alumnos | SGEDI',
+                loadComponent: () => import('./features/dashboard/dashboard').then(m => m.DashboardComponent),
+                canActivate: [permissionGuard, roleGuard],
+                data: { roles: ['Admin', 'Profesor', 'Coordinador', 'JefeDepartamento', 'AsesorInterno', 'AsesorExterno'] }
             },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
