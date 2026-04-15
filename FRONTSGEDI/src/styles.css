@@ -1,9 +1,10 @@
-@layer theme, base, primeng, components, utilities;
-
 @import "tailwindcss";
+@source "../**/*.{html,ts}";
 @import "primeicons/primeicons.css";
 
 @plugin "tailwindcss-primeui";
+
+@layer theme, base, primeng, components, utilities;
 
 @custom-variant dark (&:is(.dark *));
 
@@ -11,9 +12,6 @@
   body {
     @apply bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 antialiased transition-colors duration-300;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Outfit', sans-serif;
   }
 }
 

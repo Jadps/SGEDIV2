@@ -3,8 +3,8 @@ import { provideRouter, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch, withXsrfConfiguration } from '@angular/common/http';
 import { providePrimeNG } from 'primeng/config';
 import { MessageService } from 'primeng/api';
-import Aura from '@primeng/themes/aura';
-import { definePreset } from '@primeng/themes';
+import Aura from '@primeuix/themes/aura';
+import { definePreset } from '@primeuix/themes';
 import { firstValueFrom } from 'rxjs';
 
 import { routes } from './app.routes';
