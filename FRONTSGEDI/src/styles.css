@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@source "../**/*.{html,ts}";
+@source "../src/**/*.{html,ts}";
 @import "primeicons/primeicons.css";
 
 @plugin "tailwindcss-primeui";
