@@ -8,18 +8,20 @@
         </div>
         <div class="flex flex-col">
             <span class="font-bold text-lg tracking-tight text-zinc-900 dark:text-white leading-none">
-                Mi SaaS <span class="text-blue-600 dark:text-blue-500">MVP</span>
+                SGEDI <span class="text-blue-600 dark:text-blue-500">v2</span>
             </span>
-            <span class="text-[9px] font-bold text-zinc-500 dark:text-zinc-500 uppercase tracking-widest mt-1">Enterprise Console</span>
+            <span class="text-[9px] font-bold text-zinc-500 dark:text-zinc-500 uppercase tracking-widest mt-1">Sistema
+                de
+                Gestión de Estudiantes en la modalidad dual del <span
+                    class="text-blue-600 dark:text-blue-500">ITTLA</span></span>
         </div>
     </div>
 
     <div class="flex items-center gap-8">
         @if (authService.currentUser(); as user) {
 
-        <p-button [icon]="layoutService.isDarkMode() ? 'pi pi-moon' : 'pi pi-sun'" 
-            [rounded]="true" [text]="true" severity="secondary" (onClick)="toggleDarkMode()"
-            pTooltip="Cambiar Tema" tooltipPosition="bottom"
+        <p-button [icon]="layoutService.isDarkMode() ? 'pi pi-moon' : 'pi pi-sun'" [rounded]="true" [text]="true"
+            severity="secondary" (onClick)="toggleDarkMode()" pTooltip="Cambiar Tema" tooltipPosition="bottom"
             styleClass="navbar-btn navbar-btn-theme">
         </p-button>
 
@@ -28,10 +30,13 @@
         <div class="flex items-center gap-4 pl-2">
             <div class="user-profile-badge group">
                 <div class="text-right hidden sm:block">
-                    <p class="text-[13px] font-bold text-zinc-900 dark:text-zinc-100 leading-none mb-1.5">{{ user.fullName }}</p>
+                    <p class="text-[13px] font-bold text-zinc-900 dark:text-zinc-100 leading-none mb-1.5">{{
+                        user.fullName }}</p>
                     <div class="flex items-center justify-end gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        <p class="text-[9px] font-bold text-zinc-600 dark:text-zinc-500 uppercase tracking-widest leading-none">{{
+                        <p
+                            class="text-[9px] font-bold text-zinc-600 dark:text-zinc-500 uppercase tracking-widest leading-none">
+                            {{
                             user.roles[0]?.name }}</p>
                     </div>
                 </div>
@@ -42,8 +47,7 @@
             </div>
 
             <p-button icon="pi pi-sign-out" [rounded]="true" [text]="true" severity="secondary" (onClick)="logout()"
-                pTooltip="Finalizar Sesión" tooltipPosition="bottom"
-                styleClass="navbar-btn navbar-btn-logout">
+                pTooltip="Finalizar Sesión" tooltipPosition="bottom" styleClass="navbar-btn navbar-btn-logout">
             </p-button>
         </div>
         }

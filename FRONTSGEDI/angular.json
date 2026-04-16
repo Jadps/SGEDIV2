@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "FRONTMVP": {
+    "FRONTSGEDI": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -66,12 +66,15 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "port": 4201
+          },
           "configurations": {
             "production": {
-              "buildTarget": "FRONTMVP:build:production"
+              "buildTarget": "FRONTSGEDI:build:production"
             },
             "development": {
-              "buildTarget": "FRONTMVP:build:development"
+              "buildTarget": "FRONTSGEDI:build:development"
             }
           },
           "defaultConfiguration": "development"

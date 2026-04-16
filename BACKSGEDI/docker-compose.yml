@@ -1,79 +1,28 @@
 services:
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: sgedi-api
-    restart: unless-stopped
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-    env_file: .env
-    depends_on:
-      - db-postgres
-    volumes:
-      - dp-keys:/home/app/.aspnet/DataProtection-Keys
-      - uploads-data:/app/Uploads
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.1'
-          memory: 128M
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/api/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
   db-postgres:
     image: postgres:16
-    container_name: sgedi-db
+    container_name: sgedi-db-local
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - "127.0.0.1:5432:5432"
+      - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata-local:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: sgedi-pgadmin
+    container_name: sgedi-pgadmin-local
     restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "5050:80"
     depends_on:
       - db-postgres
 
-  nginx-proxy:
-    image: 'jc21/nginx-proxy-manager:latest'
-    container_name: sgedi-proxy
-    restart: unless-stopped
-    ports:
-      - '80:80'
-      - '81:81'
-      - '443:443'
-    volumes:
-      - ./data:/data
-      - ./letsencrypt:/etc/letsencrypt
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
 volumes:
-  pgdata:
-  dp-keys:
-  uploads-data:
+  pgdata-local:

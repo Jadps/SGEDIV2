@@ -52,7 +52,7 @@ builder.Services.AddOptions<AdminOptions>()
 builder.Services.AddScoped<IStorageService, LocalFileStorageService>();
 
 var appOptions = builder.Configuration.GetSection(AppOptions.SectionName).Get<AppOptions>() 
-                 ?? new AppOptions { FrontendUrl = "http://localhost:4200" };
+                 ?? new AppOptions { FrontendUrl = "http://localhost:4201" };
 
 builder.Services.AddCors(options =>
 {
