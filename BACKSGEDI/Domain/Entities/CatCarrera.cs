@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BACKSGEDI.Domain.Entities;
 
-[Table("carreras")]
+[Table("Carreras")]
 public class CatCarrera
 {
     public int Id { get; set; }

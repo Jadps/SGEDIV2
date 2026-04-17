@@ -39,7 +39,9 @@ public class RefreshTokenEndpoint : EndpointWithoutRequest<object>
             return;
         }
 
-        var user = await _db.Usuarios.FirstOrDefaultAsync(u => u.RefreshToken == oldRefreshToken, ct);
+        var user = await _db.Usuarios
+            .Include(u => u.Roles)
+            .FirstOrDefaultAsync(u => u.RefreshToken == oldRefreshToken, ct);
 
         if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
         {
@@ -57,7 +59,10 @@ public class RefreshTokenEndpoint : EndpointWithoutRequest<object>
         {
             o.SigningKey = _jwtOptions.SecretKey;
             o.ExpireAt = DateTime.UtcNow.AddMinutes(_jwtOptions.ExpirationInMinutes);
-            o.User.Roles.Add(user.Role);
+            foreach(var ur in user.Roles)
+            {
+                o.User.Roles.Add(ur.Role);
+            }
             o.User.Claims.Add((ClaimTypes.NameIdentifier, user.Id.ToString()));
             o.User.Claims.Add((ClaimTypes.Name, user.Name));
             o.User.Claims.Add((ClaimTypes.Email, user.Email));

@@ -125,7 +125,7 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("carreras");
+                    b.ToTable("Carreras");
                 });
 
             modelBuilder.Entity("BACKSGEDI.Domain.Entities.Coordinador", b =>
@@ -232,16 +232,32 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.Property<DateTime?>("RefreshTokenExpiryTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
                     b.ToTable("Usuarios");
+                });
+
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.UsuarioRol", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("UsuariosRoles");
                 });
 
             modelBuilder.Entity("BACKSGEDI.Domain.Entities.Alumno", b =>
@@ -304,6 +320,17 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.UsuarioRol", b =>
+                {
+                    b.HasOne("BACKSGEDI.Domain.Entities.Usuario", "Usuario")
+                        .WithMany("Roles")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("BACKSGEDI.Domain.Entities.Alumno", b =>
                 {
                     b.Navigation("Documentos");
@@ -316,6 +343,8 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.Navigation("Coordinador");
 
                     b.Navigation("JefeDepartamento");
+
+                    b.Navigation("Roles");
                 });
 #pragma warning restore 612, 618
         }

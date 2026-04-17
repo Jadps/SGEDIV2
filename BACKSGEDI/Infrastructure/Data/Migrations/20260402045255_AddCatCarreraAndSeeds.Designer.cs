@@ -125,7 +125,7 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("carreras");
+                    b.ToTable("Carreras");
 
                     b.HasData(
                         new

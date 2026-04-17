@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BACKSGEDI.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260402053036_AddRefreshTokenFields")]
-    partial class AddRefreshTokenFields
+    [Migration("20260417000654_AddMultiRolesRelational")]
+    partial class AddMultiRolesRelational
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,6 +37,9 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.Property<string>("Matricula")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("SemestreId")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("UsuarioId")
                         .HasColumnType("uuid");
@@ -126,78 +129,28 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Carreras");
+                });
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Clave = "IGE",
-                            IsDeleted = false,
-                            Nombre = "Ingeniería en Gestión Empresarial"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Clave = "ITIC",
-                            IsDeleted = false,
-                            Nombre = "Ingeniería en Tecnologías de la Información y Comunicaciones"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Clave = "II",
-                            IsDeleted = false,
-                            Nombre = "Ingeniería Industrial"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Clave = "IA",
-                            IsDeleted = false,
-                            Nombre = "Ingeniería en Administración"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Clave = "IDA",
-                            IsDeleted = false,
-                            Nombre = "Ingeniería en Desarrollo de Aplicaciones"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Clave = "IE",
-                            IsDeleted = false,
-                            Nombre = "Ingeniería Eléctrica"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Clave = "IEM",
-                            IsDeleted = false,
-                            Nombre = "Ingeniería Electromecánica"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Clave = "IEL",
-                            IsDeleted = false,
-                            Nombre = "Ingeniería Electrónica"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Clave = "IM",
-                            IsDeleted = false,
-                            Nombre = "Ingeniería Mecánica"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Clave = "IMT",
-                            IsDeleted = false,
-                            Nombre = "Ingeniería Mecatrónica"
-                        });
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.Coordinador", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("CarreraId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarreraId");
+
+                    b.HasIndex("UsuarioId")
+                        .IsUnique();
+
+                    b.ToTable("Coordinadores");
                 });
 
             modelBuilder.Entity("BACKSGEDI.Domain.Entities.DocumentoAlumno", b =>
@@ -230,6 +183,28 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.ToTable("DocumentosAlumnos");
                 });
 
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.JefeDepartamento", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("CarreraId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarreraId");
+
+                    b.HasIndex("UsuarioId")
+                        .IsUnique();
+
+                    b.ToTable("JefesDepartamento");
+                });
+
             modelBuilder.Entity("BACKSGEDI.Domain.Entities.Usuario", b =>
                 {
                     b.Property<Guid>("Id")
@@ -242,6 +217,9 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -257,16 +235,32 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.Property<DateTime?>("RefreshTokenExpiryTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
                     b.ToTable("Usuarios");
+                });
+
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.UsuarioRol", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("UsuariosRoles");
                 });
 
             modelBuilder.Entity("BACKSGEDI.Domain.Entities.Alumno", b =>
@@ -276,6 +270,25 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                         .HasForeignKey("BACKSGEDI.Domain.Entities.Alumno", "UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.Coordinador", b =>
+                {
+                    b.HasOne("BACKSGEDI.Domain.Entities.CatCarrera", "Carrera")
+                        .WithMany()
+                        .HasForeignKey("CarreraId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BACKSGEDI.Domain.Entities.Usuario", "Usuario")
+                        .WithOne("Coordinador")
+                        .HasForeignKey("BACKSGEDI.Domain.Entities.Coordinador", "UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Carrera");
 
                     b.Navigation("Usuario");
                 });
@@ -291,6 +304,36 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.Navigation("Alumno");
                 });
 
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.JefeDepartamento", b =>
+                {
+                    b.HasOne("BACKSGEDI.Domain.Entities.CatCarrera", "Carrera")
+                        .WithMany()
+                        .HasForeignKey("CarreraId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BACKSGEDI.Domain.Entities.Usuario", "Usuario")
+                        .WithOne("JefeDepartamento")
+                        .HasForeignKey("BACKSGEDI.Domain.Entities.JefeDepartamento", "UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Carrera");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.UsuarioRol", b =>
+                {
+                    b.HasOne("BACKSGEDI.Domain.Entities.Usuario", "Usuario")
+                        .WithMany("Roles")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("BACKSGEDI.Domain.Entities.Alumno", b =>
                 {
                     b.Navigation("Documentos");
@@ -299,6 +342,12 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
             modelBuilder.Entity("BACKSGEDI.Domain.Entities.Usuario", b =>
                 {
                     b.Navigation("Alumno");
+
+                    b.Navigation("Coordinador");
+
+                    b.Navigation("JefeDepartamento");
+
+                    b.Navigation("Roles");
                 });
 #pragma warning restore 612, 618
         }

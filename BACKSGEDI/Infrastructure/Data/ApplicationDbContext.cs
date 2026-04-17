@@ -10,6 +10,7 @@ public class ApplicationDbContext : DbContext
     }
 
     public DbSet<Usuario> Usuarios { get; set; } = null!;
+    public DbSet<UsuarioRol> UsuariosRoles { get; set; } = null!;
     public DbSet<Alumno> Alumnos { get; set; } = null!;
     public DbSet<CatCarrera> Carreras { get; set; } = null!;
     public DbSet<DocumentoAlumno> DocumentosAlumnos { get; set; } = null!;
@@ -20,6 +21,12 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Usuario>()
+            .HasMany(u => u.Roles)
+            .WithOne(ur => ur.Usuario)
+            .HasForeignKey(ur => ur.UsuarioId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Usuario>()
             .HasOne(u => u.Alumno)

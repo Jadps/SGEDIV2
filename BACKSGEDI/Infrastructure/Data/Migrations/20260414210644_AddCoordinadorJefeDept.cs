@@ -14,52 +14,52 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DeleteData(
-                table: "carreras",
+                table: "Carreras",
                 keyColumn: "Id",
                 keyValue: 1);
 
             migrationBuilder.DeleteData(
-                table: "carreras",
+                table: "Carreras",
                 keyColumn: "Id",
                 keyValue: 2);
 
             migrationBuilder.DeleteData(
-                table: "carreras",
+                table: "Carreras",
                 keyColumn: "Id",
                 keyValue: 3);
 
             migrationBuilder.DeleteData(
-                table: "carreras",
+                table: "Carreras",
                 keyColumn: "Id",
                 keyValue: 4);
 
             migrationBuilder.DeleteData(
-                table: "carreras",
+                table: "Carreras",
                 keyColumn: "Id",
                 keyValue: 5);
 
             migrationBuilder.DeleteData(
-                table: "carreras",
+                table: "Carreras",
                 keyColumn: "Id",
                 keyValue: 6);
 
             migrationBuilder.DeleteData(
-                table: "carreras",
+                table: "Carreras",
                 keyColumn: "Id",
                 keyValue: 7);
 
             migrationBuilder.DeleteData(
-                table: "carreras",
+                table: "Carreras",
                 keyColumn: "Id",
                 keyValue: 8);
 
             migrationBuilder.DeleteData(
-                table: "carreras",
+                table: "Carreras",
                 keyColumn: "Id",
                 keyValue: 9);
 
             migrationBuilder.DeleteData(
-                table: "carreras",
+                table: "Carreras",
                 keyColumn: "Id",
                 keyValue: 10);
 
@@ -88,9 +88,9 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Coordinadores_carreras_CarreraId",
+                        name: "FK_Coordinadores_Carreras_CarreraId",
                         column: x => x.CarreraId,
-                        principalTable: "carreras",
+                        principalTable: "Carreras",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -113,9 +113,9 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_JefesDepartamento_carreras_CarreraId",
+                        name: "FK_JefesDepartamento_Carreras_CarreraId",
                         column: x => x.CarreraId,
-                        principalTable: "carreras",
+                        principalTable: "Carreras",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -157,7 +157,7 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                 table: "Usuarios");
 
             migrationBuilder.InsertData(
-                table: "carreras",
+                table: "Carreras",
                 columns: new[] { "Id", "Clave", "IsDeleted", "Nombre" },
                 values: new object[,]
                 {

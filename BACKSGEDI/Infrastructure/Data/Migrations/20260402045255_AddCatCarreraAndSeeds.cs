@@ -14,7 +14,7 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "carreras",
+                name: "Carreras",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -25,11 +25,11 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_carreras", x => x.Id);
+                    table.PrimaryKey("PK_Carreras", x => x.Id);
                 });
 
             migrationBuilder.InsertData(
-                table: "carreras",
+                table: "Carreras",
                 columns: new[] { "Id", "Clave", "IsDeleted", "Nombre" },
                 values: new object[,]
                 {
@@ -50,7 +50,7 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "carreras");
+                name: "Carreras");
         }
     }
 }

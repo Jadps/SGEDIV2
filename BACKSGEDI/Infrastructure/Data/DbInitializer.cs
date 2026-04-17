@@ -24,7 +24,10 @@ public static class DbInitializer
                     Name = "Administrador",
                     Email = adminConfig.Mail.Trim(),
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminConfig.Pass.Trim()),
-                    Role = SystemRoles.Admin,
+                    Roles = new List<UsuarioRol> 
+                    { 
+                        new UsuarioRol { Role = SystemRoles.Admin } 
+                    },
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -67,7 +70,10 @@ public static class DbInitializer
                     Name = $"Coordinador {carrera.Clave}",
                     Email = emailCoord,
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(passwordStr),
-                    Role = SystemRoles.Coordinador,
+                    Roles = new List<UsuarioRol>
+                    {
+                        new UsuarioRol { Role = SystemRoles.Coordinador }
+                    },
                     CreatedAt = DateTime.UtcNow
                 };
 

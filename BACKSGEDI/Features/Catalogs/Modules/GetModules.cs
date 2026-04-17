@@ -41,19 +41,20 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var roleClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value
-                        ?? User.Claims.FirstOrDefault(c => c.Type == "role")?.Value
-                        ?? string.Empty;
+        var roleClaims = User.Claims
+            .Where(c => c.Type == ClaimTypes.Role || c.Type == "role")
+            .Select(c => c.Value)
+            .ToList();
 
         var allModules = GetDefaultModules();
 
-        if (roleClaim.Contains(SystemRoles.Admin, StringComparison.OrdinalIgnoreCase))
+        if (roleClaims.Any(r => r.Contains(SystemRoles.Admin, StringComparison.OrdinalIgnoreCase)))
         {
             await Result<List<ModuleDto>>.Success(allModules).ToResult().ExecuteAsync(HttpContext);
             return;
         }
 
-        var filteredModules = FilterModules(allModules, roleClaim);
+        var filteredModules = FilterModules(allModules, roleClaims);
 
         await Result<List<ModuleDto>>.Success(filteredModules).ToResult().ExecuteAsync(HttpContext);
     }
@@ -98,13 +99,13 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
         ];
     }
 
-    private List<ModuleDto> FilterModules(List<ModuleDto> modules, string role)
+    private List<ModuleDto> FilterModules(List<ModuleDto> modules, List<string> roles)
     {
         var filtered = new List<ModuleDto>();
 
         foreach (var m in modules)
         {
-            if (m.AllowedRoles.Count == 0 || m.AllowedRoles.Contains(role, StringComparer.OrdinalIgnoreCase))
+            if (m.AllowedRoles.Count == 0 || m.AllowedRoles.Intersect(roles, StringComparer.OrdinalIgnoreCase).Any())
             {
                 var mClone = new ModuleDto
                 {
@@ -116,7 +117,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                     ModuleTypeId = m.ModuleTypeId,
                     ParentId = m.ParentId,
                     AllowedRoles = m.AllowedRoles,
-                    SubModules = FilterSubModules(m.SubModules, role)
+                    SubModules = FilterSubModules(m.SubModules, roles)
                 };
                 filtered.Add(mClone);
             }
@@ -125,13 +126,13 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
         return filtered;
     }
 
-    private List<SubModuleDto> FilterSubModules(List<SubModuleDto> subModules, string role)
+    private List<SubModuleDto> FilterSubModules(List<SubModuleDto> subModules, List<string> roles)
     {
         var filtered = new List<SubModuleDto>();
 
         foreach (var sm in subModules)
         {
-            if (sm.AllowedRoles.Count == 0 || sm.AllowedRoles.Contains(role, StringComparer.OrdinalIgnoreCase))
+            if (sm.AllowedRoles.Count == 0 || sm.AllowedRoles.Intersect(roles, StringComparer.OrdinalIgnoreCase).Any())
             {
                 var smClone = new SubModuleDto
                 {
@@ -143,7 +144,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                     ModuleTypeId = sm.ModuleTypeId,
                     ParentId = sm.ParentId,
                     AllowedRoles = sm.AllowedRoles,
-                    SubModules = FilterSubModules(sm.SubModules, role)
+                    SubModules = FilterSubModules(sm.SubModules, roles)
                 };
                 filtered.Add(smClone);
             }

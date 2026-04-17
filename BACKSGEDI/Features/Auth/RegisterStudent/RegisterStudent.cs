@@ -102,7 +102,10 @@ public class RegisterStudentEndpoint : FastEndpoints.Endpoint<RegisterStudentReq
             Name         = req.Name,
             Email        = req.Email,
             PasswordHash = passwordHash,
-            Role         = "Alumno"
+            Roles        = new List<UsuarioRol>
+            {
+                new UsuarioRol { Role = "Alumno" }
+            }
         };
 
         var alumno = new Alumno

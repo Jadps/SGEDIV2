@@ -34,9 +34,10 @@ public class GetMeEndpoint : EndpointWithoutRequest<MeResponse>
         var idClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
         var nameClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? string.Empty;
         var emailClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value ?? string.Empty;
-        var roleClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value
-                        ?? User.Claims.FirstOrDefault(c => c.Type == "role")?.Value
-                        ?? string.Empty;
+        var roleClaims = User.Claims
+            .Where(c => c.Type == ClaimTypes.Role || c.Type == "role")
+            .Select(c => c.Value)
+            .ToList();
 
         if (string.IsNullOrEmpty(idClaim) || !Guid.TryParse(idClaim, out var userId))
         {
@@ -57,7 +58,7 @@ public class GetMeEndpoint : EndpointWithoutRequest<MeResponse>
             FirstName = firstName,
             LastName = lastName,
             FullName = nameClaim,
-            Roles = [new RoleResponseDto { Id = roleClaim, Name = roleClaim }],
+            Roles = roleClaims.Select(r => new RoleResponseDto { Id = r, Name = r }).ToList(),
             CatStatusAccountId = 1
         };
 
