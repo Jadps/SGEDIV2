@@ -50,7 +50,7 @@ public class RegisterStudentValidator : Validator<RegisterStudentRequest>
 
     private bool IsValidPdfAndSize(IFormFile file)
     {
-        var isPdf = file.FileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase) || 
+        var isPdf = file.FileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase) ||
                     file.ContentType == "application/pdf";
         return isPdf && file.Length <= MaxFileSize;
     }
@@ -77,59 +77,67 @@ public class RegisterStudentEndpoint : FastEndpoints.Endpoint<RegisterStudentReq
     public override async Task HandleAsync(RegisterStudentRequest req, CancellationToken ct)
     {
         var result = await RegisterAsync(req, ct);
-        
         await result.ToResult().ExecuteAsync(HttpContext);
     }
 
     private async Task<Result> RegisterAsync(RegisterStudentRequest req, CancellationToken ct)
     {
-        var emailExists = await _db.Usuarios.AnyAsync(u => u.Email == req.Email, ct);
+        var emailExists     = await _db.Usuarios.AnyAsync(u => u.Email == req.Email, ct);
         var matriculaExists = await _db.Alumnos.AnyAsync(a => a.Matricula == req.Matricula, ct);
-        
+
         if (emailExists || matriculaExists)
         {
-            return Result.Failure(Error.Conflict("Student.AlreadyExists", "El email o matrícula ya se encuentran registrados."));
+            return Result.Failure(Error.Conflict("Student.AlreadyExists",
+                "El email o matrícula ya se encuentran registrados."));
         }
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(req.Password);
 
+        var userId   = Guid.NewGuid();
+        var alumnoId = Guid.NewGuid();
+
         var user = new Usuario
         {
-            Name = req.Name,
-            Email = req.Email,
+            Id           = userId,
+            Name         = req.Name,
+            Email        = req.Email,
             PasswordHash = passwordHash,
-            Role = "Alumno"
+            Role         = "Alumno"
         };
 
         var alumno = new Alumno
         {
-            Usuario = user,
-            Matricula = req.Matricula,
-            CarreraId = req.CarreraId,
+            Id         = alumnoId,
+            UsuarioId  = userId,
+            Matricula  = req.Matricula,
+            CarreraId  = req.CarreraId,
             SemestreId = req.SemestreId
         };
 
-        try 
+        var userIdStr = userId.ToString();
+
+        var semestreActual = SemestreHelper.GetSemestreActual();
+
+        try
         {
-            var userIdStr = user.Id.ToString();
-            var semestreActual = "2026-1";
-
             var pathHorario = await _storageService.UploadFileAsync(req.HorarioFile, userIdStr, "Horarios", ct);
-            var pathAnexo   = await _storageService.UploadFileAsync(req.Anexo1File, userIdStr, "Anexos", ct);
-            var pathKardex  = await _storageService.UploadFileAsync(req.KardexFile, userIdStr, "Kardex", ct);
+            var pathAnexo   = await _storageService.UploadFileAsync(req.Anexo1File,  userIdStr, "Anexos",   ct);
+            var pathKardex  = await _storageService.UploadFileAsync(req.KardexFile,  userIdStr, "Kardex",   ct);
 
-            alumno.Documentos.Add(new DocumentoAlumno { TipoDocumento = TipoDocumento.Horario, RutaArchivo = pathHorario, Semestre = semestreActual });
-            alumno.Documentos.Add(new DocumentoAlumno { TipoDocumento = TipoDocumento.Anexo1, RutaArchivo = pathAnexo, Semestre = semestreActual });
-            alumno.Documentos.Add(new DocumentoAlumno { TipoDocumento = TipoDocumento.Kardex, RutaArchivo = pathKardex, Semestre = semestreActual });
+            alumno.Documentos.Add(new DocumentoAlumno { AlumnoId = alumnoId, TipoDocumento = TipoDocumento.Horario, RutaArchivo = pathHorario, Semestre = semestreActual });
+            alumno.Documentos.Add(new DocumentoAlumno { AlumnoId = alumnoId, TipoDocumento = TipoDocumento.Anexo1,  RutaArchivo = pathAnexo,   Semestre = semestreActual });
+            alumno.Documentos.Add(new DocumentoAlumno { AlumnoId = alumnoId, TipoDocumento = TipoDocumento.Kardex,  RutaArchivo = pathKardex,  Semestre = semestreActual });
+
+            await _db.Usuarios.AddAsync(user, ct);
+            await _db.Alumnos.AddAsync(alumno, ct);
+            await _db.SaveChangesAsync(ct);
         }
         catch (Exception ex)
         {
-            return Result.Failure(Error.Failure("Storage.UploadError", $"Error al subir documentos: {ex.Message}"));
+            _storageService.DeleteFolder(userIdStr);
+            return Result.Failure(Error.Failure("Registration.Failed",
+                $"Error al registrar el alumno: {ex.Message}"));
         }
-
-        await _db.Usuarios.AddAsync(user, ct);
-        await _db.Alumnos.AddAsync(alumno, ct);
-        await _db.SaveChangesAsync(ct);
 
         return Result.Success();
     }

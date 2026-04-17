@@ -9,6 +9,8 @@ public class LocalFileStorageService : IStorageService
     private readonly ILogger<LocalFileStorageService> _logger;
     private readonly string _basePath;
 
+    public string BasePath => _basePath;
+
     public LocalFileStorageService(ILogger<LocalFileStorageService> logger, IConfiguration configuration)
     {
         _logger = logger;
@@ -40,5 +42,16 @@ public class LocalFileStorageService : IStorageService
         _logger.LogInformation("Archivo {FileName} guardado exitosamente en {Path}", file.FileName, filePath);
 
         return dbRelativePath;
+    }
+
+    public void DeleteFolder(string userId)
+    {
+        var folderPath = Path.Combine(Directory.GetCurrentDirectory(), _basePath, "Students", userId);
+
+        if (Directory.Exists(folderPath))
+        {
+            Directory.Delete(folderPath, recursive: true);
+            _logger.LogWarning("Rollback: carpeta {Folder} eliminada del disco.", folderPath);
+        }
     }
 }

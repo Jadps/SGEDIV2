@@ -12,7 +12,7 @@ services:
       - db-postgres
     volumes:
       - dp-keys:/home/app/.aspnet/DataProtection-Keys
-      - uploads-data:/app/Uploads
+      - /opt/sgedi/uploads:/app/Uploads
     deploy:
       resources:
         limits:
@@ -76,4 +76,3 @@ services:
 volumes:
   pgdata:
   dp-keys:
-  uploads-data:
