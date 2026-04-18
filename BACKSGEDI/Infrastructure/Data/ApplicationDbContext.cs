@@ -1,5 +1,7 @@
 using BACKSGEDI.Domain.Entities;
+using BACKSGEDI.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace BACKSGEDI.Infrastructure.Data;
 
@@ -74,5 +76,19 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.ChangedColumns).HasColumnType("jsonb");
             entity.Property(e => e.PrimaryKey).HasColumnType("jsonb");
         });
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (typeof(ISoftDelete).IsAssignableFrom(entityType.ClrType))
+            {
+                var parameter = Expression.Parameter(entityType.ClrType, "e");
+                var propertyMethodInfo = typeof(ISoftDelete).GetProperty(nameof(ISoftDelete.IsDeleted));
+                var isDeletedProperty = Expression.Property(parameter, propertyMethodInfo!);
+                var compareExpression = Expression.Equal(isDeletedProperty, Expression.Constant(false));
+                var lambda = Expression.Lambda(compareExpression, parameter);
+
+                modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
+            }
+        }
     }
 }

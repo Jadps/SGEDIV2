@@ -49,6 +49,12 @@ public class RefreshTokenEndpoint : EndpointWithoutRequest<object>
             return;
         }
 
+        if (!user.IsActive)
+        {
+            await Result.Failure(Error.Unauthorized("Auth.AccountInactive", "Tu cuenta está inactiva. Contacta a un administrador.")).ToResult().ExecuteAsync(HttpContext);
+            return;
+        }
+
         var newRefreshToken = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(64));
         user.RefreshToken = newRefreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
