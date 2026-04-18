@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, catchError, map, Observable, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { API_ENDPOINTS } from '../constants/api-endpoints';
 import { UserDto } from '../models/user.dto';
@@ -30,9 +30,9 @@ export class AuthService {
             switchMap(() => {
                 return this.getProfile();
             }),
-            catchError(() => {
+            catchError((err) => {
                 this.clearSession();
-                return of(false);
+                return throwError(() => err);
             })
         );
     }
