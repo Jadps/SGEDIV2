@@ -41,6 +41,7 @@ public class ListStudentEndpoint : Endpoint<ListStudentRequest, PagedResponse<Al
     public override void Configure()
     {
         Get("/api/alumnos");
+        Roles(SystemRoles.Admin, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.Profesor, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno);
     }
 
     public override async Task HandleAsync(ListStudentRequest req, CancellationToken ct)
@@ -153,10 +154,8 @@ public class ListStudentEndpoint : Endpoint<ListStudentRequest, PagedResponse<Al
                 IsMyCareer = allowedCarreraIds.Contains(a.CarreraId),
                 IsMyStudent = allowedStudentIds.Contains(a.Id),
                 IsMyAdvisory = allowedStudentIds.Contains(a.Id),
-                StatusText = a.Usuario.IsActive ? "Activo" : "Cuenta Inactiva",
-                StatusSeverity = (!a.Usuario.IsActive && allowedCarreraIds.Contains(a.CarreraId))
-                    ? "danger"
-                    : (!a.Usuario.IsActive ? "secondary" : "success")
+                StatusText = StatusHelper.GetText(a.Usuario.IsActive),
+                StatusSeverity = StatusHelper.GetSeverity(a.Usuario.IsActive, allowedCarreraIds.Contains(a.CarreraId))
             })
             .ToListAsync(ct);
 

@@ -48,13 +48,18 @@
                         <span class="font-mono text-blue-600 dark:text-blue-400 font-medium">{{ alumno.matricula
                             }}</span>
                     </td>
-                    <td class="py-4">
-                        <div class="flex items-center gap-3">
+                    <td class="py-4 cursor-pointer" (click)="openDetail(alumno.id)">
+                        <div class="flex items-center gap-3 group/name">
                             <div
                                 class="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 text-xs font-bold border border-blue-500/20">
                                 {{ alumno.name.substring(0, 1) }}
                             </div>
-                            <span class="text-zinc-900 dark:text-zinc-200 font-medium">{{ alumno.name }}</span>
+                            <span
+                                class="text-zinc-900 dark:text-zinc-200 font-medium group-hover/name:text-blue-400 transition-colors">
+                                {{ alumno.name }}
+                            </span>
+                            <i
+                                class="pi pi-arrow-up-right text-[10px] text-zinc-500 opacity-0 group-hover/name:opacity-100 transition-opacity"></i>
                         </div>
                     </td>
                     <td class="py-4">
@@ -65,15 +70,7 @@
                         {{ alumno.email }}
                     </td>
                     <td class="py-4">
-                        <div class="flex items-center gap-2">
-                            <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]">
-                            </div>
-                            <span class="text-emerald-500 text-xs font-medium">Activo</span>
-                        </div>
-                    </td>
-                    <td class="py-4 text-right">
-                        <button pButton icon="pi pi-ellipsis-v"
-                            class="p-button-text p-button-rounded p-button-secondary opacity-0 group-hover:opacity-100 transition-opacity"></button>
+                        <app-status-badge [severity]="alumno.statusSeverity" [text]="alumno.statusText" />
                     </td>
                 </tr>
             </ng-template>
@@ -91,3 +88,7 @@
         </p-table>
     </div>
 </div>
+@if (showModal() && selectedAlumnoId()) {
+<app-alumno-detail-modal [alumnoId]="selectedAlumnoId()!" [visible]="showModal()"
+    (statusChanged)="onStatusChanged(selectedAlumnoId()!, $event)" (onClose)="closeDetail()" />
+}

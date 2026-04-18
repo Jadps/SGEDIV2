@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { API_ENDPOINTS } from '../constants/api-endpoints';
 import { AlumnoDto } from '../models/alumno.dto';
+import { AlumnoDetailDto } from '../models/alumno-detail.dto';
 import { PagedResponse } from '../models/paged-response.dto';
 
 @Injectable({
@@ -33,6 +34,19 @@ export class AlumnoService {
     return this.http.get<PagedResponse<AlumnoDto>>(
       `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.LIST}`,
       { params }
+    );
+  }
+
+  getAlumno(id: string): Observable<AlumnoDetailDto> {
+    return this.http.get<AlumnoDetailDto>(
+      `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.DETAIL.replace('{id}', id)}`
+    );
+  }
+
+  toggleStatus(id: string): Observable<{ isActive: boolean }> {
+    return this.http.patch<{ isActive: boolean }>(
+      `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.DETAIL.replace('{id}', id)}/toggle-status`,
+      {}
     );
   }
 }

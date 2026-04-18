@@ -9,7 +9,8 @@ export const API_ENDPOINTS = {
     ME: '/users/me'
   },
   STUDENTS: {
-    LIST: '/alumnos'
+    LIST: '/alumnos',
+    DETAIL: '/alumnos/{id}'
   },
   CATALOGS: {
     MODULES: '/catalogs/modules',

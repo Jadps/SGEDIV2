@@ -1,0 +1,45 @@
+<div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="space-y-4">
+    <h3 class="text-xs font-semibold uppercase tracking-wider text-zinc-500">Información Personal</h3>
+    <div class="space-y-3">
+      <div class="flex flex-col gap-1">
+        <span class="text-[11px] text-zinc-500 uppercase tracking-wider">Nombre completo</span>
+        <span class="text-zinc-200 font-medium">{{ alumno().name }}</span>
+      </div>
+      <div class="flex flex-col gap-1">
+        <span class="text-[11px] text-zinc-500 uppercase tracking-wider">Matrícula</span>
+        <span class="font-mono text-blue-400 font-medium">{{ alumno().matricula }}</span>
+      </div>
+      <div class="flex flex-col gap-1">
+        <span class="text-[11px] text-zinc-500 uppercase tracking-wider">Email</span>
+        <span class="text-zinc-300">{{ alumno().email }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="space-y-4">
+    <h3 class="text-xs font-semibold uppercase tracking-wider text-zinc-500">Información Académica</h3>
+    <div class="space-y-3">
+      <div class="flex flex-col gap-1">
+        <span class="text-[11px] text-zinc-500 uppercase tracking-wider">Carrera</span>
+        <p-tag [value]="alumno().carrera" severity="secondary" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <span class="text-[11px] text-zinc-500 uppercase tracking-wider">Registro</span>
+        <span class="text-zinc-400 text-sm">{{ alumno().createdAt | date:'dd/MM/yyyy' }}</span>
+      </div>
+      <div class="flex flex-col gap-1">
+        <span class="text-[11px] text-zinc-500 uppercase tracking-wider">Estado</span>
+        <div class="flex items-center gap-4">
+          <app-status-badge [severity]="currentStatusSeverity()" [text]="currentStatusText()" />
+          @if (alumno().isMyCareer === true) {
+          <button pButton [label]="currentIsActive() ? 'Desactivar' : 'Activar'"
+            [severity]="currentIsActive() ? 'danger' : 'success'" [loading]="toggling()" size="small"
+            (click)="toggle()">
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

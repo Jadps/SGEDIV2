@@ -1,0 +1,36 @@
+<p-dialog [visible]="visible()" (visibleChange)="!$event && onClose.emit()" [modal]="true" [draggable]="false"
+    position="top" [style]="{ width: '800px', maxWidth: '95vw', marginTop: '2rem' }" [contentStyle]="{ padding: '0' }"
+    styleClass="alumno-modal glass-dark border border-white/10 rounded-3xl overflow-hidden"
+    [header]="loading() ? 'Cargando...' : (alumno()?.name ?? '')">
+
+    @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+        <p-progressSpinner strokeWidth="3" styleClass="w-10 h-10" />
+    </div>
+    } @else if (alumno()) {
+    <p-tabs value="info">
+        <p-tablist>
+            <p-tab value="info">
+                <i class="pi pi-user mr-2"></i>Datos Generales
+            </p-tab>
+            <p-tab value="docs">
+                <i class="pi pi-file mr-2"></i>Documentos
+            </p-tab>
+            <p-tab value="academic">
+                <i class="pi pi-book mr-2"></i>Académico
+            </p-tab>
+        </p-tablist>
+        <p-tabpanels>
+            <p-tabpanel value="info">
+                <app-alumno-info-tab [alumno]="alumno()!" (statusChanged)="statusChanged.emit($event)" />
+            </p-tabpanel>
+            <p-tabpanel value="docs">
+                <div class="p-6 text-zinc-500 text-sm">Próximamente</div>
+            </p-tabpanel>
+            <p-tabpanel value="academic">
+                <div class="p-6 text-zinc-500 text-sm">Próximamente</div>
+            </p-tabpanel>
+        </p-tabpanels>
+    </p-tabs>
+    }
+</p-dialog>

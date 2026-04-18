@@ -10,19 +10,17 @@ import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { AlumnoDetailModalComponent } from '../detail/detail.component';
+import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { StatusUtils } from '../../../core/utils/status-utils';
 
 @Component({
   selector: 'app-alumno-list',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    TableModule,
-    InputTextModule,
-    IconFieldModule,
-    InputIconModule,
-    ButtonModule,
-    TagModule
+    CommonModule, FormsModule, TableModule, InputTextModule,
+    IconFieldModule, InputIconModule, ButtonModule, TagModule,
+    AlumnoDetailModalComponent, StatusBadgeComponent
   ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.css'
@@ -30,11 +28,14 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 export class AlumnoListComponent implements OnInit {
   private readonly alumnoService = inject(AlumnoService);
 
-  public alumnos = signal<AlumnoDto[]>([]);
-  public totalRecords = signal<number>(0);
-  public loading = signal<boolean>(false);
-  public searchTerm = signal<string>('');
-  
+  alumnos = signal<AlumnoDto[]>([]);
+  totalRecords = signal<number>(0);
+  loading = signal<boolean>(false);
+  searchTerm = signal<string>('');
+
+  selectedAlumnoId = signal<string | null>(null);
+  showModal = signal<boolean>(false);
+
   private searchSubject = new Subject<string>();
 
   ngOnInit() {
@@ -55,9 +56,7 @@ export class AlumnoListComponent implements OnInit {
         this.totalRecords.set(response.totalCount);
         this.loading.set(false);
       },
-      error: () => {
-        this.loading.set(false);
-      }
+      error: () => this.loading.set(false)
     });
   }
 
@@ -67,7 +66,29 @@ export class AlumnoListComponent implements OnInit {
   }
 
   onSearch(event: Event) {
-    const target = event.target as HTMLInputElement;
-    this.searchSubject.next(target.value);
+    this.searchSubject.next((event.target as HTMLInputElement).value);
+  }
+
+  openDetail(alumnoId: string) {
+    this.selectedAlumnoId.set(alumnoId);
+    this.showModal.set(true);
+  }
+
+  closeDetail() {
+    this.showModal.set(false);
+    this.selectedAlumnoId.set(null);
+  }
+
+  onStatusChanged(alumnoId: string, isActive: boolean) {
+    this.alumnos.update(list =>
+      list.map(a => a.id === alumnoId
+        ? {
+          ...a,
+          statusText: StatusUtils.getText(isActive),
+          statusSeverity: StatusUtils.getSeverity(isActive)
+        }
+        : a
+      )
+    );
   }
 }
