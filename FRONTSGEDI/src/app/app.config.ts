@@ -1,6 +1,7 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, APP_INITIALIZER, inject } from '@angular/core';
 import { provideRouter, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch, withXsrfConfiguration } from '@angular/common/http';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import { MessageService } from 'primeng/api';
 import Aura from '@primeuix/themes/aura';
@@ -50,6 +51,7 @@ const SgediPreset = definePreset(Aura, {
 });
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideAnimationsAsync(),
     MessageService,
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, withViewTransitions()),

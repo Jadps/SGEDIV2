@@ -13,6 +13,7 @@ public class Usuario : ISoftDelete
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiryTime { get; set; }
+    public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; } = false;
     public Alumno? Alumno { get; set; }
     public Coordinador? Coordinador { get; set; }

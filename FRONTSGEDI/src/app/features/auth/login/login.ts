@@ -6,6 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { AuthService } from '../../../core/services/auth.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-login',
@@ -23,6 +24,7 @@ export class LoginComponent {
     private readonly fb = inject(NonNullableFormBuilder);
     private readonly authService = inject(AuthService);
     private readonly router = inject(Router);
+    private readonly toast = inject(MessageService);
 
     readonly loginForm = this.fb.group({
         email: ['', [Validators.required, Validators.email]],
@@ -44,8 +46,13 @@ export class LoginComponent {
                     this.router.navigate(['/dashboard']);
                 }
             },
-            error: () => {
+            error: (err) => {
                 this.isLoading.set(false);
+                this.toast.add({ 
+                    severity: 'error', 
+                    summary: 'Error', 
+                    detail: err.error?.detail ?? 'Credenciales inválidas' 
+                });
             },
         });
     }

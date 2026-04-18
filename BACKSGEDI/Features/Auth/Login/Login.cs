@@ -41,7 +41,7 @@ public class LoginValidator : Validator<LoginRequest>
     }
 }
 
-public class LoginEndpoint : FastEndpoints.Endpoint<LoginRequest, LoginResponse>
+public class LoginEndpoint : FastEndpoints.Endpoint<LoginRequest>
 {
     private readonly ApplicationDbContext _db;
     private readonly IAntiforgery _antiforgery;
@@ -70,10 +70,9 @@ public class LoginEndpoint : FastEndpoints.Endpoint<LoginRequest, LoginResponse>
             return;
         }
 
-        var user = result.Value;
-        SetupAuthCookies(user);
-
-        await result.ToResult().ExecuteAsync(HttpContext);
+        SetupAuthCookies(result.Value);
+        HttpContext.Response.StatusCode = 200;
+        await HttpContext.Response.CompleteAsync();
     }
 
     private async Task<Result<LoginResponse>> LoginAsync(LoginRequest req, CancellationToken ct)
@@ -83,10 +82,11 @@ public class LoginEndpoint : FastEndpoints.Endpoint<LoginRequest, LoginResponse>
             .FirstOrDefaultAsync(u => u.Email == req.Email, ct);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
-        {
             return Result<LoginResponse>.Failure(Error.Unauthorized("Auth.InvalidCredentials", "Credenciales inválidas."));
-        }
 
+        if (!user.IsActive)
+            return Result<LoginResponse>.Failure(Error.Unauthorized("Auth.AccountInactive", "Tu cuenta aún no ha sido activada. Contacta a tu coordinador."));
+ 
         var refreshToken = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(64));
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);

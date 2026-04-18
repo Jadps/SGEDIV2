@@ -3,13 +3,12 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { ToastModule } from 'primeng/toast';
 import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ButtonModule, ProgressSpinnerModule, ToastModule, MessageModule],
+  imports: [CommonModule, ButtonModule, ProgressSpinnerModule, MessageModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })

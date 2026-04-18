@@ -105,7 +105,8 @@ public class RegisterStudentEndpoint : FastEndpoints.Endpoint<RegisterStudentReq
             Roles        = new List<UsuarioRol>
             {
                 new UsuarioRol { Role = "Alumno" }
-            }
+            },
+            IsActive = false
         };
 
         var alumno = new Alumno

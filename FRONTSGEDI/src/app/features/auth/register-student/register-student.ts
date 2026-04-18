@@ -7,8 +7,8 @@ import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { FileUploadModule, FileSelectEvent } from 'primeng/fileupload';
-import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { API_ENDPOINTS } from '../../../core/constants/api-endpoints';
@@ -39,7 +39,7 @@ export class RegisterStudentComponent {
     private readonly router = inject(Router);
     private readonly http = inject(HttpClient);
     private readonly catalogService = inject(CatalogService);
-    private readonly messageService = inject(MessageService);
+    private readonly notificationService = inject(NotificationService);
 
     readonly careers = toSignal(this.catalogService.getCarreras(), { initialValue: [] });
 
@@ -74,11 +74,10 @@ export class RegisterStudentComponent {
 
     onSubmit(): void {
         if (this.registerForm.invalid || !this.horarioFile || !this.anexo1File || !this.kardexFile) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Faltan datos',
-                detail: 'Por favor completa todos los campos y sube los 3 archivos PDF requeridos.'
-            });
+            this.notificationService.warn(
+                'Faltan datos',
+                'Por favor completa todos los campos y sube los 3 archivos PDF requeridos.'
+            );
             return;
         }
 
@@ -101,20 +100,14 @@ export class RegisterStudentComponent {
             .subscribe({
                 next: () => {
                     this.isLoading.set(false);
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: 'Registro exitoso',
-                        detail: 'Tu cuenta ha sido creada. Ahora puedes iniciar sesión.'
-                    });
+                    this.notificationService.success(
+                        'Registro exitoso',
+                        'Tu cuenta ha sido creada. Ahora debes esperar a que tu coordinador active tu cuenta para que puedas iniciar sesión.'
+                    );
                     this.router.navigate(['/auth/login']);
                 },
-                error: (err) => {
+                error: () => {
                     this.isLoading.set(false);
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: err.error?.message || 'Ocurrió un error inesperado al registrar.'
-                    });
                 }
             });
     }

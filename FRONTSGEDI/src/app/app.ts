@@ -1,16 +1,17 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ProgressBarModule } from 'primeng/progressbar';
+import { ProgressBar } from 'primeng/progressbar';
 import { LoadingService } from './core/services/loading.service';
 import { CommonModule } from '@angular/common';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ProgressBarModule, CommonModule],
+  imports: [RouterOutlet, ProgressBar, CommonModule, ToastModule],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
 export class App {
-  constructor(public loadingService: LoadingService) {}
+  constructor(public loadingService: LoadingService) { }
 }
