@@ -2,8 +2,8 @@ import { Component, inject, input, OnInit, signal, computed } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { AlumnoService } from '../../../../../core/services/alumno.service';
-import { StatusBadgeComponent } from '../../../../../shared/components/status-badge/status-badge.component';
+import { AlumnoService } from '../../../../core/services/alumno.service';
+import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
 
 @Component({
   selector: 'app-alumno-docs-tab',
@@ -89,7 +89,7 @@ import { StatusBadgeComponent } from '../../../../../shared/components/status-ba
 })
 export class AlumnoDocsTabComponent implements OnInit {
   private readonly alumnoService = inject(AlumnoService);
-  
+
   alumnoId = input.required<string>();
   isMyCareer = input<boolean>(false);
   isAdmin = input<boolean>(false);
@@ -141,7 +141,7 @@ export class AlumnoDocsTabComponent implements OnInit {
     if (!aprobado && !motivo) return;
 
     this.alumnoService.reviewDocument(this.alumnoId(), doc.id, aprobado, motivo!).subscribe(() => {
-        this.loadDocs();
+      this.loadDocs();
     });
   }
 

@@ -25,7 +25,10 @@
                 <app-alumno-info-tab [alumno]="alumno()!" (statusChanged)="statusChanged.emit($event)" />
             </p-tabpanel>
             <p-tabpanel value="docs">
-                <div class="p-6 text-zinc-500 text-sm">Próximamente</div>
+                <app-alumno-docs-tab 
+                    [alumnoId]="alumnoId()" 
+                    [isMyCareer]="alumno()?.isMyCareer ?? false"
+                    [isAdmin]="alumno()?.isAdmin ?? false" />
             </p-tabpanel>
             <p-tabpanel value="academic">
                 <div class="p-6 text-zinc-500 text-sm">Próximamente</div>

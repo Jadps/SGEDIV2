@@ -1,12 +1,9 @@
 using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
-using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
-using System.Text;
 using BACKSGEDI.Infrastructure.Data;
 using BACKSGEDI.Infrastructure.Services;
 using BACKSGEDI.Infrastructure.Middleware;
@@ -14,7 +11,7 @@ using BACKSGEDI.Infrastructure.Data.Interceptors;
 using BACKSGEDI.Configuration;
 using Serilog;
 using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http.Features;
 
 DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -47,6 +44,11 @@ builder.Services.AddOptions<AppOptions>()
 
 builder.Services.AddOptions<AdminOptions>()
     .Bind(builder.Configuration.GetSection(AdminOptions.SectionName))
+    .ValidateOnStart();
+
+builder.Services.AddOptions<StorageOptions>()
+    .Bind(builder.Configuration.GetSection(StorageOptions.SectionName))
+    .ValidateDataAnnotations()
     .ValidateOnStart();
 
 builder.Services.AddScoped<IStorageService, LocalFileStorageService>();
@@ -100,7 +102,10 @@ builder.Services.SwaggerDocument(o =>
         s.Version = "v1";
     };
 });
-
+builder.Services.Configure<FormOptions>(x =>
+{
+    x.MultipartBodyLengthLimit = 5242880;
+});
 var app = builder.Build();
 
 app.UseExceptionHandler();

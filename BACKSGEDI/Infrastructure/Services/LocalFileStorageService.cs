@@ -19,7 +19,6 @@ public class LocalFileStorageService : IStorageService
 
     public async Task<string> UploadFileAsync(IFormFile file, string alumnoId, string tipoDocumento, string semestre, CancellationToken ct = default)
     {
-        // Path: Uploads/Students/{alumnoId}/{semestre}/{tipoDocumento}_{guid}.pdf
         var relativePath = Path.Combine("Students", alumnoId, semestre);
         var absolutePath = Path.Combine(Directory.GetCurrentDirectory(), _basePath, relativePath);
 
@@ -46,7 +45,6 @@ public class LocalFileStorageService : IStorageService
 
     public async Task<string> UploadPlantillaAsync(IFormFile file, string tipoPlantilla, CancellationToken ct = default)
     {
-        // Path: Uploads/Plantillas/{tipoPlantilla}/{guid}.pdf
         var relativePath = Path.Combine("Plantillas", tipoPlantilla);
         var absolutePath = Path.Combine(Directory.GetCurrentDirectory(), _basePath, relativePath);
 
