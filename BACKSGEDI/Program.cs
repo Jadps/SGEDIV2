@@ -139,9 +139,16 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
-        var context = services.GetRequiredService<ApplicationDbContext>();
-        var adminOptions = services.GetRequiredService<IOptions<AdminOptions>>();
-        await DbInitializer.SeedAsync(context, adminOptions);
+        var appOpts = services.GetRequiredService<IOptions<AppOptions>>().Value;
+        if (appOpts.RunSeeder)
+        {
+            var context = services.GetRequiredService<ApplicationDbContext>();
+            var adminOptions = services.GetRequiredService<IOptions<AdminOptions>>();
+            await DbInitializer.SeedAsync(context, adminOptions);
+            
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogInformation("Database seeding executed successfully.");
+        }
     }
     catch (Exception ex)
     {
@@ -149,5 +156,6 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "Ocurrió un error al sembrar la base de datos.");
     }
 }
+
 
 app.Run();

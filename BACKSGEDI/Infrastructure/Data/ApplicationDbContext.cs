@@ -26,28 +26,32 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Usuario>()
-            .HasMany(u => u.Roles)
-            .WithOne(ur => ur.Usuario)
+        modelBuilder.Entity<UsuarioRol>()
+            .HasOne(ur => ur.Usuario)
+            .WithMany(u => u.Roles)
             .HasForeignKey(ur => ur.UsuarioId)
+            .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Usuario>()
-            .HasOne(u => u.Alumno)
-            .WithOne(a => a.Usuario)
+        modelBuilder.Entity<Alumno>()
+            .HasOne(a => a.Usuario)
+            .WithOne(u => u.Alumno)
             .HasForeignKey<Alumno>(a => a.UsuarioId)
+            .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Usuario>()
-            .HasOne(u => u.Coordinador)
-            .WithOne(c => c.Usuario)
+        modelBuilder.Entity<Coordinador>()
+            .HasOne(c => c.Usuario)
+            .WithOne(u => u.Coordinador)
             .HasForeignKey<Coordinador>(c => c.UsuarioId)
+            .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Usuario>()
-            .HasOne(u => u.JefeDepartamento)
-            .WithOne(jd => jd.Usuario)
+        modelBuilder.Entity<JefeDepartamento>()
+            .HasOne(jd => jd.Usuario)
+            .WithOne(u => u.JefeDepartamento)
             .HasForeignKey<JefeDepartamento>(jd => jd.UsuarioId)
+            .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Coordinador>()
@@ -62,10 +66,11 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(jd => jd.CarreraId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Alumno>()
-            .HasMany(a => a.Documentos)
-            .WithOne(da => da.Alumno)
+        modelBuilder.Entity<DocumentoAlumno>()
+            .HasOne(da => da.Alumno)
+            .WithMany(a => a.Documentos)
             .HasForeignKey(da => da.AlumnoId)
+            .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<DocumentoAcuerdo>(entity =>
@@ -73,6 +78,7 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(d => d.Alumno)
                 .WithMany()
                 .HasForeignKey(d => d.AlumnoId)
+                .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(d => d.Profesor)
@@ -110,6 +116,17 @@ public class ApplicationDbContext : DbContext
                 var propertyMethodInfo = typeof(ISoftDelete).GetProperty(nameof(ISoftDelete.IsDeleted));
                 var isDeletedProperty = Expression.Property(parameter, propertyMethodInfo!);
                 var compareExpression = Expression.Equal(isDeletedProperty, Expression.Constant(false));
+                var lambda = Expression.Lambda(compareExpression, parameter);
+
+                modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
+            }
+
+            if (typeof(IActivatable).IsAssignableFrom(entityType.ClrType))
+            {
+                var parameter = Expression.Parameter(entityType.ClrType, "e");
+                var propertyMethodInfo = typeof(IActivatable).GetProperty(nameof(IActivatable.IsActive));
+                var isActiveProperty = Expression.Property(parameter, propertyMethodInfo!);
+                var compareExpression = Expression.Equal(isActiveProperty, Expression.Constant(true));
                 var lambda = Expression.Lambda(compareExpression, parameter);
 
                 modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);

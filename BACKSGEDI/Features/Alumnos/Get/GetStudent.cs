@@ -31,6 +31,7 @@ public record AlumnoDetailDto
     public bool IsMyCareer { get; init; }
     public bool IsMyStudent { get; init; }
     public bool IsMyAdvisory { get; init; }
+    public bool IsAdmin { get; init; }
 }
 
 public class GetStudentEndpoint : EndpointWithoutRequest<AlumnoDetailDto>
@@ -62,10 +63,10 @@ public class GetStudentEndpoint : EndpointWithoutRequest<AlumnoDetailDto>
             .Select(c => c.Value)
             .ToList();
 
-        var isAdmin = roles.Any(r => r.Equals(SystemRoles.Admin, StringComparison.OrdinalIgnoreCase));
+        var isAdminRole = roles.Any(r => r.Equals(SystemRoles.Admin, StringComparison.OrdinalIgnoreCase));
         
         var allowedCarreraIds = new HashSet<int>();
-        if (!isAdmin)
+        if (!isAdminRole)
         {
             if (roles.Any(r => r.Equals(SystemRoles.Coordinador, StringComparison.OrdinalIgnoreCase)))
             {
@@ -87,10 +88,11 @@ public class GetStudentEndpoint : EndpointWithoutRequest<AlumnoDetailDto>
         }
 
         var alumno = await _db.Alumnos
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .Include(a => a.Usuario)
             .Include(a => a.Documentos)
-            .Where(a => a.Id == id)
+            .Where(a => a.Id == id && !a.IsDeleted && !a.Usuario.IsDeleted)
             .FirstOrDefaultAsync(ct);
 
         if (alumno is null)
@@ -100,7 +102,7 @@ public class GetStudentEndpoint : EndpointWithoutRequest<AlumnoDetailDto>
             return;
         }
 
-        var isMyCareer = isAdmin || allowedCarreraIds.Contains(alumno.CarreraId);
+        var isMyCareer = isAdminRole || allowedCarreraIds.Contains(alumno.CarreraId);
         var isMyStudent = false; 
         var isMyAdvisory = false;
 
@@ -122,7 +124,9 @@ public class GetStudentEndpoint : EndpointWithoutRequest<AlumnoDetailDto>
             IsMyCareer = isMyCareer,
             IsMyStudent = isMyStudent,
             IsMyAdvisory = isMyAdvisory,
+            IsAdmin = isAdminRole
         };
+
 
         await Result<AlumnoDetailDto>.Success(dto)
             .ToResult().ExecuteAsync(HttpContext);

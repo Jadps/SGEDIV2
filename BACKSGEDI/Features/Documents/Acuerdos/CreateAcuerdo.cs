@@ -16,6 +16,7 @@ public class CreateAcuerdoRequest
     public Guid? ProfesorId { get; set; }
     public Guid? AsesorInternoId { get; set; }
     public Guid? AsesorExternoId { get; set; }
+    public DateTime? FechaLimiteManual { get; set; }
 }
 
 public record AcuerdoDto
@@ -73,7 +74,7 @@ public class CreateAcuerdo : Endpoint<CreateAcuerdoRequest>
             AsesorInternoId = req.AsesorInternoId,
             AsesorExternoId = req.AsesorExternoId,
             Semestre = semestreActual,
-            FechaLimite = FechasLimiteService.GetFechaLimite(req.TipoAcuerdo, semestreActual),
+            FechaLimite = req.FechaLimiteManual ?? FechasLimiteService.GetDefaultFechaLimite(semestreActual),
             Estado = EstadoDocumento.PendienteRevision,
             SubidoPorUsuarioId = requesterId,
             Version = 1,

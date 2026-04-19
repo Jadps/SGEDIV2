@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using BACKSGEDI.Domain.Interfaces;
 
 namespace BACKSGEDI.Domain.Entities;
 
 [Table("Carreras")]
-public class CatCarrera
+public class CatCarrera : ISoftDelete
 {
     public int Id { get; set; }
     public string Clave { get; set; } = string.Empty;

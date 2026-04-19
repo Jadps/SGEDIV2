@@ -23,7 +23,7 @@ public class RegisterStudentRequest
     public int SemestreId { get; set; }
 
     public IFormFile HorarioFile { get; set; } = null!;
-    public IFormFile Anexo1File { get; set; } = null!;
+    public IFormFile AnexoIFile { get; set; } = null!;
     public IFormFile KardexFile { get; set; } = null!;
 }
 
@@ -46,17 +46,19 @@ public class RegisterStudentValidator : Validator<RegisterStudentRequest>
             .WithMessage("El alumno debe cursar al menos el sexto semestre para el modelo dual.");
 
         RuleFor(x => x.HorarioFile).NotNull().Must(f => IsValidPdfAndSize(f, settings.MaxFileSizeInBytes))
-            .WithMessage($"El horario debe ser PDF y menor a {settings.MaxFileSizeInBytes / 1024 / 1024}MB.");
-        RuleFor(x => x.Anexo1File).NotNull().Must(f => IsValidPdfAndSize(f, settings.MaxFileSizeInBytes))
-            .WithMessage("El Anexo 1 debe ser PDF y respetar el límite de tamaño.");
+            .WithMessage($"El horario debe ser PDF y menor a {settings.MaxFileSizeInBytes/1024/1024}MB.");
+        RuleFor(x => x.AnexoIFile).NotNull().Must(f => IsValidPdfAndSize(f, settings.MaxFileSizeInBytes))
+            .WithMessage($"El Anexo I debe ser PDF y menor a {settings.MaxFileSizeInBytes/1024/1024}MB.");
         RuleFor(x => x.KardexFile).NotNull().Must(f => IsValidPdfAndSize(f, settings.MaxFileSizeInBytes))
-            .WithMessage("El Kardex debe ser PDF y respetar el límite de tamaño.");
+            .WithMessage($"El Kardex debe ser PDF y menor a {settings.MaxFileSizeInBytes/1024/1024}MB.");
     }
-
-    private static bool IsValidPdfAndSize(IFormFile file, long maxSize)
+    private static bool IsValidPdfAndSize(IFormFile? file, long maxSize)
     {
+        if (file == null) return false; 
+
         var isPdf = file.FileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase) ||
                     file.ContentType == "application/pdf";
+
         return isPdf && file.Length <= maxSize;
     }
 }
@@ -127,10 +129,9 @@ public class RegisterStudentEndpoint : FastEndpoints.Endpoint<RegisterStudentReq
 
         try
         {
-            var pathHorario = await _storageService.UploadFileAsync(req.HorarioFile, alumnoId.ToString(), "Horarios", semestreActual, ct);
-            var pathAnexo   = await _storageService.UploadFileAsync(req.Anexo1File,  alumnoId.ToString(), "Anexos",   semestreActual, ct);
-            var pathKardex  = await _storageService.UploadFileAsync(req.KardexFile,  alumnoId.ToString(), "Kardex",   semestreActual, ct);
-
+            var pathHorario = await _storageService.UploadFileAsync(req.HorarioFile, alumnoId.ToString(), TipoDocumentoAlumno.Horario.ToString(), semestreActual, ct);
+            var pathAnexoI = await _storageService.UploadFileAsync(req.AnexoIFile, alumnoId.ToString(), TipoAcuerdo.AnexoI.ToString(), semestreActual, ct);
+            var pathKardex = await _storageService.UploadFileAsync(req.KardexFile, alumnoId.ToString(), TipoDocumentoAlumno.Kardex.ToString(), semestreActual, ct);
             alumno.Documentos.Add(new DocumentoAlumno 
             { 
                 AlumnoId = alumnoId, 
@@ -153,15 +154,15 @@ public class RegisterStudentEndpoint : FastEndpoints.Endpoint<RegisterStudentReq
                 EsVersionActual = true
             });
 
-            var docAcuerdoAnexo1 = new DocumentoAcuerdo
+            var docAcuerdoAnexoI = new DocumentoAcuerdo
             {
                 Id = Guid.NewGuid(),
                 AlumnoId = alumnoId,
                 TipoAcuerdo = TipoAcuerdo.AnexoI,
                 Semestre = semestreActual,
-                RutaArchivo = pathAnexo,
+                RutaArchivo = pathAnexoI,
                 FechaSubida = DateTime.UtcNow,
-                FechaLimite = FechasLimiteService.GetFechaLimite(TipoAcuerdo.AnexoI, semestreActual),
+                FechaLimite = FechasLimiteService.GetDefaultFechaLimite(semestreActual),
                 SubidoPorUsuarioId = userId,
                 Estado = EstadoDocumento.PendienteRevision,
                 Version = 1,
@@ -170,7 +171,7 @@ public class RegisterStudentEndpoint : FastEndpoints.Endpoint<RegisterStudentReq
 
             await _db.Usuarios.AddAsync(user, ct);
             await _db.Alumnos.AddAsync(alumno, ct);
-            await _db.DocumentosAcuerdos.AddAsync(docAcuerdoAnexo1, ct);
+            await _db.DocumentosAcuerdos.AddAsync(docAcuerdoAnexoI, ct);
             await _db.SaveChangesAsync(ct);
         }
         catch (Exception ex)

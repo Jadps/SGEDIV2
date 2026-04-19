@@ -14,4 +14,7 @@ public record AppOptions
 
     [Required]
     public string AntiforgeryHeaderName { get; init; } = "X-XSRF-TOKEN";
+
+    public bool RunSeeder { get; init; } = false;
 }
+

@@ -24,7 +24,8 @@ public class ToggleStudentStatusEndpoint : EndpointWithoutRequest
         var id = Route<Guid>("id");
 
         var usuario = await _db.Usuarios
-            .Where(u => u.Alumno != null && u.Alumno.Id == id)
+            .IgnoreQueryFilters()
+            .Where(u => !u.IsDeleted && u.Alumno != null && u.Alumno.Id == id)
             .FirstOrDefaultAsync(ct);
 
         if (usuario is null)
@@ -59,7 +60,7 @@ public class ToggleStudentStatusEndpoint : EndpointWithoutRequest
                 foreach (var cId in coordCarreras) allowedCarreraIds.Add(cId);
             }
         }
-        var alumno = await _db.Alumnos.Where(a => a.Id == id).Select(a => new { a.CarreraId }).FirstOrDefaultAsync(ct);
+        var alumno = await _db.Alumnos.IgnoreQueryFilters().Where(a => a.Id == id && !a.IsDeleted).Select(a => new { a.CarreraId }).FirstOrDefaultAsync(ct);
         if (alumno is null)
         {
             await Result.Failure(Error.NotFound("Alumno.NotFound", "Alumno no encontrado."))

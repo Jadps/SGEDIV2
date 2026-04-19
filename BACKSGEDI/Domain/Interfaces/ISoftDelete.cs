@@ -1,7 +1,7 @@
-namespace BACKSGEDI.Domain.Interfaces
+namespace BACKSGEDI.Domain.Interfaces;
+
+public interface ISoftDelete
 {
-    public interface ISoftDelete
-    {
-        bool IsDeleted { get; set; }
-    }
+    bool IsDeleted { get; set; }
 }
+

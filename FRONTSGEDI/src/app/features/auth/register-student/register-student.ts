@@ -60,7 +60,7 @@ export class RegisterStudentComponent {
     });
 
     horarioFile: File | null = null;
-    anexo1File: File | null = null;
+    anexoIFile: File | null = null;
     kardexFile: File | null = null;
 
     readonly isLoading = signal(false);
@@ -68,12 +68,12 @@ export class RegisterStudentComponent {
     onFileSelect(event: FileSelectEvent, type: 'horario' | 'anexo' | 'kardex'): void {
         const file = event.files[0];
         if (type === 'horario') this.horarioFile = file;
-        else if (type === 'anexo') this.anexo1File = file;
+        else if (type === 'anexo') this.anexoIFile = file;
         else if (type === 'kardex') this.kardexFile = file;
     }
 
     onSubmit(): void {
-        if (this.registerForm.invalid || !this.horarioFile || !this.anexo1File || !this.kardexFile) {
+        if (this.registerForm.invalid || !this.horarioFile || !this.anexoIFile || !this.kardexFile) {
             this.notificationService.warn(
                 'Faltan datos',
                 'Por favor completa todos los campos y sube los 3 archivos PDF requeridos.'
@@ -93,7 +93,7 @@ export class RegisterStudentComponent {
         formData.append('semestreId', values.semestreId!.toString());
 
         formData.append('horarioFile', this.horarioFile);
-        formData.append('anexo1File', this.anexo1File);
+        formData.append('anexoIFile', this.anexoIFile);
         formData.append('kardexFile', this.kardexFile);
 
         this.http.post(`${environment.apiUrl}${API_ENDPOINTS.AUTH.REGISTER_STUDENT}`, formData)
@@ -117,7 +117,7 @@ export class RegisterStudentComponent {
         if (!file) return;
 
         if (type === 'horario') this.horarioFile = file;
-        else if (type === 'anexo') this.anexo1File = file;
+        else if (type === 'anexo') this.anexoIFile = file;
         else if (type === 'kardex') this.kardexFile = file;
     }
 }

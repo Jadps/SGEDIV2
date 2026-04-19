@@ -3,7 +3,7 @@ using BACKSGEDI.Domain.Interfaces;
 
 namespace BACKSGEDI.Domain.Entities;
 
-public class Usuario : ISoftDelete
+public class Usuario : ISoftDelete, IActivatable
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Name { get; set; } = string.Empty;

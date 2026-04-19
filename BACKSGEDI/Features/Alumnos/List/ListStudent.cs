@@ -108,7 +108,11 @@ public class ListStudentEndpoint : Endpoint<ListStudentRequest, PagedResponse<Al
             //}
         }
 
-        var query = _db.Alumnos.AsNoTracking().AsQueryable();
+        var query = _db.Alumnos
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(a => !a.IsDeleted && !a.Usuario.IsDeleted)
+            .AsQueryable();
 
         if (!isAdmin)
         {

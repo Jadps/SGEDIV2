@@ -1,13 +1,14 @@
 using BACKSGEDI.Domain.Enums;
+using BACKSGEDI.Domain.Interfaces;
 
 namespace BACKSGEDI.Domain.Entities;
 
-public class DocumentoAlumno
+public class DocumentoAlumno : ISoftDelete
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     
     public Guid AlumnoId { get; set; }
-    public Alumno Alumno { get; set; } = null!;
+    public Alumno? Alumno { get; set; }
 
     public TipoDocumentoAlumno TipoDocumento { get; set; }
     
@@ -24,4 +25,6 @@ public class DocumentoAlumno
     public Guid? RevisadoPorUsuarioId { get; set; }
     public DateTime? FechaRevision { get; set; }
     public Guid SubidoPorUsuarioId { get; set; }
+    public bool IsDeleted { get; set; } = false;
 }
+

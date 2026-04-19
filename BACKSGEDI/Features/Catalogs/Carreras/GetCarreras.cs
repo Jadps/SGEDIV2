@@ -21,8 +21,7 @@ public class GetCarrerasEndpoint : EndpointWithoutRequest<List<CarreraDto>>
     public override void Configure()
     {
         Get("/api/catalogs/carreras");
-        Roles(SystemRoles.Admin);
-
+        AllowAnonymous();
     }
 
     public override async Task HandleAsync(CancellationToken ct)

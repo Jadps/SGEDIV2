@@ -15,7 +15,7 @@ public static class DbInitializer
 
         if (!string.IsNullOrEmpty(adminConfig.Mail))
         {
-            var adminExists = await context.Usuarios.AnyAsync(u => u.Email == adminConfig.Mail.Trim());
+            var adminExists = await context.Usuarios.IgnoreQueryFilters().AnyAsync(u => u.Email == adminConfig.Mail.Trim());
             if (!adminExists)
             {
                 var adminUser = new Usuario
@@ -58,7 +58,7 @@ public static class DbInitializer
             }
 
             var emailCoord = $"Coordinador{carrera.Clave}@tlalnepantla.tecnm.mx";
-            var coordExists = await context.Usuarios.AnyAsync(u => u.Email == emailCoord);
+            var coordExists = await context.Usuarios.IgnoreQueryFilters().AnyAsync(u => u.Email == emailCoord);
             if (!coordExists)
             {
                 var currentYear = DateTime.UtcNow.Year.ToString();

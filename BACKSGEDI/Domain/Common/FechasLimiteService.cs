@@ -5,7 +5,7 @@ namespace BACKSGEDI.Domain.Common;
 
 public static class FechasLimiteService
 {
-    public static DateTime GetFechaLimite(TipoAcuerdo tipo, string semestre)
+    public static DateTime GetDefaultFechaLimite(string semestre)
     {
         var parts = semestre.Split('-');
         if (parts.Length != 2 || !int.TryParse(parts[0], out var year) || !int.TryParse(parts[1], out var periodo))
@@ -13,14 +13,9 @@ public static class FechasLimiteService
             return DateTime.UtcNow.AddMonths(1);
         }
 
-        var startMonth = periodo == 1 ? DocumentConstants.Semester1_StartMonth : DocumentConstants.Semester2_StartMonth;
-        var inicioSemestre = new DateTime(year, startMonth, 1);
+        var endMonth = periodo == 1 ? 6 : 12;
+        var endDay = periodo == 1 ? 30 : 31;
 
-        return tipo switch
-        {
-            TipoAcuerdo.AnexoIII => inicioSemestre.AddDays(DocumentConstants.AnexoIII_DaysFromStart),
-            TipoAcuerdo.AnexoII => inicioSemestre.AddDays(DocumentConstants.AnexoII_DaysFromStart),
-            _ => inicioSemestre.AddDays(DocumentConstants.DefaultDeadlineDays)
-        };
+        return new DateTime(year, endMonth, endDay, 23, 59, 59, DateTimeKind.Utc);
     }
 }
