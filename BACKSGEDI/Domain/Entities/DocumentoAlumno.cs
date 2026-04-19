@@ -9,11 +9,19 @@ public class DocumentoAlumno
     public Guid AlumnoId { get; set; }
     public Alumno Alumno { get; set; } = null!;
 
-    public TipoDocumento TipoDocumento { get; set; }
+    public TipoDocumentoAlumno TipoDocumento { get; set; }
     
     public string Semestre { get; set; } = string.Empty;
     
     public string RutaArchivo { get; set; } = string.Empty;
     
     public DateTime FechaSubida { get; set; } = DateTime.UtcNow;
+
+    public int Version { get; set; } = 1;
+    public bool EsVersionActual { get; set; } = true;
+    public EstadoDocumento Estado { get; set; } = EstadoDocumento.PendienteRevision;
+    public string? MotivoRechazo { get; set; }
+    public Guid? RevisadoPorUsuarioId { get; set; }
+    public DateTime? FechaRevision { get; set; }
+    public Guid SubidoPorUsuarioId { get; set; }
 }

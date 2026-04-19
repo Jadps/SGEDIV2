@@ -10,7 +10,16 @@ export const API_ENDPOINTS = {
   },
   STUDENTS: {
     LIST: '/alumnos',
-    DETAIL: '/alumnos/{id}'
+    DETAIL: '/alumnos/{id}',
+    DOCUMENTS: '/alumnos/{id}/documentos'
+  },
+  PLANTILLAS: {
+    BASE: '/plantillas',
+    DOWNLOAD: '/plantillas/{id}/download'
+  },
+  ACUERDOS: {
+    BASE: '/acuerdos',
+    UPLOAD: '/acuerdos/{id}/upload'
   },
   CATALOGS: {
     MODULES: '/catalogs/modules',

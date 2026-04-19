@@ -49,4 +49,26 @@ export class AlumnoService {
       {}
     );
   }
+
+  getDocuments(alumnoId: string): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.DOCUMENTS.replace('{id}', alumnoId)}`
+    );
+  }
+
+  reviewDocument(alumnoId: string, docId: string, aprobado: boolean, motivoRechazo?: string): Observable<void> {
+    return this.http.patch<void>(
+      `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.DOCUMENTS.replace('{id}', alumnoId)}/${docId}/revisar`,
+      { aprobado, motivoRechazo }
+    );
+  }
+
+  getTemplates(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}${API_ENDPOINTS.PLANTILLAS.BASE}`);
+  }
+
+  downloadTemplate(id: number): void {
+    const url = `${environment.apiUrl}${API_ENDPOINTS.PLANTILLAS.DOWNLOAD.replace('{id}', id.toString())}`;
+    window.open(url, '_blank');
+  }
 }

@@ -6,13 +6,15 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AlumnoService } from '../../../core/services/alumno.service';
 import { AlumnoDetailDto } from '../../../core/models/alumno-detail.dto';
 import { AlumnoInfoTabComponent } from '../tabs/info/info.component';
+import { AlumnoDocsTabComponent } from '../tabs/docs/docs.component';
 
 @Component({
   selector: 'app-alumno-detail-modal',
   standalone: true,
   imports: [
     CommonModule, DialogModule, TabsModule,
-    ProgressSpinnerModule, AlumnoInfoTabComponent
+    ProgressSpinnerModule, AlumnoInfoTabComponent,
+    AlumnoDocsTabComponent
   ],
   templateUrl: './detail.component.html',
 })

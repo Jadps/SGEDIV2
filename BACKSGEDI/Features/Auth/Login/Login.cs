@@ -71,8 +71,7 @@ public class LoginEndpoint : FastEndpoints.Endpoint<LoginRequest>
         }
 
         SetupAuthCookies(result.Value);
-        HttpContext.Response.StatusCode = 200;
-        await HttpContext.Response.CompleteAsync();
+        await Result.Success().ToResult().ExecuteAsync(HttpContext);
     }
 
     private async Task<Result<LoginResponse>> LoginAsync(LoginRequest req, CancellationToken ct)

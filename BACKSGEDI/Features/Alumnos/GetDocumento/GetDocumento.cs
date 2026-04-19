@@ -53,10 +53,10 @@ public class GetDocumento : EndpointWithoutRequest
         }
 
         var tipoStr = Route<string>("tipoDocumento");
-        if (!Enum.TryParse<TipoDocumento>(tipoStr, ignoreCase: true, out var tipoDocumento))
+        if (!Enum.TryParse<TipoDocumentoAlumno>(tipoStr, ignoreCase: true, out var tipoDocumento))
         {
             await Result.Failure(Error.Validation("Documento.InvalidType",
-                $"Tipo de documento inválido. Valores permitidos: {string.Join(", ", Enum.GetNames<TipoDocumento>())}"))
+                $"Tipo de documento inválido. Valores permitidos: {string.Join(", ", Enum.GetNames<TipoDocumentoAlumno>())}"))
                 .ToResult().ExecuteAsync(HttpContext);
             return;
         }
@@ -116,11 +116,10 @@ public class GetDocumento : EndpointWithoutRequest
             return;
         }
 
-        var documento = await _db.DocumentosAlumnos
-            .AsNoTracking()
-            .Where(d => d.AlumnoId == alumnoId && d.TipoDocumento == tipoDocumento)
-            .OrderByDescending(d => d.FechaSubida)
-            .FirstOrDefaultAsync(ct);
+var documento = await _db.DocumentosAlumnos
+    .AsNoTracking()
+    .Where(d => d.AlumnoId == alumnoId && d.TipoDocumento == tipoDocumento && d.EsVersionActual)
+    .FirstOrDefaultAsync(ct);
 
         if (documento is null)
         {

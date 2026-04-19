@@ -124,21 +124,49 @@ public class RegisterStudentEndpoint : FastEndpoints.Endpoint<RegisterStudentReq
 
         try
         {
-            var pathHorario = await _storageService.UploadFileAsync(req.HorarioFile, userIdStr, "Horarios", ct);
-            var pathAnexo   = await _storageService.UploadFileAsync(req.Anexo1File,  userIdStr, "Anexos",   ct);
-            var pathKardex  = await _storageService.UploadFileAsync(req.KardexFile,  userIdStr, "Kardex",   ct);
+            var pathHorario = await _storageService.UploadFileAsync(req.HorarioFile, alumnoId.ToString(), "Horarios", semestreActual, ct);
+            var pathAnexo   = await _storageService.UploadFileAsync(req.Anexo1File,  alumnoId.ToString(), "Anexos",   semestreActual, ct);
+            var pathKardex  = await _storageService.UploadFileAsync(req.KardexFile,  alumnoId.ToString(), "Kardex",   semestreActual, ct);
 
-            alumno.Documentos.Add(new DocumentoAlumno { AlumnoId = alumnoId, TipoDocumento = TipoDocumento.Horario, RutaArchivo = pathHorario, Semestre = semestreActual });
-            alumno.Documentos.Add(new DocumentoAlumno { AlumnoId = alumnoId, TipoDocumento = TipoDocumento.Anexo1,  RutaArchivo = pathAnexo,   Semestre = semestreActual });
-            alumno.Documentos.Add(new DocumentoAlumno { AlumnoId = alumnoId, TipoDocumento = TipoDocumento.Kardex,  RutaArchivo = pathKardex,  Semestre = semestreActual });
+            alumno.Documentos.Add(new DocumentoAlumno 
+            { 
+                AlumnoId = alumnoId, 
+                TipoDocumento = TipoDocumentoAlumno.Horario, 
+                RutaArchivo = pathHorario, 
+                Semestre = semestreActual,
+                SubidoPorUsuarioId = userId
+            });
+            
+            alumno.Documentos.Add(new DocumentoAlumno 
+            { 
+                AlumnoId = alumnoId, 
+                TipoDocumento = TipoDocumentoAlumno.Kardex, 
+                RutaArchivo = pathKardex, 
+                Semestre = semestreActual,
+                SubidoPorUsuarioId = userId
+            });
+
+            var docAcuerdoAnexo1 = new DocumentoAcuerdo
+            {
+                Id = Guid.NewGuid(),
+                AlumnoId = alumnoId,
+                TipoAcuerdo = TipoAcuerdo.AnexoI,
+                Semestre = semestreActual,
+                RutaArchivo = pathAnexo,
+                FechaSubida = DateTime.UtcNow,
+                FechaLimite = FechasLimiteService.GetFechaLimite(TipoAcuerdo.AnexoI, semestreActual),
+                SubidoPorUsuarioId = userId,
+                Estado = EstadoDocumento.PendienteRevision
+            };
 
             await _db.Usuarios.AddAsync(user, ct);
             await _db.Alumnos.AddAsync(alumno, ct);
+            await _db.DocumentosAcuerdos.AddAsync(docAcuerdoAnexo1, ct);
             await _db.SaveChangesAsync(ct);
         }
         catch (Exception ex)
         {
-            _storageService.DeleteFolder(userIdStr);
+            _storageService.DeleteStudentFolder(alumnoId.ToString());
             return Result.Failure(Error.Failure("Registration.Failed",
                 $"Error al registrar el alumno: {ex.Message}"));
         }

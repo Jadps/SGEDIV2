@@ -17,10 +17,37 @@ public class LocalFileStorageService : IStorageService
         _basePath = configuration["Storage:BasePath"] ?? "Uploads";
     }
 
-    public async Task<string> UploadFileAsync(IFormFile file, string userId, string folderType, CancellationToken ct = default)
+    public async Task<string> UploadFileAsync(IFormFile file, string alumnoId, string tipoDocumento, string semestre, CancellationToken ct = default)
     {
-        var relativePath = Path.Combine("Students", userId, folderType);
+        // Path: Uploads/Students/{alumnoId}/{semestre}/{tipoDocumento}_{guid}.pdf
+        var relativePath = Path.Combine("Students", alumnoId, semestre);
+        var absolutePath = Path.Combine(Directory.GetCurrentDirectory(), _basePath, relativePath);
+
+        if (!Directory.Exists(absolutePath))
+        {
+            Directory.CreateDirectory(absolutePath);
+        }
+
+        var extension = Path.GetExtension(file.FileName);
+        var uniqueFileName = $"{tipoDocumento}_{Guid.NewGuid()}{extension}";
         
+        var filePath = Path.Combine(absolutePath, uniqueFileName);
+        var dbRelativePath = Path.Combine(relativePath, uniqueFileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream, ct);
+        }
+
+        _logger.LogInformation("Archivo {FileName} guardado exitosamente en {Path}", file.FileName, filePath);
+
+        return dbRelativePath;
+    }
+
+    public async Task<string> UploadPlantillaAsync(IFormFile file, string tipoPlantilla, CancellationToken ct = default)
+    {
+        // Path: Uploads/Plantillas/{tipoPlantilla}/{guid}.pdf
+        var relativePath = Path.Combine("Plantillas", tipoPlantilla);
         var absolutePath = Path.Combine(Directory.GetCurrentDirectory(), _basePath, relativePath);
 
         if (!Directory.Exists(absolutePath))
@@ -39,14 +66,14 @@ public class LocalFileStorageService : IStorageService
             await file.CopyToAsync(stream, ct);
         }
 
-        _logger.LogInformation("Archivo {FileName} guardado exitosamente en {Path}", file.FileName, filePath);
+        _logger.LogInformation("Plantilla {FileName} guardada exitosamente en {Path}", file.FileName, filePath);
 
         return dbRelativePath;
     }
 
-    public void DeleteFolder(string userId)
+    public void DeleteStudentFolder(string alumnoId)
     {
-        var folderPath = Path.Combine(Directory.GetCurrentDirectory(), _basePath, "Students", userId);
+        var folderPath = Path.Combine(Directory.GetCurrentDirectory(), _basePath, "Students", alumnoId);
 
         if (Directory.Exists(folderPath))
         {
