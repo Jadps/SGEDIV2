@@ -1,0 +1,52 @@
+SECTION 1: AI Agent Meta-Rules
+
+NO EXPLANATIONS: Do not explain code, patterns, or decisions unless explicitly asked. I know what I'm doing.
+NO CONTEXTUAL COMMENTS: Do not add useless comments like "// Making a request with include" or "// Validating payload".
+DOMAIN COMMENTS ALLOWED: You MAY add comments about missing critical business logic.
+PLAN-EXECUTE FLOW: For complex features, first provide a bulleted plan of changes. Wait for confirmation before generating code.
+
+SECTION 2: Backend Standards (.NET 10, FastEndpoints, EF Core)
+Architecture: Vertical Slice Architecture (VSA)
+
+The folders Configuration, Domain, Infrastructure are for SHARED concerns only.
+All new application logic MUST go inside /Features/{SliceName}. A slice contains everything: the Endpoint, the internal logic (if small), Request/Response DTOs, and Validators.
+Tech Stack & Patterns:
+Target Framework: .NET 10 (Latest C# features).
+API Style: Minimal APIs using FastEndpoints.
+Result Pattern: Enforce the pattern defined in Domain/Common/Result.cs. Endpoints must return our custom Result<T>.
+CRITICAL FIX (FastEndpoints Responses): Do NOT use FastEndpoints typed responses (e.g., SendOkAsync<TResponse>). Instead, you MUST manually map our Result<T> to FastEndpoints SendAsync(dto, status) to ensure our standard error structure is maintained.
+DTOs & Data Transfer:
+Requests/Responses: Prefer C# Records for all DTOs and immutable messages. Convert existing classes to records during refactoring.
+Projections: Never use AutoMapper. Use EF Core projections (Select(x => new DTO { ... })) directly on IQueryable to maximize performance.
+Domain & Constraints:
+ISoftDelete / IActivatable: Entities must implement these. When querying, automatically filter by default to only active, non-deleted records unless explicitly asked.
+Common Utilities: Prefer methods in Domain/Common (Pagination, SemestreHelper, etc.).
+Constants & Roles: Use the Roles defined in Constants; do not query a nonexistent Roles table.
+Claims Handling: CRITICAL: Do not parse Claims manually in endpoints. Always use the extension methods provided in Infrastructure/Extensions/UserExtensions.cs.
+
+SECTION 3: Frontend Standards (Angular 21, PrimeNG 21, Tailwind 4)
+Tech Stack:
+
+Framework: Angular 21 (latest features, signals, standalone).
+CSS: Tailwind CSS 4 (tw4).
+UI Lib: PrimeNG 21 (Aura theme).
+Styling & Design:
+Color Palette: Predominantly Blue (TecNM standard).
+Theme Switcher: All components MUST support the dark/light mode toggle via the topbar utility classes.
+UI Reuse: Never implement local Toasts or ProgressBars. Use the global implementations.
+Aesthetics Consistency: Maintain style symmetry between similar components (e.g., Tables must look identical across features).
+Architecture & Optimization:
+Variables: Use English for all naming.
+Constants: Retrieve endpoints from the existing Constants file.
+Interceptors: Respect existing interceptors in core/interceptors for security (CSRF, credentials) and loading.
+Badges/Status: Use the existing Status utility for rendering badges. Back-end sends raw status; front-end handles mapping to PrimeNG colors/labels.
+STATE MANAGEMENT: Use Signals for all local component state. No more raw variables for reactive data.
+INPUTS: Use the input() or input.required() API. Never use the @Input() decorator.
+OUTPUTS: Use the output() API. Never use the @Output() decorator or EventEmitter.
+TWO-WAY BINDING: Use the model() API for properties that require two-way data binding (like a search term or a toggle status).
+EFFECTS/COMPUTED: Use computed() for derived state (e.g., filtering a list based on a signal search term) and effect() only when performing side effects (like logging or manual DOM manipulation).
+TEMPLATE ACCESS: Use the signal getter syntax in templates: {{ mySignal() }}.
+
+SECTION 4: Specific Problem Resolutions
+CRITICAL FIX: Modal/Tab Lazy Loading (Angular)
+When generating multi-tab components (e.g., in features\alumnos\detail), DO NOT PRE-RENDER TABS.VSA Requirement for Tabs: When using PrimeNG Tabs, you MUST use dynamic component loading with @if or p-tabPanel lazy rendering so a network call to fetch data only triggers when the user actually clicks the tab. Never load all N tabs on open.
