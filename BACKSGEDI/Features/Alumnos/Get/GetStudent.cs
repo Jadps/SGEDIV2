@@ -4,16 +4,8 @@ using BACKSGEDI.Infrastructure.Data;
 using BACKSGEDI.Domain.Constants;
 using BACKSGEDI.Infrastructure.Extensions;
 using BACKSGEDI.Domain.Common;
-using System.Security.Claims;
 
 namespace BACKSGEDI.Features.Alumnos.Get;
-
-public record AlumnoDocumentoDto
-{
-    public string Tipo { get; init; } = string.Empty;
-    public DateTime FechaSubida { get; init; }
-    public string Ruta { get; init; } = string.Empty;
-}
 
 public record AlumnoDetailDto
 {
@@ -27,7 +19,7 @@ public record AlumnoDetailDto
     public string StatusText { get; init; } = string.Empty;
     public string StatusSeverity { get; init; } = "info";
     public DateTime CreatedAt { get; init; }
-    
+
     public bool IsMyCareer { get; init; }
     public bool IsMyStudent { get; init; }
     public bool IsMyAdvisory { get; init; }
@@ -46,89 +38,65 @@ public class GetStudentEndpoint : EndpointWithoutRequest<AlumnoDetailDto>
         Roles(SystemRoles.Admin, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.Profesor, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno);
     }
 
-    public override async Task HandleAsync(CancellationToken ct)
-    {
-        var id = Route<Guid>("id");
-        
-        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+        public override async Task HandleAsync(CancellationToken ct)
         {
-            await Result.Failure(Error.Unauthorized("Auth.Unauthorized", "No autorizado."))
-                .ToResult().ExecuteAsync(HttpContext);
-            return;
-        }
+            var id = Route<Guid>("id");
+            var userId = User.GetUserId();
+            var roles = User.GetRoles();
 
-        var roles = User.Claims
-            .Where(c => c.Type == ClaimTypes.Role || c.Type == "role")
-            .Select(c => c.Value)
-            .ToList();
-
-        var isAdminRole = roles.Any(r => r.Equals(SystemRoles.Admin, StringComparison.OrdinalIgnoreCase));
-        
-        var allowedCarreraIds = new HashSet<int>();
-        if (!isAdminRole)
-        {
-            if (roles.Any(r => r.Equals(SystemRoles.Coordinador, StringComparison.OrdinalIgnoreCase)))
+            if (userId == Guid.Empty)
             {
-                var coordCarreras = await _db.Coordinadores
-                    .Where(c => c.UsuarioId == userId)
-                    .Select(c => c.CarreraId)
-                    .ToListAsync(ct);
-                foreach (var cId in coordCarreras) allowedCarreraIds.Add(cId);
+                await Result.Failure(Error.Unauthorized("Auth.Unauthorized", "No autorizado."))
+                    .ToResult().ExecuteAsync(HttpContext);
+                return;
             }
 
-            if (roles.Any(r => r.Equals(SystemRoles.JefeDepartamento, StringComparison.OrdinalIgnoreCase)))
+            var isAdmin = roles.Contains(SystemRoles.Admin);
+
+            var dto = await _db.Alumnos
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .Where(a => a.Id == id && !a.IsDeleted && !a.Usuario.IsDeleted)
+                .ApplySecurityFilter(userId, roles, _db)
+                .Select(a => new AlumnoDetailDto
+                {
+                    Id = a.Id,
+                    Name = a.Usuario.Name,
+                    Email = a.Usuario.Email,
+                    Matricula = a.Matricula,
+                    Carrera = a.Carrera != null ? a.Carrera.Nombre : "N/A",
+                    Semestre = $"Semestre {a.SemestreId}",
+                    CreatedAt = a.Usuario.CreatedAt,
+                    IsAccountActive = a.Usuario.IsActive,
+
+                    IsAdmin = isAdmin,
+
+                    IsMyCareer = isAdmin ||
+                                 _db.Coordinadores.Any(c => c.UsuarioId == userId && c.CarreraId == a.CarreraId) ||
+                                 _db.JefesDepartamento.Any(j => j.UsuarioId == userId && j.CarreraId == a.CarreraId),
+
+                    IsMyStudent = false,
+                    IsMyAdvisory = false,
+
+                    StatusText = "",
+                    StatusSeverity = ""
+                })
+                .FirstOrDefaultAsync(ct);
+
+            if (dto is null)
             {
-                var jefeCarreras = await _db.JefesDepartamento
-                    .Where(j => j.UsuarioId == userId)
-                    .Select(j => j.CarreraId)
-                    .ToListAsync(ct);
-                foreach (var cId in jefeCarreras) allowedCarreraIds.Add(cId);
+                await Result.Failure(Error.NotFound("Alumno.NotFound", "Alumno no encontrado."))
+                    .ToResult().ExecuteAsync(HttpContext);
+                return;
             }
-        }
 
-        var alumno = await _db.Alumnos
-            .IgnoreQueryFilters()
-            .AsNoTracking()
-            .Include(a => a.Usuario)
-            .Include(a => a.Documentos)
-            .Where(a => a.Id == id && !a.IsDeleted && !a.Usuario.IsDeleted)
-            .FirstOrDefaultAsync(ct);
+            var final = dto with
+            {
+                StatusText = StatusHelper.GetText(dto.IsAccountActive),
+                StatusSeverity = StatusHelper.GetSeverity(dto.IsAccountActive, dto.IsMyCareer)
+            };
 
-        if (alumno is null)
-        {
-            await Result.Failure(Error.NotFound("Alumno.NotFound", "Alumno no encontrado."))
+            await Result<AlumnoDetailDto>.Success(final)
                 .ToResult().ExecuteAsync(HttpContext);
-            return;
         }
-
-        var isMyCareer = isAdminRole || allowedCarreraIds.Contains(alumno.CarreraId);
-        var isMyStudent = false; 
-        var isMyAdvisory = false;
-
-        var dto = new AlumnoDetailDto
-        {
-            Id = alumno.Id,
-            Name = alumno.Usuario.Name,
-            Email = alumno.Usuario.Email,
-            Matricula = alumno.Matricula,
-            Carrera = await _db.Carreras
-                .Where(c => c.Id == alumno.CarreraId)
-                .Select(c => c.Nombre)
-                .FirstOrDefaultAsync(ct) ?? "N/A",
-            Semestre = $"Semestre {alumno.SemestreId}",
-            IsAccountActive = alumno.Usuario.IsActive,
-            StatusText = StatusHelper.GetText(alumno.Usuario.IsActive),
-            StatusSeverity = StatusHelper.GetSeverity(alumno.Usuario.IsActive, isMyCareer),
-            CreatedAt = alumno.Usuario.CreatedAt,
-            IsMyCareer = isMyCareer,
-            IsMyStudent = isMyStudent,
-            IsMyAdvisory = isMyAdvisory,
-            IsAdmin = isAdminRole
-        };
-
-
-        await Result<AlumnoDetailDto>.Success(dto)
-            .ToResult().ExecuteAsync(HttpContext);
     }
-}

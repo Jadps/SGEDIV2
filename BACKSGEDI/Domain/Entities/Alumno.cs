@@ -9,6 +9,7 @@ public class Alumno : ISoftDelete, IActivatable
     public Usuario? Usuario { get; set; }
     public string Matricula { get; set; } = string.Empty;
     public int CarreraId { get; set; }
+    public CatCarrera? Carrera { get; set; }
     public int SemestreId { get; set; }
     public bool IsDeleted { get; set; } = false;
     public bool IsActive { get; set; } = true;

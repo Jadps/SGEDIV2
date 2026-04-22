@@ -1,9 +1,10 @@
-using FastEndpoints;
-using Microsoft.EntityFrameworkCore;
-using BACKSGEDI.Infrastructure.Data;
 using BACKSGEDI.Domain.Common;
 using BACKSGEDI.Domain.Constants;
+using BACKSGEDI.Features.Users.Me;
+using BACKSGEDI.Infrastructure.Data;
 using BACKSGEDI.Infrastructure.Extensions;
+using FastEndpoints;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace BACKSGEDI.Features.Alumnos.List;
@@ -44,128 +45,75 @@ public class ListStudentEndpoint : Endpoint<ListStudentRequest, PagedResponse<Al
         Roles(SystemRoles.Admin, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.Profesor, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno);
     }
 
-    public override async Task HandleAsync(ListStudentRequest req, CancellationToken ct)
+public override async Task HandleAsync(ListStudentRequest req, CancellationToken ct)
+{
+    var userId = User.GetUserId();
+    var roles = User.GetRoles();
+    
+    var isAdmin = roles.Contains(SystemRoles.Admin);
+
+    if (userId == Guid.Empty)
     {
-        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-        {
             await Result.Failure(Error.Unauthorized("Auth.Unauthorized", "No autorizado."))
                 .ToResult()
                 .ExecuteAsync(HttpContext);
             return;
-        }
+    }
 
-        var roles = User.Claims
-            .Where(c => c.Type == ClaimTypes.Role || c.Type == "role")
-            .Select(c => c.Value)
-            .ToList();
+    var query = _db.Alumnos
+        .IgnoreQueryFilters()
+        .AsNoTracking()
+        .Where(a => !a.IsDeleted && !a.Usuario.IsDeleted)
+        .ApplySecurityFilter(userId, roles, _db); 
 
-        var isAdmin = roles.Any(r => r.Equals(SystemRoles.Admin, StringComparison.OrdinalIgnoreCase));
+    if (!string.IsNullOrWhiteSpace(req.SearchTerm)) {
+        var term = req.SearchTerm.ToLower();
+        query = query.Where(a => a.Usuario.Name.ToLower().Contains(term) || a.Matricula.ToLower().Contains(term));
+    }
 
-        var allowedCarreraIds = new HashSet<int>();
-        var allowedStudentIds = new HashSet<Guid>();
+    if (req.CarreraId.HasValue) {
+        query = query.Where(a => a.CarreraId == req.CarreraId.Value);
+    }
 
-        if (!isAdmin)
+    var pagedResult = await query
+        .OrderByDescending(a => a.Usuario.CreatedAt)
+        .Select(a => new AlumnoDto
         {
-            if (roles.Any(r => r.Equals(SystemRoles.Coordinador, StringComparison.OrdinalIgnoreCase)))
-            {
-                var coordCarreras = await _db.Coordinadores
-                    .Where(c => c.UsuarioId == userId)
-                    .Select(c => c.CarreraId)
-                    .ToListAsync(ct);
+            Id = a.Id,
+            Name = a.Usuario.Name,
+            Email = a.Usuario.Email,
+            Matricula = a.Matricula,
+            Carrera = a.Carrera != null ? a.Carrera.Nombre : "N/A",
+            CreatedAt = a.Usuario.CreatedAt,
+            IsAccountActive = a.Usuario.IsActive,
 
-                foreach (var id in coordCarreras) allowedCarreraIds.Add(id);
-            }
+            IsMyCareer = isAdmin ||
+                         _db.Coordinadores.Any(c => c.UsuarioId == userId && c.CarreraId == a.CarreraId) ||
+                         _db.JefesDepartamento.Any(j => j.UsuarioId == userId && j.CarreraId == a.CarreraId),
 
-            if (roles.Any(r => r.Equals(SystemRoles.JefeDepartamento, StringComparison.OrdinalIgnoreCase)))
-            {
-                var jefeCarreras = await _db.JefesDepartamento
-                    .Where(j => j.UsuarioId == userId)
-                    .Select(j => j.CarreraId)
-                    .ToListAsync(ct);
+            //IsMyStudent = isAdmin || _db.Alumnos.Any(am => am.Id == a.Id && am.ProfesorId == userId),
+            //IsMyAdvisory = isAdmin || _db.Alumnos.Any(as => as.Id == a.Id && as.AsesorExternoId == userId),
 
-                foreach (var id in jefeCarreras) allowedCarreraIds.Add(id);
-            }
+            StatusText = "",
+            StatusSeverity = ""
+        })
+        .ToPagedResponseAsync(req, ct);
 
-            //if (roles.Any(r => r.Equals(SystemRoles.Profesor, StringComparison.OrdinalIgnoreCase)))
-            //{
-            //    var alumnosMateria = await _db.AlumnoMaterias
-            //        .Where(am => am.ProfesorId == userId)
-            //        .Select(am => am.AlumnoId)
-            //        .ToListAsync(ct);
+    var finalItems = pagedResult.Items.Select(item => item with 
+    {
+        StatusText = StatusHelper.GetText(item.IsAccountActive),
+        StatusSeverity = StatusHelper.GetSeverity(item.IsAccountActive, item.IsMyCareer)
+    }).ToList();
 
-            //    foreach (var id in alumnosMateria) allowedStudentIds.Add(id);
-            //}
+    var finalResponse = PagedResponse<AlumnoDto>.Create(
+        finalItems, 
+        pagedResult.TotalCount, 
+        pagedResult.Page, 
+        pagedResult.PageSize);
 
-            //if (roles.Any(r => r.Equals(SystemRoles.AsesorInterno, StringComparison.OrdinalIgnoreCase)))
-            //{
-            //    var alumnosAsesor = await _db.Alumnos
-            //        .Where(a => a.AsesorInternoId == userId)
-            //        .Select(a => a.Id)
-            //        .ToListAsync(ct);
-
-            //    foreach (var id in alumnosAsesor) allowedStudentIds.Add(id);
-            //}
-        }
-
-        var query = _db.Alumnos
-            .IgnoreQueryFilters()
-            .AsNoTracking()
-            .Where(a => !a.IsDeleted && !a.Usuario.IsDeleted)
-            .AsQueryable();
-
-        if (!isAdmin)
-        {
-            query = query.Where(a =>
-                allowedCarreraIds.Contains(a.CarreraId) ||
-                allowedStudentIds.Contains(a.Id));
-        }
-
-        if (!string.IsNullOrWhiteSpace(req.SearchTerm))
-        {
-            var term = req.SearchTerm.ToLower();
-            query = query.Where(a =>
-                a.Usuario.Name.ToLower().Contains(term) ||
-                a.Matricula.ToLower().Contains(term) ||
-                a.Usuario.Email.ToLower().Contains(term));
-        }
-
-        if (req.CarreraId.HasValue)
-        {
-            query = query.Where(a => a.CarreraId == req.CarreraId.Value);
-        }
-
-        var totalCount = await query.CountAsync(ct);
-        var pageSize = req.GetSanitizedPageSize(maxPageSize: 50);
-        var skip = (req.Page - 1) * pageSize;
-
-        var items = await query
-            .OrderByDescending(a => a.Usuario.CreatedAt)
-            .Skip(skip)
-            .Take(pageSize)
-            .Select(a => new AlumnoDto
-            {
-                Id = a.Id,
-                Name = a.Usuario.Name,
-                Email = a.Usuario.Email,
-                Matricula = a.Matricula,
-                Carrera = _db.Carreras
-                    .Where(c => c.Id == a.CarreraId)
-                    .Select(c => c.Nombre)
-                    .FirstOrDefault() ?? "N/A",
-                CreatedAt = a.Usuario.CreatedAt,
-                IsAccountActive = a.Usuario.IsActive,
-                IsMyCareer = allowedCarreraIds.Contains(a.CarreraId),
-                IsMyStudent = allowedStudentIds.Contains(a.Id),
-                IsMyAdvisory = allowedStudentIds.Contains(a.Id),
-                StatusText = StatusHelper.GetText(a.Usuario.IsActive),
-                StatusSeverity = StatusHelper.GetSeverity(a.Usuario.IsActive, allowedCarreraIds.Contains(a.CarreraId))
-            })
-            .ToListAsync(ct);
-
-        await Result<PagedResponse<AlumnoDto>>
-            .Success(PagedResponse<AlumnoDto>.Create(items, totalCount, req.Page, pageSize))
-            .ToResult()
-            .ExecuteAsync(HttpContext);
+    await Result<PagedResponse<AlumnoDto>>
+        .Success(finalResponse)
+        .ToResult()
+        .ExecuteAsync(HttpContext);
     }
 }
