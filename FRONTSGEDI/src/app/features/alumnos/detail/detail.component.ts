@@ -28,6 +28,13 @@ export class AlumnoDetailModalComponent implements OnChanges {
 
   alumno = signal<AlumnoDetailDto | null>(null);
   loading = signal(false);
+  activeTab = signal<string>('info');
+
+  onTabChange(event: string | number | undefined) {
+    if (event !== undefined) {
+      this.activeTab.set(event as string);
+    }
+  }
 
   ngOnChanges() {
     if (this.visible() && this.alumnoId()) {

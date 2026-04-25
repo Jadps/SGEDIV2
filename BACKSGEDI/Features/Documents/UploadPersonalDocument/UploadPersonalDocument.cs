@@ -11,7 +11,7 @@ using System.Security.Claims;
 
 namespace BACKSGEDI.Features.Documents.UploadPersonalDocument;
 
-public class UploadPersonalDocumentRequest
+public record UploadPersonalDocumentRequest
 {
     public Guid AlumnoId { get; set; }
     public TipoDocumentoAlumno TipoDocumento { get; set; }
@@ -81,3 +81,4 @@ public class UploadPersonalDocument : Endpoint<UploadPersonalDocumentRequest>
         await Result.Success().ToResult().ExecuteAsync(HttpContext);
     }
 }
+

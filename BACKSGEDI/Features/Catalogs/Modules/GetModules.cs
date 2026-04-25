@@ -6,7 +6,7 @@ using BACKSGEDI.Infrastructure.Extensions;
 
 namespace BACKSGEDI.Features.Catalogs.Modules;
 
-public class SubModuleDto
+public record SubModuleDto
 {
     public string Id { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
@@ -19,7 +19,7 @@ public class SubModuleDto
     public List<SubModuleDto> SubModules { get; set; } = [];
 }
 
-public class ModuleDto
+public record ModuleDto
 {
     public string Id { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
@@ -41,10 +41,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var roleClaims = User.Claims
-            .Where(c => c.Type == ClaimTypes.Role || c.Type == "role")
-            .Select(c => c.Value)
-            .ToList();
+        var roleClaims = User.GetRoles();
 
         var allModules = GetDefaultModules();
 
@@ -153,3 +150,4 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
         return filtered;
     }
 }
+

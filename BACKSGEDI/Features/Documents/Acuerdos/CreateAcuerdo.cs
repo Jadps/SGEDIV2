@@ -9,7 +9,7 @@ using BACKSGEDI.Infrastructure.Extensions;
 
 namespace BACKSGEDI.Features.Documents.Acuerdos;
 
-public class CreateAcuerdoRequest
+public record CreateAcuerdoRequest
 {
     public Guid AlumnoId { get; set; }
     public TipoAcuerdo TipoAcuerdo { get; set; }

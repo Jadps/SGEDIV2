@@ -13,13 +13,13 @@ using System.Security.Claims;
 
 namespace BACKSGEDI.Features.Auth.Login;
 
-public class LoginRequest
+public record LoginRequest
 {
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
 }
 
-public class LoginResponse
+public record LoginResponse
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -139,3 +139,4 @@ public class LoginEndpoint : FastEndpoints.Endpoint<LoginRequest>
         _antiforgery.GetAndStoreTokens(HttpContext);
     }
 }
+

@@ -5,20 +5,14 @@ using BACKSGEDI.Infrastructure.Extensions;
 
 namespace BACKSGEDI.Features.Users.Me;
 
-public class RoleResponseDto
-{
-    public string Id { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-}
-
-public class MeResponse
+public record MeResponse
 {
     public Guid Id { get; set; }
     public string Email { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
-    public List<RoleResponseDto> Roles { get; set; } = [];
+    public List<string> Roles { get; set; } = [];
     public int CatStatusAccountId { get; set; } = 1;
 }
 
@@ -31,15 +25,12 @@ public class GetMeEndpoint : EndpointWithoutRequest<MeResponse>
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var idClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-        var nameClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? string.Empty;
-        var emailClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value ?? string.Empty;
-        var roleClaims = User.Claims
-            .Where(c => c.Type == ClaimTypes.Role || c.Type == "role")
-            .Select(c => c.Value)
-            .ToList();
+        var userId = User.GetUserId();
+        var nameClaim = User.GetName();
+        var emailClaim = User.GetEmail();
+        var roleClaims = User.GetRoles();
 
-        if (string.IsNullOrEmpty(idClaim) || !Guid.TryParse(idClaim, out var userId))
+        if (userId == Guid.Empty)
         {
             await Result.Failure(Error.Unauthorized("Auth.Unauthorized", "Token inválido o no provisto."))
                 .ToResult()
@@ -58,10 +49,11 @@ public class GetMeEndpoint : EndpointWithoutRequest<MeResponse>
             FirstName = firstName,
             LastName = lastName,
             FullName = nameClaim,
-            Roles = roleClaims.Select(r => new RoleResponseDto { Id = r, Name = r }).ToList(),
+            Roles = roleClaims,
             CatStatusAccountId = 1
         };
 
         await Result<MeResponse>.Success(response).ToResult().ExecuteAsync(HttpContext);
     }
 }
+

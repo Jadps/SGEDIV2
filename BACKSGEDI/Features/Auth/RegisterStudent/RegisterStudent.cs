@@ -13,7 +13,7 @@ using BACKSGEDI.Infrastructure.Extensions;
 
 namespace BACKSGEDI.Features.Auth.RegisterStudent;
 
-public class RegisterStudentRequest
+public record RegisterStudentRequest
 {
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;

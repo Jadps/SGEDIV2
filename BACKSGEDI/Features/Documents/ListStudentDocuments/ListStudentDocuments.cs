@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace BACKSGEDI.Features.Documents.ListStudentDocuments;
 
-public class StudentDocumentDto
+public record StudentDocumentDto
 {
     public Guid Id { get; set; }
     public string Tipo { get; set; } = string.Empty;
@@ -42,7 +42,7 @@ public class ListStudentDocuments : EndpointWithoutRequest<List<StudentDocumentD
     {
         var alumnoId = Route<Guid>("alumnoId");
         var requesterId = User.GetUserId();
-        var roles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+        var roles = User.GetRoles();
         
         var isAdmin = roles.Contains(SystemRoles.Admin);
         var isCoord = roles.Contains(SystemRoles.Coordinador);
@@ -110,3 +110,4 @@ public class ListStudentDocuments : EndpointWithoutRequest<List<StudentDocumentD
             .ToResult().ExecuteAsync(HttpContext);
     }
 }
+

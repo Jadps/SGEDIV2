@@ -11,7 +11,7 @@ using System.Security.Claims;
 
 namespace BACKSGEDI.Features.Documents.Acuerdos;
 
-public class UploadAcuerdoRequest
+public record UploadAcuerdoRequest
 {
     public Guid AcuerdoId { get; set; }
     public IFormFile File { get; set; } = null!;
@@ -45,7 +45,7 @@ public class UploadAcuerdo : Endpoint<UploadAcuerdoRequest>
             return;
         }
 
-        var roles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+        var roles = User.GetRoles();
         
         if (!DocumentoPermissions.CanUpload(acuerdo.TipoAcuerdo, roles))
         {
@@ -97,3 +97,4 @@ public class UploadAcuerdo : Endpoint<UploadAcuerdoRequest>
         await Result.Success().ToResult().ExecuteAsync(HttpContext);
     }
 }
+

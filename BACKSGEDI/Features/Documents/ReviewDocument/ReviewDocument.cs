@@ -9,7 +9,7 @@ using System.Security.Claims;
 
 namespace BACKSGEDI.Features.Documents.ReviewDocument;
 
-public class ReviewDocumentRequest
+public record ReviewDocumentRequest
 {
     public Guid DocumentoId { get; set; }
     public bool Aprobado { get; set; }
@@ -41,9 +41,7 @@ public class ReviewDocument : Endpoint<ReviewDocumentRequest>
                 .ToResult().ExecuteAsync(HttpContext);
             return;
         }
-        var roles = User.Claims
-            .Where(c => c.Type == ClaimTypes.Role || c.Type == "role")
-            .Select(c => c.Value).ToList();
+        var roles = User.GetRoles();
 
         var isAdmin = roles.Any(r => r.Equals(SystemRoles.Admin, StringComparison.OrdinalIgnoreCase));
 
@@ -94,3 +92,4 @@ public class ReviewDocument : Endpoint<ReviewDocumentRequest>
         await Result.Failure(Error.NotFound("Doc.NotFound", "El documento no existe.")).ToResult().ExecuteAsync(HttpContext);
     }
 }
+

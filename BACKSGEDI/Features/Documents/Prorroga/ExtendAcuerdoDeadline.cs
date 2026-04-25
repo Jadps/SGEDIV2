@@ -7,7 +7,7 @@ using BACKSGEDI.Infrastructure.Extensions;
 
 namespace BACKSGEDI.Features.Documents.Acuerdos;
 
-public class ExtendDeadlineRequest
+public record ExtendDeadlineRequest
 {
     public Guid AcuerdoId { get; set; }
     public DateTime NuevaFechaLimite { get; set; }

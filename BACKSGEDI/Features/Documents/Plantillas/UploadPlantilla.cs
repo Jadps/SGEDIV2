@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BACKSGEDI.Features.Documents.Plantillas;
 
-public class UploadPlantillaRequest
+public record UploadPlantillaRequest
 {
     public TipoPlantilla TipoDocumento { get; set; }
     public string Nombre { get; set; } = string.Empty;
@@ -63,3 +63,4 @@ public class UploadPlantilla : Endpoint<UploadPlantillaRequest>
             .ToResult().ExecuteAsync(HttpContext);
     }
 }
+

@@ -1,4 +1,4 @@
-import { RoleDto } from './role.dto';
+
 
 export interface UserDto {
     id?: string;
@@ -8,7 +8,7 @@ export interface UserDto {
     secondLastName?: string | null;
     password?: string | null;
     tenantId?: string | null;
-    roles: RoleDto[];
+    roles: string[];
     friendlyName: string;
     phoneNumber?: string | null;
     catStatusAccountId: number;

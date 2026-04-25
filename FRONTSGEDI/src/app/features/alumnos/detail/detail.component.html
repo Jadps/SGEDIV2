@@ -8,7 +8,7 @@
         <p-progressSpinner strokeWidth="3" styleClass="w-10 h-10" />
     </div>
     } @else if (alumno()) {
-    <p-tabs value="info">
+    <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)">
         <p-tablist>
             <p-tab value="info">
                 <i class="pi pi-user mr-2"></i>Datos Generales
@@ -25,10 +25,26 @@
                 <app-alumno-info-tab [alumno]="alumno()!" (statusChanged)="statusChanged.emit($event)" />
             </p-tabpanel>
             <p-tabpanel value="docs">
-                <app-alumno-docs-tab [alumnoId]="alumnoId()" [isMyCareer]="alumno()?.isMyCareer ?? false" />
+                @defer (when activeTab() === 'docs'; prefetch on idle) {
+                    <app-alumno-docs-tab [alumnoId]="alumnoId()" [isMyCareer]="alumno()?.isMyCareer ?? false" />
+                } @placeholder {
+                    <div class="h-32 flex items-center justify-center">
+                        <p class="text-zinc-500">Cargando sección...</p>
+                    </div>
+                } @loading (after 100ms; minimum 500ms) {
+                    <div class="flex items-center justify-center py-20">
+                        <p-progressSpinner strokeWidth="3" styleClass="w-10 h-10" />
+                    </div>
+                }
             </p-tabpanel>
             <p-tabpanel value="academic">
-                <div class="p-6 text-zinc-500 text-sm">Próximamente</div>
+                @defer (when activeTab() === 'academic'; prefetch on idle) {
+                    <div class="p-6 text-zinc-500 text-sm">Próximamente</div>
+                } @placeholder {
+                    <div class="h-32 flex items-center justify-center">
+                        <p class="text-zinc-500">Cargando sección...</p>
+                    </div>
+                }
             </p-tabpanel>
         </p-tabpanels>
     </p-tabs>

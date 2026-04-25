@@ -8,7 +8,7 @@ using BACKSGEDI.Infrastructure.Extensions;
 
 namespace BACKSGEDI.Features.Documents.Plantillas;
 
-public class PlantillaDto
+public record PlantillaDto
 {
     public int Id { get; set; }
     public string Tipo { get; set; } = string.Empty;
@@ -51,3 +51,4 @@ public class ListPlantillas : EndpointWithoutRequest<List<PlantillaDto>>
             .ToResult().ExecuteAsync(HttpContext);
     }
 }
+
