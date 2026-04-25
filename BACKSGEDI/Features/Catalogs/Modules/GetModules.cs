@@ -92,6 +92,16 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                         AllowedRoles = [SystemRoles.Profesor, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno]
                     }
                 ]
+            },
+            new()
+            {
+                Id = "anexos",
+                Description = "Plantillas de Anexos",
+                Icon = "pi pi-file-word",
+                Action = "/dashboard/anexos",
+                Order = 3,
+                ModuleTypeId = 1,
+                AllowedRoles = [SystemRoles.Coordinador]
             }
         ];
     }

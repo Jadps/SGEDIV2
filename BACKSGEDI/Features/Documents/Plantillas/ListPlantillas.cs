@@ -10,10 +10,11 @@ namespace BACKSGEDI.Features.Documents.Plantillas;
 
 public record PlantillaDto
 {
-    public int Id { get; set; }
-    public string Tipo { get; set; } = string.Empty;
-    public string Nombre { get; set; } = string.Empty;
-    public DateTime FechaSubida { get; set; }
+    public int Id { get; init; }
+    public int TipoDocumento { get; init; }
+    public string Tipo { get; init; } = string.Empty;
+    public string Nombre { get; init; } = string.Empty;
+    public DateTime FechaSubida { get; init; }
 }
 
 public class ListPlantillas : EndpointWithoutRequest<List<PlantillaDto>>
@@ -41,6 +42,7 @@ public class ListPlantillas : EndpointWithoutRequest<List<PlantillaDto>>
             .Select(p => new PlantillaDto
             {
                 Id = p.Id,
+                TipoDocumento = (int)p.TipoDocumento,
                 Tipo = p.TipoDocumento.ToString(),
                 Nombre = p.Nombre,
                 FechaSubida = p.FechaSubida

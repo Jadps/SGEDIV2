@@ -32,6 +32,13 @@ export const routes: Routes = [
                 canActivate: [permissionGuard, roleGuard],
                 data: { roles: ['Admin', 'Profesor', 'Coordinador', 'JefeDepartamento', 'AsesorInterno', 'AsesorExterno'] }
             },
+            {
+                path: 'dashboard/anexos',
+                title: 'Plantillas de Anexos | SGEDI',
+                loadComponent: () => import('./features/anexos/anexos.component').then(m => m.AnexosComponent),
+                canActivate: [permissionGuard, roleGuard],
+                data: { roles: ['Admin', 'Coordinador'] }
+            },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
     },

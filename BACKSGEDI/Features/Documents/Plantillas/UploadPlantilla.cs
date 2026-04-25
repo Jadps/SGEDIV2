@@ -29,7 +29,13 @@ public class UploadPlantillaValidator : Validator<UploadPlantillaRequest>
     }
 }
 
-public class UploadPlantilla : Endpoint<UploadPlantillaRequest>
+public record UploadPlantillaResponse
+{
+    public int Id { get; init; }
+    public string Nombre { get; init; } = string.Empty;
+}
+
+public class UploadPlantilla : Endpoint<UploadPlantillaRequest, UploadPlantillaResponse>
 {
     private readonly ApplicationDbContext _db;
     private readonly IStorageService _storageService;
@@ -71,7 +77,13 @@ public class UploadPlantilla : Endpoint<UploadPlantillaRequest>
         await _db.PlantillasDocumentos.AddAsync(newPlantilla, ct);
         await _db.SaveChangesAsync(ct);
 
-        await Result<object>.Success(new { id = newPlantilla.Id, nombre = newPlantilla.Nombre })
+        var response = new UploadPlantillaResponse
+        {
+            Id = newPlantilla.Id,
+            Nombre = newPlantilla.Nombre
+        };
+
+        await Result<UploadPlantillaResponse>.Success(response)
             .ToResult().ExecuteAsync(HttpContext);
     }
 }

@@ -15,9 +15,6 @@ import { DialogModule } from 'primeng/dialog';
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <h3 class="text-lg font-medium text-white">Documentos del Alumno</h3>
-        <div class="flex gap-2">
-            <!-- Template download options could go here -->
-        </div>
       </div>
 
       <p-table [value]="documents()" styleClass="p-datatable-sm glass-table" [loading]="loading()">
@@ -158,11 +155,11 @@ export class AlumnoDocsTabComponent implements OnInit {
 
     const newDate = new Date(this.selectedFechaLimite());
     this.alumnoService.extendDeadline(doc.id, newDate).subscribe({
-        next: () => {
-            this.prorrogaDialogVisible.set(false);
-            this.loadDocs();
-        },
-        error: () => alert('No se pudo otorgar la prórroga')
+      next: () => {
+        this.prorrogaDialogVisible.set(false);
+        this.loadDocs();
+      },
+      error: () => alert('No se pudo otorgar la prórroga')
     });
   }
 
@@ -193,11 +190,11 @@ export class AlumnoDocsTabComponent implements OnInit {
 
   viewDocument(id: string) {
     this.alumnoService.downloadDocument(id).subscribe({
-        next: (blob) => {
-            const url = window.URL.createObjectURL(blob);
-            window.open(url, '_blank');
-        },
-        error: () => alert('Error al cargar el documento')
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      },
+      error: () => alert('Error al cargar el documento')
     });
   }
 
