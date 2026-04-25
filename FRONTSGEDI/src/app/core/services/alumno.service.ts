@@ -77,4 +77,11 @@ export class AlumnoService {
       responseType: 'blob'
     });
   }
+
+  extendDeadline(acuerdoId: string, nuevaFechaLimite: Date): Observable<void> {
+    return this.http.patch<void>(
+      `${environment.apiUrl}/acuerdos/${acuerdoId}/prorroga`,
+      { acuerdoId, nuevaFechaLimite: nuevaFechaLimite.toISOString() }
+    );
+  }
 }

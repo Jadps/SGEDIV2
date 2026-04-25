@@ -5,10 +5,12 @@ import { ButtonModule } from 'primeng/button';
 import { AlumnoService } from '../../../../core/services/alumno.service';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
 
+import { DialogModule } from 'primeng/dialog';
+
 @Component({
   selector: 'app-alumno-docs-tab',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, StatusBadgeComponent],
+  imports: [CommonModule, TableModule, ButtonModule, StatusBadgeComponent, DialogModule],
   template: `
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
@@ -40,6 +42,9 @@ import { StatusBadgeComponent } from '../../../../shared/components/status-badge
             <td class="text-xs text-zinc-500">{{ doc.fechaSubida | date:'shortDate' }}</td>
             <td class="flex gap-2">
                 <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info" (onClick)="viewDocument(doc.id)" pTooltip="Ver Documento" />
+                @if (canReview() && doc.esAcuerdo) {
+                    <p-button icon="pi pi-calendar-plus" [rounded]="true" [text]="true" severity="help" (onClick)="openProrroga(doc)" pTooltip="Otorgar Prórroga" />
+                }
                 @if (canReview() && doc.estado === 0) {
                     <p-button icon="pi pi-check" [rounded]="true" [text]="true" severity="success" (onClick)="review(doc, true)" pTooltip="Aprobar" />
                     <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="danger" (onClick)="review(doc, false)" pTooltip="Rechazar" />
@@ -71,6 +76,17 @@ import { StatusBadgeComponent } from '../../../../shared/components/status-badge
             }
         </div>
       </div>
+
+      <p-dialog [(visible)]="prorrogaDialogVisible" header="Otorgar Prórroga" [modal]="true" [style]="{width: '400px'}">
+        <div class="flex flex-col gap-4 mt-2">
+            <p class="text-zinc-400 text-sm">Selecciona la nueva fecha límite para la entrega de este anexo.</p>
+            <input type="datetime-local" class="p-3 bg-zinc-800/50 border border-white/10 rounded-xl text-white outline-none focus:border-white/30" [value]="selectedFechaLimite()" (change)="onFechaLimiteChange($event)">
+        </div>
+        <ng-template pTemplate="footer">
+            <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="prorrogaDialogVisible.set(false)" />
+            <p-button label="Guardar" (onClick)="saveProrroga()" [disabled]="!selectedFechaLimite()" />
+        </ng-template>
+      </p-dialog>
     </div>
   `,
   styles: [`
@@ -99,6 +115,10 @@ export class AlumnoDocsTabComponent implements OnInit {
   templates = signal<any[]>([]);
   loading = signal(false);
 
+  prorrogaDialogVisible = signal(false);
+  selectedDocForProrroga = signal<any>(null);
+  selectedFechaLimite = signal<string>('');
+
   canReview = computed(() => this.isAdmin() || this.isMyCareer());
 
   ngOnInit() {
@@ -119,6 +139,31 @@ export class AlumnoDocsTabComponent implements OnInit {
 
   loadTemplates() {
     this.alumnoService.getTemplates().subscribe(data => this.templates.set(data));
+  }
+
+  openProrroga(doc: any) {
+    this.selectedDocForProrroga.set(doc);
+    this.selectedFechaLimite.set('');
+    this.prorrogaDialogVisible.set(true);
+  }
+
+  onFechaLimiteChange(event: Event) {
+    const val = (event.target as HTMLInputElement).value;
+    this.selectedFechaLimite.set(val);
+  }
+
+  saveProrroga() {
+    const doc = this.selectedDocForProrroga();
+    if (!doc || !this.selectedFechaLimite()) return;
+
+    const newDate = new Date(this.selectedFechaLimite());
+    this.alumnoService.extendDeadline(doc.id, newDate).subscribe({
+        next: () => {
+            this.prorrogaDialogVisible.set(false);
+            this.loadDocs();
+        },
+        error: () => alert('No se pudo otorgar la prórroga')
+    });
   }
 
   getSeverity(estado: number): string {
