@@ -52,6 +52,7 @@ builder.Services.AddOptions<StorageOptions>()
     .ValidateOnStart();
 
 builder.Services.AddScoped<IStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<BACKSGEDI.Domain.Interfaces.IFechasLimiteService, BACKSGEDI.Domain.Common.FechasLimiteService>();
 
 var appOptions = builder.Configuration.GetSection(AppOptions.SectionName).Get<AppOptions>() 
                  ?? new AppOptions { FrontendUrl = "http://localhost:4201" };

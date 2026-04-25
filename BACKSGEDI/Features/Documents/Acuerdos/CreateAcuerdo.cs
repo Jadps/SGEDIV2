@@ -32,8 +32,13 @@ public record AcuerdoDto
 public class CreateAcuerdo : Endpoint<CreateAcuerdoRequest>
 {
     private readonly ApplicationDbContext _db;
+    private readonly BACKSGEDI.Domain.Interfaces.IFechasLimiteService _fechasLimiteService;
 
-    public CreateAcuerdo(ApplicationDbContext db) => _db = db;
+    public CreateAcuerdo(ApplicationDbContext db, BACKSGEDI.Domain.Interfaces.IFechasLimiteService fechasLimiteService)
+    {
+        _db = db;
+        _fechasLimiteService = fechasLimiteService;
+    }
 
     public override void Configure()
     {
@@ -46,8 +51,8 @@ public class CreateAcuerdo : Endpoint<CreateAcuerdoRequest>
         var requesterId = User.GetUserId();
         var semestreActual = SemestreHelper.GetSemestreActual();
 
-        var alumnoExiste = await _db.Alumnos.AnyAsync(a => a.Id == req.AlumnoId, ct);
-        if (!alumnoExiste)
+        var alumno = await _db.Alumnos.FirstOrDefaultAsync(a => a.Id == req.AlumnoId, ct);
+        if (alumno == null)
         {
             await Result.Failure(Error.NotFound("Alumno.NotFound", "El alumno no existe."))
                 .ToResult().ExecuteAsync(HttpContext);
@@ -74,7 +79,7 @@ public class CreateAcuerdo : Endpoint<CreateAcuerdoRequest>
             AsesorInternoId = req.AsesorInternoId,
             AsesorExternoId = req.AsesorExternoId,
             Semestre = semestreActual,
-            FechaLimite = req.FechaLimiteManual ?? FechasLimiteService.GetDefaultFechaLimite(semestreActual),
+            FechaLimite = req.FechaLimiteManual ?? await _fechasLimiteService.GetFechaLimiteAsync(req.TipoAcuerdo, alumno.CarreraId, semestreActual, ct),
             Estado = EstadoDocumento.PendienteRevision,
             SubidoPorUsuarioId = requesterId,
             Version = 1,

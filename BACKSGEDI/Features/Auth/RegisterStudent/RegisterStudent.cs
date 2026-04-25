@@ -10,6 +10,8 @@ using BACKSGEDI.Domain.Entities;
 using BACKSGEDI.Domain.Enums;
 using BACKSGEDI.Domain.Common;
 using BACKSGEDI.Infrastructure.Extensions;
+using BACKSGEDI.Domain.Interfaces;
+using BACKSGEDI.Domain.Constants;
 
 namespace BACKSGEDI.Features.Auth.RegisterStudent;
 
@@ -68,10 +70,13 @@ public class RegisterStudentEndpoint : FastEndpoints.Endpoint<RegisterStudentReq
     private readonly ApplicationDbContext _db;
     private readonly IStorageService _storageService;
 
-    public RegisterStudentEndpoint(ApplicationDbContext db, IStorageService storageService)
+    private readonly IFechasLimiteService _fechasLimiteService;
+
+    public RegisterStudentEndpoint(ApplicationDbContext db, IStorageService storageService, IFechasLimiteService fechasLimiteService)
     {
         _db = db;
         _storageService = storageService;
+        _fechasLimiteService = fechasLimiteService;
     }
 
     public override void Configure()
@@ -162,7 +167,9 @@ public class RegisterStudentEndpoint : FastEndpoints.Endpoint<RegisterStudentReq
                 Semestre = semestreActual,
                 RutaArchivo = pathAnexoI,
                 FechaSubida = DateTime.UtcNow,
-                FechaLimite = FechasLimiteService.GetDefaultFechaLimite(semestreActual),
+                FechaLimite = (await _fechasLimiteService.GetFechaLimiteAsync(TipoAcuerdo.AnexoI, req.CarreraId, semestreActual, ct)) is var configDate && configDate > DateTime.UtcNow.AddDays(DocumentConstants.DefaultDeadlineDays) 
+                    ? configDate 
+                    : DateTime.UtcNow.AddDays(DocumentConstants.DefaultDeadlineDays),
                 SubidoPorUsuarioId = userId,
                 Estado = EstadoDocumento.PendienteRevision,
                 Version = 1,

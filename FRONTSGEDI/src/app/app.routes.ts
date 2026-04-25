@@ -39,6 +39,13 @@ export const routes: Routes = [
                 canActivate: [permissionGuard, roleGuard],
                 data: { roles: ['Admin', 'Coordinador'] }
             },
+            {
+                path: 'dashboard/fechas-limite',
+                title: 'Fechas Límite | SGEDI',
+                loadComponent: () => import('./features/fechas-limite/fechas-limite.component').then(m => m.FechasLimiteComponent),
+                canActivate: [permissionGuard, roleGuard],
+                data: { roles: ['Admin', 'Coordinador'] }
+            },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
     },

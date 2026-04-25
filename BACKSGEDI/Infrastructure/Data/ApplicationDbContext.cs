@@ -18,6 +18,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<DocumentoAlumno> DocumentosAlumnos { get; set; } = null!;
     public DbSet<DocumentoAcuerdo> DocumentosAcuerdos { get; set; } = null!;
     public DbSet<PlantillaDocumento> PlantillasDocumentos { get; set; } = null!;
+    public DbSet<ConfiguracionFechaLimite> ConfiguracionesFechasLimites { get; set; } = null!;
     public DbSet<AuditLog> AuditLogs { get; set; } = null!;
     public DbSet<Coordinador> Coordinadores { get; set; } = null!;
     public DbSet<JefeDepartamento> JefesDepartamento { get; set; } = null!;

@@ -102,6 +102,16 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                 Order = 3,
                 ModuleTypeId = 1,
                 AllowedRoles = [SystemRoles.Coordinador]
+            },
+            new()
+            {
+                Id = "fechas-limite",
+                Description = "Configuración Fechas Límite",
+                Icon = "pi pi-calendar-clock",
+                Action = "/dashboard/fechas-limite",
+                Order = 4,
+                ModuleTypeId = 1,
+                AllowedRoles = [SystemRoles.Coordinador]
             }
         ];
     }
