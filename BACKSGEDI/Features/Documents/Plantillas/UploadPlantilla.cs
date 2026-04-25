@@ -1,5 +1,6 @@
 using BACKSGEDI.Domain.Common;
 using BACKSGEDI.Domain.Constants;
+using FluentValidation;
 using BACKSGEDI.Domain.Entities;
 using BACKSGEDI.Domain.Enums;
 using BACKSGEDI.Infrastructure.Data;
@@ -15,6 +16,17 @@ public record UploadPlantillaRequest
     public TipoPlantilla TipoDocumento { get; set; }
     public string Nombre { get; set; } = string.Empty;
     public IFormFile File { get; set; } = null!;
+}
+
+public class UploadPlantillaValidator : Validator<UploadPlantillaRequest>
+{
+    public UploadPlantillaValidator(Microsoft.Extensions.Options.IOptions<BACKSGEDI.Configuration.StorageOptions> options)
+    {
+        RuleFor(x => x.File)
+            .NotNull()
+            .Must(f => FileValidationHelper.IsValidPdfOrWord(f, options.Value.MaxFileSizeInBytes))
+            .WithMessage($"La plantilla debe ser PDF o Word y menor a {options.Value.MaxFileSizeInBytes / 1024 / 1024}MB.");
+    }
 }
 
 public class UploadPlantilla : Endpoint<UploadPlantillaRequest>

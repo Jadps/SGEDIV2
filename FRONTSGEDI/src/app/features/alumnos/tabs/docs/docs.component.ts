@@ -39,9 +39,10 @@ import { StatusBadgeComponent } from '../../../../shared/components/status-badge
             </td>
             <td class="text-xs text-zinc-500">{{ doc.fechaSubida | date:'shortDate' }}</td>
             <td class="flex gap-2">
+                <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info" (onClick)="viewDocument(doc.id)" pTooltip="Ver Documento" />
                 @if (canReview() && doc.estado === 0) {
-                    <p-button icon="pi pi-check" [rounded]="true" [text]="true" severity="success" (onClick)="review(doc, true)" />
-                    <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="danger" (onClick)="review(doc, false)" />
+                    <p-button icon="pi pi-check" [rounded]="true" [text]="true" severity="success" (onClick)="review(doc, true)" pTooltip="Aprobar" />
+                    <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="danger" (onClick)="review(doc, false)" pTooltip="Rechazar" />
                 }
             </td>
           </tr>
@@ -142,6 +143,16 @@ export class AlumnoDocsTabComponent implements OnInit {
 
     this.alumnoService.reviewDocument(this.alumnoId(), doc.id, aprobado, motivo!).subscribe(() => {
       this.loadDocs();
+    });
+  }
+
+  viewDocument(id: string) {
+    this.alumnoService.downloadDocument(id).subscribe({
+        next: (blob) => {
+            const url = window.URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        },
+        error: () => alert('Error al cargar el documento')
     });
   }
 

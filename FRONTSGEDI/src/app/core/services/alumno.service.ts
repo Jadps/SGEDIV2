@@ -71,4 +71,10 @@ export class AlumnoService {
     const url = `${environment.apiUrl}${API_ENDPOINTS.PLANTILLAS.DOWNLOAD.replace('{id}', id.toString())}`;
     window.open(url, '_blank');
   }
+
+  downloadDocument(id: string): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/documentos/${id}/download`, {
+      responseType: 'blob'
+    });
+  }
 }

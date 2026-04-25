@@ -44,10 +44,18 @@ public class DownloadPlantilla : EndpointWithoutRequest
             return;
         }
 
+        var ext = Path.GetExtension(plantilla.RutaArchivo).ToLowerInvariant();
+        var contentType = ext switch
+        {
+            ".doc" => "application/msword",
+            ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            _ => "application/pdf"
+        };
+
         await Results.File(
             rutaAbsoluta,
-            contentType: "application/pdf",
-            fileDownloadName: plantilla.Nombre + ".pdf"
+            contentType: contentType,
+            fileDownloadName: plantilla.Nombre + ext
         ).ExecuteAsync(HttpContext);
     }
 }
