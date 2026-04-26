@@ -75,7 +75,7 @@ import { FormsModule } from '@angular/forms';
         </div>
       </div>
 
-      <p-dialog [(visible)]="prorrogaDialogVisible" header="Otorgar Prórroga" [modal]="true" [style]="{width: '400px'}">
+      <p-dialog [(visible)]="prorrogaDialogVisible" header="Otorgar Prórroga" [modal]="true" draggable="false" [style]="{width: '400px'}">
         <div class="flex flex-col gap-4 mt-2">
             <p class="text-zinc-400 text-sm">Selecciona la nueva fecha límite para la entrega de este anexo.</p>
             <input type="datetime-local" class="p-3 bg-zinc-800/50 border border-white/10 rounded-xl text-white outline-none focus:border-white/30" [value]="selectedFechaLimite()" (change)="onFechaLimiteChange($event)">

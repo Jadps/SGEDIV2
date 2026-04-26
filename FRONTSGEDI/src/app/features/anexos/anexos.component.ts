@@ -59,7 +59,7 @@ import { FormsModule } from '@angular/forms';
       </div>
     </div>
 
-    <p-dialog [(visible)]="displayDialog" header="Subir Nueva Plantilla" [modal]="true" [style]="{width: '500px'}" styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
+    <p-dialog [(visible)]="displayDialog" header="Subir Nueva Plantilla" [modal]="true" draggable="false" [style]="{width: '500px'}" styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
       <div class="flex flex-col gap-6 mt-4">
         <div class="flex flex-col gap-2">
           <label class="text-sm text-zinc-400">Tipo de Anexo</label>
@@ -88,7 +88,7 @@ import { FormsModule } from '@angular/forms';
       </ng-template>
     </p-dialog>
 
-    <p-dialog [(visible)]="editDialogVisible" header="Editar Nombre de Plantilla" [modal]="true" [style]="{width: '400px'}" styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
+    <p-dialog [(visible)]="editDialogVisible" header="Editar Nombre de Plantilla" [modal]="true" draggable="false" [style]="{width: '400px'}" styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
       <div class="flex flex-col gap-6 mt-4">
         <div class="flex flex-col gap-2">
           <label class="text-sm text-zinc-400">Nuevo Nombre</label>
