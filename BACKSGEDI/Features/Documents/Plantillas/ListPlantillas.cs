@@ -13,7 +13,6 @@ public record PlantillaDto
     public int Id { get; init; }
     public int TipoDocumento { get; init; }
     public string Tipo { get; init; } = string.Empty;
-    public string Nombre { get; init; } = string.Empty;
     public DateTime FechaSubida { get; init; }
 }
 
@@ -44,7 +43,6 @@ public class ListPlantillas : EndpointWithoutRequest<List<PlantillaDto>>
                 Id = p.Id,
                 TipoDocumento = (int)p.TipoDocumento,
                 Tipo = p.TipoDocumento.ToString(),
-                Nombre = p.Nombre,
                 FechaSubida = p.FechaSubida
             })
             .ToListAsync(ct);

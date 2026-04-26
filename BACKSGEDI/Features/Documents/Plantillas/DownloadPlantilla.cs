@@ -55,7 +55,7 @@ public class DownloadPlantilla : EndpointWithoutRequest
         await Results.File(
             rutaAbsoluta,
             contentType: contentType,
-            fileDownloadName: plantilla.Nombre + ext
+            fileDownloadName: plantilla.TipoDocumento + ext
         ).ExecuteAsync(HttpContext);
     }
 }

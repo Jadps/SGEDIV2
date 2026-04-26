@@ -7,7 +7,6 @@ public class PlantillaDocumento : ISoftDelete
 {
     public int Id { get; set; }
     public TipoPlantilla TipoDocumento { get; set; }
-    public string Nombre { get; set; } = string.Empty;
     public string RutaArchivo { get; set; } = string.Empty;
     public DateTime FechaSubida { get; set; } = DateTime.UtcNow;
     public Guid SubidaPorUsuarioId { get; set; }

@@ -1,0 +1,45 @@
+:host ::ng-deep .glass-table .p-datatable-thead > tr > th {
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--zinc-400);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1.25rem 1rem;
+}
+
+:host ::ng-deep .glass-table .p-datatable-tbody > tr {
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  transition: all 0.2s ease;
+}
+
+:host ::ng-deep .glass-table .p-datatable-tbody > tr:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+:host ::ng-deep .glass-table .p-datatable-tbody > tr > td {
+  padding: 1.25rem 1rem;
+}
+
+:host ::ng-deep .glass-dark {
+  background: rgba(12, 12, 14, 0.95) !important;
+  backdrop-filter: blur(20px);
+}
+
+:host ::ng-deep .p-dialog-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  padding: 1.5rem !important;
+}
+
+:host ::ng-deep .p-dialog-content {
+  background: transparent !important;
+  padding: 1.5rem !important;
+}
+
+:host ::ng-deep .p-dialog-footer {
+  background: transparent !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+  padding: 1.25rem 1.5rem !important;
+}

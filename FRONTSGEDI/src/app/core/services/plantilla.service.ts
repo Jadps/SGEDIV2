@@ -14,10 +14,9 @@ export class PlantillaService {
     return this.http.get<any[]>(`${environment.apiUrl}${API_ENDPOINTS.PLANTILLAS.BASE}`);
   }
 
-  uploadTemplate(tipoDocumento: number, nombre: string, file: File): Observable<any> {
+  uploadTemplate(tipoDocumento: number, file: File): Observable<any> {
     const formData = new FormData();
     formData.append('TipoDocumento', tipoDocumento.toString());
-    formData.append('Nombre', nombre);
     formData.append('File', file);
 
     return this.http.post<any>(`${environment.apiUrl}${API_ENDPOINTS.PLANTILLAS.BASE}`, formData);
@@ -28,8 +27,12 @@ export class PlantillaService {
     window.open(url, '_blank');
   }
 
-  updateTemplate(id: number, nombre: string): Observable<void> {
-    return this.http.patch<void>(`${environment.apiUrl}${API_ENDPOINTS.PLANTILLAS.BASE}/${id}`, { id, nombre });
+  updateTemplate(id: number, file: File): Observable<void> {
+    const formData = new FormData();
+    formData.append('Id', id.toString());
+    formData.append('File', file);
+
+    return this.http.patch<void>(`${environment.apiUrl}${API_ENDPOINTS.PLANTILLAS.BASE}/${id}`, formData);
   }
 
   deleteTemplate(id: number): Observable<void> {

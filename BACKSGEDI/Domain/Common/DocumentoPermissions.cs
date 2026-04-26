@@ -7,9 +7,9 @@ public static class DocumentoPermissions
 {
     private static readonly Dictionary<TipoAcuerdo, string[]> UploadPermissions = new()
     {
-        { TipoAcuerdo.AnexoI, new[] { SystemRoles.Alumno, SystemRoles.AsesorExterno, SystemRoles.Admin, SystemRoles.Coordinador } },
+        { TipoAcuerdo.AnexoI, new[] { SystemRoles.Alumno, SystemRoles.Admin, SystemRoles.Coordinador } },
         { TipoAcuerdo.AnexoII, new[] { SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.Admin } },
-        { TipoAcuerdo.AnexoIII, new[] { SystemRoles.AsesorInterno, SystemRoles.AsesorExterno, SystemRoles.Profesor, SystemRoles.Admin } },
+        { TipoAcuerdo.AnexoIII, new[] { SystemRoles.Profesor, SystemRoles.Admin } },
         { TipoAcuerdo.AnexoIV, new[] { SystemRoles.Alumno, SystemRoles.Admin } },
         { TipoAcuerdo.AnexoV, new[] { SystemRoles.AsesorInterno, SystemRoles.Admin } },
         { TipoAcuerdo.AnexoVI, new[] { SystemRoles.AsesorExterno, SystemRoles.Admin } },

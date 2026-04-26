@@ -14,7 +14,6 @@ namespace BACKSGEDI.Features.Documents.Plantillas;
 public record UploadPlantillaRequest
 {
     public TipoPlantilla TipoDocumento { get; set; }
-    public string Nombre { get; set; } = string.Empty;
     public IFormFile File { get; set; } = null!;
 }
 
@@ -32,7 +31,6 @@ public class UploadPlantillaValidator : Validator<UploadPlantillaRequest>
 public record UploadPlantillaResponse
 {
     public int Id { get; init; }
-    public string Nombre { get; init; } = string.Empty;
 }
 
 public class UploadPlantilla : Endpoint<UploadPlantillaRequest, UploadPlantillaResponse>
@@ -68,7 +66,6 @@ public class UploadPlantilla : Endpoint<UploadPlantillaRequest, UploadPlantillaR
         var newPlantilla = new PlantillaDocumento
         {
             TipoDocumento = req.TipoDocumento,
-            Nombre = req.Nombre,
             RutaArchivo = path,
             SubidaPorUsuarioId = requesterId,
             EsVigente = true
@@ -79,8 +76,7 @@ public class UploadPlantilla : Endpoint<UploadPlantillaRequest, UploadPlantillaR
 
         var response = new UploadPlantillaResponse
         {
-            Id = newPlantilla.Id,
-            Nombre = newPlantilla.Nombre
+            Id = newPlantilla.Id
         };
 
         await Result<UploadPlantillaResponse>.Success(response)
