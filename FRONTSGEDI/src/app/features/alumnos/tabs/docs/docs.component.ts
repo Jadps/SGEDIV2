@@ -4,13 +4,14 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { AlumnoService } from '../../../../core/services/alumno.service';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
-
 import { DialogModule } from 'primeng/dialog';
+import { TextareaModule } from 'primeng/textarea';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-alumno-docs-tab',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, StatusBadgeComponent, DialogModule],
+  imports: [CommonModule, TableModule, ButtonModule, StatusBadgeComponent, DialogModule, TextareaModule, FormsModule],
   template: `
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
@@ -62,7 +63,7 @@ import { DialogModule } from 'primeng/dialog';
             @for (temp of templates(); track temp.id) {
                 <div class="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors">
                     <div class="flex items-center gap-3">
-                        <i class="pi pi-file-pdf text-red-400 text-xl"></i>
+                        <i class="pi pi-file-word text-blue-400"></i>
                         <div>
                             <span class="block text-sm text-white font-medium">{{ temp.nombre }}</span>
                             <span class="text-[10px] text-zinc-500 uppercase">{{ temp.tipo }}</span>
@@ -82,6 +83,24 @@ import { DialogModule } from 'primeng/dialog';
         <ng-template pTemplate="footer">
             <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="prorrogaDialogVisible.set(false)" />
             <p-button label="Guardar" (onClick)="saveProrroga()" [disabled]="!selectedFechaLimite()" />
+        </ng-template>
+      </p-dialog>
+
+      <p-dialog [(visible)]="rejectDialogVisible" header="Motivo de Rechazo" [modal]="true" draggable="false" [style]="{width: '450px'}" styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
+        <div class="flex flex-col gap-4 mt-2">
+            <p class="text-zinc-400 text-sm">Por favor, indica el motivo por el cual estás rechazando este documento. El alumno podrá verlo para corregirlo.</p>
+            <textarea 
+                pTextarea 
+                [autoResize]="true" 
+                rows="5" 
+                class="w-full p-4 bg-zinc-800/50 border border-white/10 rounded-xl text-white outline-none focus:border-white/30 placeholder:text-zinc-600"
+                [(ngModel)]="motivoRechazo"
+                placeholder="Ej: El documento no es legible o falta la firma del director.">
+            </textarea>
+        </div>
+        <ng-template pTemplate="footer">
+            <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="rejectDialogVisible.set(false)" />
+            <p-button label="Confirmar Rechazo" severity="danger" (onClick)="confirmReject()" [disabled]="!motivoRechazo() || motivoRechazo().length < 5" />
         </ng-template>
       </p-dialog>
     </div>
@@ -115,6 +134,10 @@ export class AlumnoDocsTabComponent implements OnInit {
   prorrogaDialogVisible = signal(false);
   selectedDocForProrroga = signal<any>(null);
   selectedFechaLimite = signal<string>('');
+
+  rejectDialogVisible = signal(false);
+  motivoRechazo = signal('');
+  docToReview = signal<any>(null);
 
   canReview = computed(() => this.isAdmin() || this.isMyCareer());
 
@@ -180,10 +203,24 @@ export class AlumnoDocsTabComponent implements OnInit {
   }
 
   review(doc: any, aprobado: boolean) {
-    const motivo = aprobado ? undefined : prompt('Motivo del rechazo:');
-    if (!aprobado && !motivo) return;
+    if (aprobado) {
+      this.alumnoService.reviewDocument(this.alumnoId(), doc.id, aprobado, undefined).subscribe(() => {
+        this.loadDocs();
+      });
+    } else {
+      this.docToReview.set(doc);
+      this.motivoRechazo.set('');
+      this.rejectDialogVisible.set(true);
+    }
+  }
 
-    this.alumnoService.reviewDocument(this.alumnoId(), doc.id, aprobado, motivo!).subscribe(() => {
+  confirmReject() {
+    const doc = this.docToReview();
+    const motivo = this.motivoRechazo();
+    if (!doc || !motivo) return;
+
+    this.alumnoService.reviewDocument(this.alumnoId(), doc.id, false, motivo).subscribe(() => {
+      this.rejectDialogVisible.set(false);
       this.loadDocs();
     });
   }

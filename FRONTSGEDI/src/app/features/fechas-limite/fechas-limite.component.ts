@@ -52,7 +52,7 @@ import { TagModule } from 'primeng/tag';
                 <td>
                   <p-tag *ngIf="fecha.isDefault && !fecha.changed" severity="info" value="Default" />
                   <p-tag *ngIf="!fecha.isDefault && !fecha.changed" severity="success" value="Personalizado" />
-                  <p-tag *ngIf="fecha.changed" severity="warning" value="Modificado" />
+                  <p-tag *ngIf="fecha.changed" severity="warn" value="Modificado" />
                 </td>
               </tr>
             </ng-template>

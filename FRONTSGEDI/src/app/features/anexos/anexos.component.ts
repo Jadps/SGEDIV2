@@ -5,12 +5,14 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-anexos',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, DialogModule, SelectModule, FormsModule],
+  imports: [CommonModule, TableModule, ButtonModule, DialogModule, SelectModule, ConfirmDialogModule, FormsModule],
   template: `
     <div class="p-8 h-full overflow-y-auto">
       <div class="max-w-6xl mx-auto">
@@ -120,6 +122,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class AnexosComponent implements OnInit {
   private readonly plantillaService = inject(PlantillaService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   templates = signal<any[]>([]);
   loading = signal(false);
@@ -221,8 +224,24 @@ export class AnexosComponent implements OnInit {
   }
 
   delete(id: number) {
-    if (confirm('¿Estás seguro de eliminar esta plantilla? (Los anexos ya subidos por alumnos no se verán afectados)')) {
-      this.plantillaService.deleteTemplate(id).subscribe(() => this.loadTemplates());
-    }
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de eliminar esta plantilla? (Los anexos ya subidos por alumnos no se verán afectados)',
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      rejectLabel: 'Cancelar',
+      rejectButtonProps: {
+        label: 'Cancelar',
+        severity: 'secondary',
+        outlined: true,
+      },
+      acceptLabel: 'Eliminar',
+      acceptButtonProps: {
+        label: 'Eliminar',
+        severity: 'danger',
+      },
+      accept: () => {
+        this.plantillaService.deleteTemplate(id).subscribe(() => this.loadTemplates());
+      }
+    });
   }
 }
