@@ -67,6 +67,7 @@ public class UploadAcuerdo : Endpoint<UploadAcuerdoRequest>
         }
 
         var requesterId = User.GetUserId();
+        var isAdminOrCoord = roles.Contains(SystemRoles.Admin) || roles.Contains(SystemRoles.Coordinador);
         var semestreActual = SemestreHelper.GetSemestreActual();
         
         if (acuerdo.FechaSubida != null)
@@ -86,7 +87,7 @@ public class UploadAcuerdo : Endpoint<UploadAcuerdoRequest>
                 FechaLimite = acuerdo.FechaLimite,
                 Version = maxVersion + 1,
                 EsVersionActual = true,
-                Estado = EstadoDocumento.PendienteRevision,
+                Estado = isAdminOrCoord ? EstadoDocumento.Aprobado : EstadoDocumento.PendienteRevision,
                 SubidoPorUsuarioId = requesterId
             };
 
@@ -102,7 +103,7 @@ public class UploadAcuerdo : Endpoint<UploadAcuerdoRequest>
             acuerdo.RutaArchivo = path;
             acuerdo.FechaSubida = DateTime.UtcNow;
             acuerdo.SubidoPorUsuarioId = requesterId;
-            acuerdo.Estado = EstadoDocumento.PendienteRevision;
+            acuerdo.Estado = isAdminOrCoord ? EstadoDocumento.Aprobado : EstadoDocumento.PendienteRevision;
         }
 
         await _db.SaveChangesAsync(ct);

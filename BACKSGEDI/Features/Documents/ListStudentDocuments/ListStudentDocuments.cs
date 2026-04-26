@@ -20,6 +20,7 @@ public record StudentDocumentDto
     public string Semestre { get; set; } = string.Empty;
     public bool EsAcuerdo { get; set; }
     public DateTime? FechaLimite { get; set; }
+    public int TipoId { get; set; }
 }
 
 public class ListStudentDocuments : EndpointWithoutRequest<List<StudentDocumentDto>>
@@ -85,7 +86,8 @@ public class ListStudentDocuments : EndpointWithoutRequest<List<StudentDocumentD
                 Estado = d.Estado,
                 FechaSubida = d.FechaSubida,
                 Semestre = d.Semestre,
-                EsAcuerdo = false
+                EsAcuerdo = false,
+                TipoId = (int)d.TipoDocumento
             }).ToListAsync(ct);
 
         var acuerdoDocs = await acuerdoDocsQuery
@@ -98,7 +100,8 @@ public class ListStudentDocuments : EndpointWithoutRequest<List<StudentDocumentD
                 FechaSubida = d.FechaSubida,
                 Semestre = d.Semestre,
                 EsAcuerdo = true,
-                FechaLimite = d.FechaLimite
+                FechaLimite = d.FechaLimite,
+                TipoId = (int)d.TipoAcuerdo
             }).ToListAsync(ct);
 
         var result = personalDocs.Union(acuerdoDocs)

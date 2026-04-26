@@ -67,23 +67,7 @@
 
     <div class="flex flex-col gap-2">
       <label class="text-sm text-zinc-400">Archivo Word (.doc, .docx)</label>
-      <div class="relative group">
-        <input type="file" #fileInput (change)="onFileSelected($event)" accept=".doc,.docx,.pdf" class="hidden"
-          id="file-upload">
-        <label for="file-upload"
-          class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/10 rounded-2xl bg-zinc-800/30 group-hover:bg-zinc-800/50 group-hover:border-blue-500/50 transition-all cursor-pointer">
-          <div class="flex flex-col items-center justify-center pt-5 pb-6">
-            <i class="pi pi-cloud-upload text-3xl text-zinc-500 group-hover:text-blue-400 mb-3 transition-colors"></i>
-            <p class="text-sm text-zinc-400 group-hover:text-zinc-300">
-              <span class="font-semibold text-blue-400">Haz clic para subir</span> o arrastra y suelta
-            </p>
-            <p class="text-xs text-zinc-500 mt-1" *ngIf="!selectedFile">PDF, DOCX (Máx. 10MB)</p>
-            <p class="text-xs text-green-400 font-medium mt-2" *ngIf="selectedFile">
-              <i class="pi pi-check-circle mr-1"></i> {{ selectedFile.name }}
-            </p>
-          </div>
-        </label>
-      </div>
+      <app-file-uploader (fileSelected)="selectedFile = $event" />
     </div>
   </div>
   <ng-template pTemplate="footer">
@@ -96,9 +80,9 @@
 <p-dialog [(visible)]="editDialogVisible" header="Reemplazar Archivo de Plantilla" [modal]="true" draggable="false"
   [style]="{width: '500px'}" styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
   <div class="flex flex-col gap-6 mt-4">
-    <div class="p-4 rounded-xl bg-blue-500/5 border border-blue-500/10">
+    <div class="p-4 rounded-xl bg-purple-500/5 border border-purple-500/10">
       <div class="flex items-center gap-3">
-        <i class="pi pi-info-circle text-blue-400"></i>
+        <i class="pi pi-info-circle text-purple-400"></i>
         <p class="text-sm text-zinc-300">
           Estás reemplazando el archivo para el <strong>{{ editingTemplateName }}</strong>.
         </p>
@@ -107,24 +91,8 @@
 
     <div class="flex flex-col gap-2">
       <label class="text-sm text-zinc-400">Nuevo Archivo (.doc, .docx, .pdf)</label>
-      <div class="relative group">
-        <input type="file" #editFileInput (change)="onEditFileSelected($event)" accept=".doc,.docx,.pdf" class="hidden"
-          id="edit-file-upload">
-        <label for="edit-file-upload"
-          class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/10 rounded-2xl bg-zinc-800/30 group-hover:bg-zinc-800/50 group-hover:border-purple-500/50 transition-all cursor-pointer">
-          <div class="flex flex-col items-center justify-center pt-5 pb-6">
-            <i class="pi pi-sync text-3xl text-zinc-500 group-hover:text-purple-400 mb-3 transition-colors"></i>
-            <p class="text-sm text-zinc-400 group-hover:text-zinc-300">
-              <span class="font-semibold text-purple-400">Seleccionar nuevo archivo</span>
-            </p>
-            <p class="text-xs text-zinc-500 mt-1" *ngIf="!editSelectedFile">Reemplazará el archivo actual
-              inmediatamente.</p>
-            <p class="text-xs text-green-400 font-medium mt-2" *ngIf="editSelectedFile">
-              <i class="pi pi-check-circle mr-1"></i> {{ editSelectedFile.name }}
-            </p>
-          </div>
-        </label>
-      </div>
+      <app-file-uploader color="purple" icon="pi-sync" label="Seleccionar nuevo archivo"
+        description="Reemplazará el archivo actual inmediatamente." (fileSelected)="editSelectedFile = $event" />
     </div>
   </div>
   <ng-template pTemplate="footer">
@@ -133,3 +101,6 @@
       severity="help" />
   </ng-template>
 </p-dialog>
+
+<p-toast />
+<p-confirmDialog />

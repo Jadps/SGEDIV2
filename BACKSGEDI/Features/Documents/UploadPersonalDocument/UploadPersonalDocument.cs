@@ -44,16 +44,18 @@ public class UploadPersonalDocument : Endpoint<UploadPersonalDocumentRequest>
     public override void Configure()
     {
         Post("/api/alumnos/{alumnoId}/documentos");
-        Roles(SystemRoles.Alumno);
+        Roles(SystemRoles.Alumno, SystemRoles.Admin, SystemRoles.Coordinador);
         AllowFileUploads();
     }
 
     public override async Task HandleAsync(UploadPersonalDocumentRequest req, CancellationToken ct)
     {
         var requesterId = User.GetUserId();
+        var roles = User.GetRoles();
+        var isAdminOrCoord = roles.Contains(SystemRoles.Admin) || roles.Contains(SystemRoles.Coordinador);
         
         var isMe = await _db.Alumnos.AnyAsync(a => a.Id == req.AlumnoId && a.UsuarioId == requesterId, ct);
-        if (!isMe)
+        if (!isMe && !isAdminOrCoord)
         {
             await Result.Failure(Error.Forbidden("Doc.Forbidden", "No puedes subir documentos de otro alumno."))
                 .ToResult().ExecuteAsync(HttpContext);
@@ -83,7 +85,7 @@ public class UploadPersonalDocument : Endpoint<UploadPersonalDocumentRequest>
             RutaArchivo = path,
             Version = nextVersion,
             EsVersionActual = true,
-            Estado = EstadoDocumento.PendienteRevision,
+            Estado = isAdminOrCoord ? EstadoDocumento.Aprobado : EstadoDocumento.PendienteRevision,
             SubidoPorUsuarioId = requesterId
         };
 

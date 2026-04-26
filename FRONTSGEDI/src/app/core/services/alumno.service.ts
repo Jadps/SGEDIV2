@@ -84,4 +84,25 @@ export class AlumnoService {
       { acuerdoId, nuevaFechaLimite: nuevaFechaLimite.toISOString() }
     );
   }
+
+  uploadAdministrativeAcuerdo(acuerdoId: string, file: File): Observable<void> {
+    const formData = new FormData();
+    formData.append('AcuerdoId', acuerdoId);
+    formData.append('File', file);
+    return this.http.post<void>(
+      `${environment.apiUrl}${API_ENDPOINTS.ACUERDOS.UPLOAD.replace('{id}', acuerdoId)}`, 
+      formData
+    );
+  }
+
+  uploadAdministrativePersonalDoc(alumnoId: string, tipoDocumento: number, file: File): Observable<void> {
+    const formData = new FormData();
+    formData.append('AlumnoId', alumnoId);
+    formData.append('TipoDocumento', tipoDocumento.toString());
+    formData.append('File', file);
+    return this.http.post<void>(
+      `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.DOCUMENTS.replace('{id}', alumnoId)}`, 
+      formData
+    );
+  }
 }

@@ -10,6 +10,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
+import { FileUploaderComponent } from '../../shared/components/file-uploader/file-uploader.component';
 
 @Component({
   selector: 'app-anexos',
@@ -23,7 +24,8 @@ import { ToastModule } from 'primeng/toast';
     ConfirmDialogModule,
     FormsModule,
     TooltipModule,
-    ToastModule
+    ToastModule,
+    FileUploaderComponent
   ],
   templateUrl: './anexos.component.html',
   styleUrl: './anexos.component.css'
@@ -174,7 +176,8 @@ export class AnexosComponent implements OnInit {
     });
   }
 
-  formatTipo(tipo: string): string {
+  formatTipo(tipo: string | null | undefined): string {
+    if (!tipo) return '';
     return tipo.replace(/Anexo([I|V|X]+)/, 'Anexo $1');
   }
 }

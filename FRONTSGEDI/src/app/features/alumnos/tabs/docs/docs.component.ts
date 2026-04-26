@@ -9,11 +9,12 @@ import { TextareaModule } from 'primeng/textarea';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { FileUploaderComponent } from '../../../../shared/components/file-uploader/file-uploader.component';
 
 @Component({
   selector: 'app-alumno-docs-tab',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, StatusBadgeComponent, DialogModule, TextareaModule, FormsModule, ToastModule],
+  imports: [CommonModule, TableModule, ButtonModule, StatusBadgeComponent, DialogModule, TextareaModule, FormsModule, ToastModule, FileUploaderComponent],
   templateUrl: './docs.component.html',
   styleUrl: './docs.component.css'
 })
@@ -38,6 +39,11 @@ export class AlumnoDocsTabComponent implements OnInit {
   docToReview = signal<any>(null);
 
   canReview = computed(() => this.isAdmin() || this.isMyCareer());
+
+  adminUploadVisible = signal(false);
+  selectedDocForAdminUpload = signal<any>(null);
+  adminSelectedFile = signal<File | null>(null);
+  isUploadingAdmin = signal(false);
 
   ngOnInit() {
     this.loadDocs();
@@ -138,7 +144,38 @@ export class AlumnoDocsTabComponent implements OnInit {
     this.alumnoService.downloadTemplate(id);
   }
 
-  formatTipo(tipo: string): string {
+  formatTipo(tipo: string | null | undefined): string {
+    if (!tipo) return '';
     return tipo.replace(/Anexo([I|V|X]+)/, 'Anexo $1');
+  }
+
+  openAdminUpload(doc: any) {
+    this.selectedDocForAdminUpload.set(doc);
+    this.adminSelectedFile.set(null);
+    this.adminUploadVisible.set(true);
+  }
+
+  saveAdminUpload() {
+    const doc = this.selectedDocForAdminUpload();
+    const file = this.adminSelectedFile();
+    if (!doc || !file) return;
+
+    this.isUploadingAdmin.set(true);
+    const upload$ = doc.esAcuerdo 
+      ? this.alumnoService.uploadAdministrativeAcuerdo(doc.id, file)
+      : this.alumnoService.uploadAdministrativePersonalDoc(this.alumnoId(), doc.tipoId, file);
+
+    upload$.subscribe({
+      next: () => {
+        this.isUploadingAdmin.set(false);
+        this.adminUploadVisible.set(false);
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Documento subido y validado correctamente' });
+        this.loadDocs();
+      },
+      error: (err) => {
+        this.isUploadingAdmin.set(false);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || 'Error al subir el documento' });
+      }
+    });
   }
 }
