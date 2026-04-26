@@ -83,20 +83,6 @@ export class AnexosComponent implements OnInit {
     this.displayDialog = true;
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.selectedFile = file;
-    }
-  }
-
-  onEditFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.editSelectedFile = file;
-    }
-  }
-
   upload() {
     if (!this.selectedTipo || !this.selectedFile) return;
 

@@ -58,47 +58,51 @@
 
 <p-dialog [(visible)]="displayDialog" header="Subir Nueva Plantilla" [modal]="true" draggable="false"
   [style]="{width: '500px'}" styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
-  <div class="flex flex-col gap-6 mt-4">
-    <div class="flex flex-col gap-2">
-      <label class="text-sm text-zinc-400">Tipo de Anexo</label>
-      <p-select [options]="availableTipos()" [(ngModel)]="selectedTipo" optionLabel="label" optionValue="value"
-        placeholder="Selecciona el anexo" styleClass="w-full bg-zinc-800/50 border-white/10" />
-    </div>
+    @if (displayDialog) {
+      <div class="flex flex-col gap-6 mt-4">
+        <div class="flex flex-col gap-2">
+          <label class="text-sm text-zinc-400">Tipo de Anexo</label>
+          <p-select [options]="availableTipos()" [(ngModel)]="selectedTipo" optionLabel="label" optionValue="value"
+            placeholder="Selecciona el anexo" styleClass="w-full bg-zinc-800/50 border-white/10" />
+        </div>
 
-    <div class="flex flex-col gap-2">
-      <label class="text-sm text-zinc-400">Archivo Word (.doc, .docx)</label>
-      <app-file-uploader (fileSelected)="selectedFile = $event" />
-    </div>
-  </div>
-  <ng-template pTemplate="footer">
-    <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="displayDialog = false" />
-    <p-button label="Subir Plantilla" (onClick)="upload()" [loading]="uploading()"
-      [disabled]="!selectedTipo || !selectedFile" />
-  </ng-template>
+        <div class="flex flex-col gap-2">
+          <label class="text-sm text-zinc-400">Archivo Word (.doc, .docx)</label>
+          <app-file-uploader (fileSelected)="selectedFile = $event" />
+        </div>
+      </div>
+    }
+    <ng-template pTemplate="footer">
+      <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="displayDialog = false" />
+      <p-button label="Subir Plantilla" (onClick)="upload()" [loading]="uploading()"
+        [disabled]="!selectedTipo || !selectedFile" />
+    </ng-template>
 </p-dialog>
 
 <p-dialog [(visible)]="editDialogVisible" header="Reemplazar Archivo de Plantilla" [modal]="true" draggable="false"
   [style]="{width: '500px'}" styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
-  <div class="flex flex-col gap-6 mt-4">
-    <div class="p-4 rounded-xl bg-purple-500/5 border border-purple-500/10">
-      <div class="flex items-center gap-3">
-        <i class="pi pi-info-circle text-purple-400"></i>
-        <p class="text-sm text-zinc-300">
-          Estás reemplazando el archivo para el <strong>{{ editingTemplateName }}</strong>.
-        </p>
-      </div>
-    </div>
+    @if (editDialogVisible) {
+      <div class="flex flex-col gap-6 mt-4">
+        <div class="p-4 rounded-xl bg-purple-500/5 border border-purple-500/10">
+          <div class="flex items-center gap-3">
+            <i class="pi pi-info-circle text-purple-400"></i>
+            <p class="text-sm text-zinc-300">
+              Estás reemplazando el archivo para el <strong>{{ editingTemplateName }}</strong>.
+            </p>
+          </div>
+        </div>
 
-    <div class="flex flex-col gap-2">
-      <label class="text-sm text-zinc-400">Nuevo Archivo (.doc, .docx, .pdf)</label>
-      <app-file-uploader color="purple" icon="pi-sync" label="Seleccionar nuevo archivo"
-        description="Reemplazará el archivo actual inmediatamente." (fileSelected)="editSelectedFile = $event" />
-    </div>
-  </div>
-  <ng-template pTemplate="footer">
-    <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="editDialogVisible = false" />
-    <p-button label="Actualizar Archivo" (onClick)="saveEdit()" [loading]="uploading()" [disabled]="!editSelectedFile"
-      severity="help" />
-  </ng-template>
+        <div class="flex flex-col gap-2">
+          <label class="text-sm text-zinc-400">Nuevo Archivo (.doc, .docx, .pdf)</label>
+          <app-file-uploader color="purple" icon="pi-sync" label="Seleccionar nuevo archivo"
+            description="Reemplazará el archivo actual inmediatamente." (fileSelected)="editSelectedFile = $event" />
+        </div>
+      </div>
+    }
+    <ng-template pTemplate="footer">
+      <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="editDialogVisible = false" />
+      <p-button label="Actualizar Archivo" (onClick)="saveEdit()" [loading]="uploading()" [disabled]="!editSelectedFile"
+        severity="help" />
+    </ng-template>
 </p-dialog>
 

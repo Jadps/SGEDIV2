@@ -103,27 +103,29 @@
     </ng-template>
   </p-dialog>
 
-  <p-dialog [(visible)]="adminUploadVisible" header="Subida Administrativa" [modal]="true" draggable="false"
+  <p-dialog [visible]="adminUploadVisible()" (visibleChange)="adminUploadVisible.set($event)" header="Subida Administrativa" [modal]="true" draggable="false"
     [style]="{width: '500px'}" styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
-    <div class="flex flex-col gap-6 mt-4">
-      <div class="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-        <div class="flex items-center gap-3">
-          <i class="pi pi-shield text-emerald-400"></i>
-          <p class="text-sm text-zinc-300">
-            Estás subiendo el documento <strong>{{ formatTipo(selectedDocForAdminUpload()?.tipo) }}</strong> en nombre
-            del alumno.
-            <span class="block mt-1 text-emerald-400 font-medium">El documento será marcado como APROBADO
-              automáticamente.</span>
-          </p>
+    @if (adminUploadVisible()) {
+      <div class="flex flex-col gap-6 mt-4">
+        <div class="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+          <div class="flex items-center gap-3">
+            <i class="pi pi-shield text-emerald-400"></i>
+            <p class="text-sm text-zinc-300">
+              Estás subiendo el documento <strong>{{ formatTipo(selectedDocForAdminUpload()?.tipo) }}</strong> en nombre
+              del alumno.
+              <span class="block mt-1 text-emerald-400 font-medium">El documento será marcado como APROBADO
+                automáticamente.</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="text-sm text-zinc-400">Archivo a subir (.pdf, .doc, .docx)</label>
+          <app-file-uploader color="emerald" icon="pi-shield" label="Subir y Validar"
+            description="Se guardará como la versión oficial aprobada." (fileSelected)="adminSelectedFile.set($event)" />
         </div>
       </div>
-
-      <div class="flex flex-col gap-2">
-        <label class="text-sm text-zinc-400">Archivo a subir (.pdf, .doc, .docx)</label>
-        <app-file-uploader color="emerald" icon="pi-shield" label="Subir y Validar"
-          description="Se guardará como la versión oficial aprobada." (fileSelected)="adminSelectedFile.set($event)" />
-      </div>
-    </div>
+    }
     <ng-template pTemplate="footer">
       <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="adminUploadVisible.set(false)" />
       <p-button label="Subir y Aprobar" (onClick)="saveAdminUpload()" [loading]="isUploadingAdmin()"
