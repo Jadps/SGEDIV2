@@ -8,13 +8,12 @@ import { DialogModule } from 'primeng/dialog';
 import { TextareaModule } from 'primeng/textarea';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { FileUploaderComponent } from '../../../../shared/components/file-uploader/file-uploader.component';
 
 @Component({
   selector: 'app-alumno-docs-tab',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, StatusBadgeComponent, DialogModule, TextareaModule, FormsModule, ToastModule, FileUploaderComponent],
+  imports: [CommonModule, TableModule, ButtonModule, StatusBadgeComponent, DialogModule, TextareaModule, FormsModule, FileUploaderComponent],
   templateUrl: './docs.component.html',
   styleUrl: './docs.component.css'
 })

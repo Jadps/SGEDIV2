@@ -9,7 +9,6 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
-import { ToastModule } from 'primeng/toast';
 import { FileUploaderComponent } from '../../shared/components/file-uploader/file-uploader.component';
 
 @Component({
@@ -21,10 +20,8 @@ import { FileUploaderComponent } from '../../shared/components/file-uploader/fil
     ButtonModule,
     DialogModule,
     SelectModule,
-    ConfirmDialogModule,
     FormsModule,
     TooltipModule,
-    ToastModule,
     FileUploaderComponent
   ],
   templateUrl: './anexos.component.html',

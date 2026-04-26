@@ -8,12 +8,12 @@ import { FechasLimiteService, FechaLimiteDto } from '../../core/services/fechas-
 import { CatalogService } from '../../core/services/catalog.service';
 import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
+
 
 @Component({
   selector: 'app-fechas-limite',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, SelectModule, FormsModule, TagModule, ToastModule],
+  imports: [CommonModule, TableModule, ButtonModule, SelectModule, FormsModule, TagModule],
   templateUrl: './fechas-limite.component.html',
   styleUrl: './fechas-limite.component.css'
 })
