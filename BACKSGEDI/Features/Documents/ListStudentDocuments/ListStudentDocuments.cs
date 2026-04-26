@@ -23,7 +23,13 @@ public record StudentDocumentDto
     public int TipoId { get; set; }
 }
 
-public class ListStudentDocuments : EndpointWithoutRequest<List<StudentDocumentDto>>
+public record ListStudentDocumentsRequest
+{
+    public Guid AlumnoId { get; set; }
+    [QueryParam] public string? Semestre { get; set; }
+}
+
+public class ListStudentDocuments : Endpoint<ListStudentDocumentsRequest, List<StudentDocumentDto>>
 {
     private readonly ApplicationDbContext _db;
 
@@ -39,9 +45,9 @@ public class ListStudentDocuments : EndpointWithoutRequest<List<StudentDocumentD
               SystemRoles.Alumno, SystemRoles.Profesor, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno);
     }
 
-    public override async Task HandleAsync(CancellationToken ct)
+    public override async Task HandleAsync(ListStudentDocumentsRequest req, CancellationToken ct)
     {
-        var alumnoId = Route<Guid>("alumnoId");
+        var alumnoId = req.AlumnoId;
         var requesterId = User.GetUserId();
         var roles = User.GetRoles();
         
@@ -71,7 +77,12 @@ public class ListStudentDocuments : EndpointWithoutRequest<List<StudentDocumentD
             .AsNoTracking()
             .Where(d => d.AlumnoId == alumnoId && d.EsVersionActual);
 
-        if (!seeHistorical)
+        if (!string.IsNullOrEmpty(req.Semestre))
+        {
+            personalDocsQuery = personalDocsQuery.Where(d => d.Semestre == req.Semestre);
+            acuerdoDocsQuery = acuerdoDocsQuery.Where(d => d.Semestre == req.Semestre);
+        }
+        else if (!seeHistorical)
         {
             personalDocsQuery = personalDocsQuery.Where(d => d.Semestre == semestreActual);
             acuerdoDocsQuery = acuerdoDocsQuery.Where(d => d.Semestre == semestreActual);

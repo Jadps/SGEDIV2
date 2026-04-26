@@ -50,9 +50,20 @@ export class AlumnoService {
     );
   }
 
-  getDocuments(alumnoId: string): Observable<any[]> {
+  getDocuments(alumnoId: string, semestre?: string): Observable<any[]> {
+    let params = new HttpParams();
+    if (semestre) {
+      params = params.set('semestre', semestre);
+    }
     return this.http.get<any[]>(
-      `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.DOCUMENTS.replace('{id}', alumnoId)}`
+      `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.DOCUMENTS.replace('{id}', alumnoId)}`,
+      { params }
+    );
+  }
+
+  getSemestres(alumnoId: string): Observable<string[]> {
+    return this.http.get<string[]>(
+      `${environment.apiUrl}/alumnos/${alumnoId}/semestres`
     );
   }
 
@@ -90,7 +101,7 @@ export class AlumnoService {
     formData.append('AcuerdoId', acuerdoId);
     formData.append('File', file);
     return this.http.post<void>(
-      `${environment.apiUrl}${API_ENDPOINTS.ACUERDOS.UPLOAD.replace('{id}', acuerdoId)}`, 
+      `${environment.apiUrl}${API_ENDPOINTS.ACUERDOS.UPLOAD.replace('{id}', acuerdoId)}`,
       formData
     );
   }
@@ -101,7 +112,7 @@ export class AlumnoService {
     formData.append('TipoDocumento', tipoDocumento.toString());
     formData.append('File', file);
     return this.http.post<void>(
-      `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.DOCUMENTS.replace('{id}', alumnoId)}`, 
+      `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.DOCUMENTS.replace('{id}', alumnoId)}`,
       formData
     );
   }

@@ -8,12 +8,13 @@ import { DialogModule } from 'primeng/dialog';
 import { TextareaModule } from 'primeng/textarea';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
+import { SelectModule } from 'primeng/select';
 import { FileUploaderComponent } from '../../../../shared/components/file-uploader/file-uploader.component';
 
 @Component({
   selector: 'app-alumno-docs-tab',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, StatusBadgeComponent, DialogModule, TextareaModule, FormsModule, FileUploaderComponent],
+  imports: [CommonModule, TableModule, ButtonModule, StatusBadgeComponent, DialogModule, TextareaModule, FormsModule, SelectModule, FileUploaderComponent],
   templateUrl: './docs.component.html',
   styleUrl: './docs.component.css'
 })
@@ -44,14 +45,30 @@ export class AlumnoDocsTabComponent implements OnInit {
   adminSelectedFile = signal<File | null>(null);
   isUploadingAdmin = signal(false);
 
+  availableSemestres = signal<string[]>([]);
+  selectedSemestre = signal<string | null>(null);
+
   ngOnInit() {
+    this.loadSemestres();
     this.loadDocs();
     this.loadTemplates();
   }
 
+  loadSemestres() {
+    if (!this.canReview()) return;
+    this.alumnoService.getSemestres(this.alumnoId()).subscribe(data => {
+      this.availableSemestres.set(data);
+    });
+  }
+
+  onSemestreChange() {
+    this.loadDocs();
+  }
+
   loadDocs() {
     this.loading.set(true);
-    this.alumnoService.getDocuments(this.alumnoId()).subscribe({
+    const semestre = this.selectedSemestre();
+    this.alumnoService.getDocuments(this.alumnoId(), semestre || undefined).subscribe({
       next: (data) => {
         this.documents.set(data);
         this.loading.set(false);
