@@ -3,23 +3,17 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { LayoutService } from '../../core/services/layout.service';
-
+import { NgOptimizedImage } from '@angular/common';
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [ButtonModule, TooltipModule],
+  imports: [ButtonModule, TooltipModule, NgOptimizedImage],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
 export class Navbar {
   public authService = inject(AuthService);
-  public layoutService = inject(LayoutService);
   private router = inject(Router);
-
-  toggleDarkMode() {
-    this.layoutService.toggleDarkMode();
-  }
 
   logout() {
     this.authService.logout().subscribe(() => {

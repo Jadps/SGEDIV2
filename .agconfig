@@ -32,7 +32,6 @@ CSS: Tailwind CSS 4 (tw4).
 UI Lib: PrimeNG 21 (Aura theme).
 Styling & Design:
 Color Palette: Predominantly Blue (TecNM standard).
-Theme Switcher: All components MUST support the dark/light mode toggle via the topbar utility classes.
 UI Reuse: Never implement local Toasts or ProgressBars. Use the global implementations.
 NO NATIVE UI DIALOGS: Using native alert(), confirm(), or prompt() is strictly forbidden. Use PrimeNG's ConfirmationService, MessageService (Toasts), or the Signal-based custom Dialog component implemented in the app.
 Aesthetics Consistency: Maintain style symmetry between similar components (e.g., Tables must look identical across features).

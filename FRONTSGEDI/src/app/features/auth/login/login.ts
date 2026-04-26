@@ -7,11 +7,13 @@ import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { AuthService } from '../../../core/services/auth.service';
 import { MessageService } from 'primeng/api';
+import { NgOptimizedImage } from '@angular/common';
 
 @Component({
     selector: 'app-login',
     imports: [
         ReactiveFormsModule,
+        NgOptimizedImage,
         CardModule,
         InputTextModule,
         PasswordModule,
@@ -48,10 +50,10 @@ export class LoginComponent {
             },
             error: (err) => {
                 this.isLoading.set(false);
-                this.toast.add({ 
-                    severity: 'error', 
-                    summary: 'Error', 
-                    detail: err.error?.detail ?? 'Credenciales inválidas' 
+                this.toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: err.error?.detail ?? 'Credenciales inválidas'
                 });
             },
         });
