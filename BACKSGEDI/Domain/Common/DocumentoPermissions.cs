@@ -22,19 +22,4 @@ public static class DocumentoPermissions
         if (!UploadPermissions.TryGetValue(tipo, out var allowedRoles)) return false;
         return roles.Any(r => allowedRoles.Contains(r));
     }
-
-    public static bool CanView(IEnumerable<string> roles, bool isMyCareer, bool isMyStudent)
-    {
-        if (roles.Contains(SystemRoles.Admin)) return true;
-
-        if ((roles.Contains(SystemRoles.Coordinador) || roles.Contains(SystemRoles.JefeDepartamento)) && isMyCareer)
-            return true;
-
-        if ((roles.Contains(SystemRoles.Profesor) || roles.Contains(SystemRoles.AsesorInterno) || roles.Contains(SystemRoles.AsesorExterno)) && isMyStudent)
-            return true;
-
-        if (roles.Contains(SystemRoles.Alumno) && isMyStudent) return true;
-
-        return false;
-    }
 }
