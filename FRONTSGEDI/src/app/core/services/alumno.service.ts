@@ -43,6 +43,10 @@ export class AlumnoService {
     );
   }
 
+  getMyProfile(): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/alumnos/me`);
+  }
+
   toggleStatus(id: string): Observable<{ isActive: boolean }> {
     return this.http.patch<{ isActive: boolean }>(
       `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.DETAIL.replace('{id}', id)}/toggle-status`,
@@ -106,6 +110,13 @@ export class AlumnoService {
     );
   }
 
+  uploadStudentAcuerdo(tipoAcuerdo: number, file: File): Observable<void> {
+    const formData = new FormData();
+    formData.append('TipoAcuerdo', tipoAcuerdo.toString());
+    formData.append('File', file);
+    return this.http.post<void>(`${environment.apiUrl}/alumnos/me/documentos/acuerdos`, formData);
+  }
+
   uploadAdministrativePersonalDoc(alumnoId: string, tipoDocumento: number, file: File): Observable<void> {
     const formData = new FormData();
     formData.append('AlumnoId', alumnoId);
@@ -115,5 +126,9 @@ export class AlumnoService {
       `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.DOCUMENTS.replace('{id}', alumnoId)}`,
       formData
     );
+  }
+
+  getMyDeadlines(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/alumnos/me/fechas-limite`);
   }
 }

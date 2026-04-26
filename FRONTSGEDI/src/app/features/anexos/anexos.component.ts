@@ -1,11 +1,11 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PlantillaService } from '../../core/services/plantilla.service';
+import { AnexoMetaService } from '../../core/services/anexo-meta.service';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
@@ -31,36 +31,25 @@ export class AnexosComponent implements OnInit {
   private readonly plantillaService = inject(PlantillaService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
+  readonly anexoMeta = inject(AnexoMetaService);
 
   templates = signal<any[]>([]);
   loading = signal(false);
   uploading = signal(false);
 
-  displayDialog = false;
-  editDialogVisible = false;
+  displayDialog = model(false);
+  editDialogVisible = model(false);
 
-  tiposPlantilla = [
-    { label: 'Anexo I', value: 1 },
-    { label: 'Anexo II', value: 2 },
-    { label: 'Anexo III', value: 3 },
-    { label: 'Anexo IV', value: 4 },
-    { label: 'Anexo V', value: 5 },
-    { label: 'Anexo VI', value: 6 },
-    { label: 'Anexo VII', value: 7 },
-    { label: 'Anexo VIII', value: 8 }
-  ];
+  selectedTipo = model<number | null>(null);
+  selectedFile = signal<File | null>(null);
 
-  selectedTipo: number | null = null;
-  selectedFile: File | null = null;
+  editingTemplateId = signal<number | null>(null);
+  editingTemplateName = signal('');
+  editSelectedFile = signal<File | null>(null);
 
-  editingTemplateId: number | null = null;
-  editingTemplateName = '';
-  editSelectedFile: File | null = null;
-
-  availableTipos = computed(() => {
-    const existing = this.templates().map(t => t.tipoDocumento);
-    return this.tiposPlantilla.filter(t => !existing.includes(t.value));
-  });
+  availableTipos = computed(() =>
+    this.anexoMeta.getAvailableTipos(this.templates().map(t => t.tipoDocumento))
+  );
 
   ngOnInit() {
     this.loadTemplates();
@@ -78,29 +67,27 @@ export class AnexosComponent implements OnInit {
   }
 
   showDialog() {
-    this.selectedTipo = null;
-    this.selectedFile = null;
-    this.displayDialog = true;
+    this.selectedTipo.set(null);
+    this.selectedFile.set(null);
+    this.displayDialog.set(true);
   }
 
   upload() {
-    if (!this.selectedTipo || !this.selectedFile) return;
+    const tipo = this.selectedTipo();
+    const file = this.selectedFile();
+    if (!tipo || !file) return;
 
     this.uploading.set(true);
-    this.plantillaService.uploadTemplate(this.selectedTipo, this.selectedFile).subscribe({
+    this.plantillaService.uploadTemplate(tipo, file).subscribe({
       next: () => {
         this.uploading.set(false);
-        this.displayDialog = false;
+        this.displayDialog.set(false);
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Plantilla subida correctamente' });
         this.loadTemplates();
       },
       error: (err) => {
         this.uploading.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: err.error?.message || 'Error al subir la plantilla'
-        });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || 'Error al subir la plantilla' });
       }
     });
   }
@@ -110,29 +97,28 @@ export class AnexosComponent implements OnInit {
   }
 
   openEdit(temp: any) {
-    this.editingTemplateId = temp.id;
-    this.editingTemplateName = this.formatTipo(temp.tipo);
-    this.editSelectedFile = null;
-    this.editDialogVisible = true;
+    this.editingTemplateId.set(temp.id);
+    this.editingTemplateName.set(this.anexoMeta.formatTipo(temp.tipo));
+    this.editSelectedFile.set(null);
+    this.editDialogVisible.set(true);
   }
 
   saveEdit() {
-    if (!this.editingTemplateId || !this.editSelectedFile) return;
+    const id = this.editingTemplateId();
+    const file = this.editSelectedFile();
+    if (!id || !file) return;
+
     this.uploading.set(true);
-    this.plantillaService.updateTemplate(this.editingTemplateId, this.editSelectedFile).subscribe({
+    this.plantillaService.updateTemplate(id, file).subscribe({
       next: () => {
         this.uploading.set(false);
-        this.editDialogVisible = false;
+        this.editDialogVisible.set(false);
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Archivo actualizado correctamente' });
         this.loadTemplates();
       },
       error: (err) => {
         this.uploading.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: err.error?.message || 'Error al actualizar la plantilla'
-        });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || 'Error al actualizar la plantilla' });
       }
     });
   }
@@ -143,24 +129,12 @@ export class AnexosComponent implements OnInit {
       header: 'Confirmar Eliminación',
       icon: 'pi pi-exclamation-triangle',
       rejectLabel: 'Cancelar',
-      rejectButtonProps: {
-        label: 'Cancelar',
-        severity: 'secondary',
-        outlined: true,
-      },
+      rejectButtonProps: { label: 'Cancelar', severity: 'secondary', outlined: true },
       acceptLabel: 'Eliminar',
-      acceptButtonProps: {
-        label: 'Eliminar',
-        severity: 'danger',
-      },
+      acceptButtonProps: { label: 'Eliminar', severity: 'danger' },
       accept: () => {
         this.plantillaService.deleteTemplate(id).subscribe(() => this.loadTemplates());
       }
     });
-  }
-
-  formatTipo(tipo: string | null | undefined): string {
-    if (!tipo) return '';
-    return tipo.replace(/Anexo([I|V|X]+)/, 'Anexo $1');
   }
 }

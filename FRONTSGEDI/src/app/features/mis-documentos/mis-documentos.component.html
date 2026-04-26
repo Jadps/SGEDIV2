@@ -1,0 +1,135 @@
+<div class="p-8 max-w-7xl mx-auto animate-fade-in-up">
+    <div class="mb-10">
+        <h1 class="text-3xl font-bold text-white tracking-tight mb-2">Mis Documentos</h1>
+        <div class="flex items-center gap-3">
+            <span
+                class="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-widest">
+                {{ profile()?.carrera }}
+            </span>
+            <span class="text-zinc-500 text-sm font-medium">|</span>
+            <span class="text-zinc-400 text-sm font-medium">{{ profile()?.matricula }}</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-8">
+            <div class="card-premium">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-white">Estado de mi Expediente</h3>
+                    <div class="flex items-center gap-4">
+                        <span class="text-xs text-zinc-500 font-medium uppercase tracking-widest">Periodo Actual</span>
+                    </div>
+                </div>
+
+                <p-table [value]="mergedDocuments()" styleClass="p-datatable-sm glass-table" [loading]="loading()">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Documento</th>
+                            <th>Fecha Límite</th>
+                            <th>Versión</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-doc>
+                        <tr>
+                            <td class="font-medium text-zinc-200">{{ anexoMeta.formatTipo(doc.tipo) }}</td>
+                            <td>
+                                @if (doc.fechaLimite) {
+                                <span class="text-xs font-medium"
+                                    [class.text-red-400]="isDeadlineExpired(doc.fechaLimite)"
+                                    [class.text-green-400]="!isDeadlineExpired(doc.fechaLimite)">
+                                    {{ doc.fechaLimite | date:'dd/MM/yyyy' }}
+                                </span>
+                                } @else {
+                                <span class="text-xs text-zinc-600">--</span>
+                                }
+                            </td>
+                            <td>
+                                @if (doc.version > 0) {
+                                <span
+                                    class="px-2 py-0.5 rounded bg-zinc-800 text-[10px] font-bold text-zinc-400 uppercase">v{{
+                                    doc.version }}</span>
+                                } @else {
+                                <span class="text-zinc-700">--</span>
+                                }
+                            </td>
+                            <td>
+                                <app-status-badge [severity]="anexoMeta.getSeverity(doc.estado)"
+                                    [text]="anexoMeta.getEstadoText(doc.estado)" />
+                            </td>
+                            <td>
+                                <div class="flex items-center justify-center gap-2">
+                                    @if (doc.version > 0) {
+                                    <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="secondary"
+                                        (onClick)="viewDocument(doc.id)" pTooltip="Ver Documento"
+                                        tooltipPosition="bottom" />
+                                    }
+                                    @if (doc.estado !== 1) {
+                                    <p-button icon="pi pi-upload" [rounded]="true" [text]="true" severity="info"
+                                        (onClick)="openUpload(doc)"
+                                        [pTooltip]="doc.estado === 0 ? 'Subir Documento' : 'Subir Nueva Versión'"
+                                        tooltipPosition="bottom" />
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="card-premium border-l-4 border-l-blue-600">
+                <h3 class="text-lg font-semibold text-white mb-6">Formatos Oficiales</h3>
+                <div class="space-y-4">
+                    @for (template of templates(); track template.id) {
+                    <div
+                        class="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 flex items-center justify-between group hover:bg-zinc-800/80 transition-all">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                                <i class="pi pi-file-word text-blue-500"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-zinc-200">{{ anexoMeta.formatTipo(template.tipo) }}</p>
+                                <p class="text-[10px] text-zinc-500 font-medium uppercase tracking-widest">Formato
+                                    Oficial</p>
+                            </div>
+                        </div>
+                        <p-button icon="pi pi-download" [rounded]="true" [text]="true" severity="secondary"
+                            (onClick)="downloadTemplate(template.id)" pTooltip="Descargar" />
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-dialog [(visible)]="uploadDialogVisible"
+    [header]="'Subir ' + (anexoMeta.formatTipo(selectedDocForUpload()?.tipo) || selectedDocForUpload()?.tipo)"
+    [modal]="true" draggable="false" [style]="{width: '500px'}"
+    styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
+    @if (uploadDialogVisible()) {
+    <div class="flex flex-col gap-6 mt-4">
+        <div class="p-4 rounded-xl bg-blue-500/5 border border-blue-500/10">
+            <div class="flex items-center gap-3">
+                <i class="pi pi-info-circle text-blue-400"></i>
+                <p class="text-sm text-zinc-300">
+                    El documento será revisado por tu coordinador. Una vez aprobado, no podrá ser modificado.
+                </p>
+            </div>
+        </div>
+        <div class="flex flex-col gap-2">
+            <label class="text-sm text-zinc-400">Archivo (.pdf, .doc, .docx)</label>
+            <app-file-uploader (fileSelected)="selectedFile.set($event)" label="Seleccionar archivo"
+                description="Asegúrate de que sea legible y esté actualizado." />
+        </div>
+    </div>
+    }
+    <ng-template pTemplate="footer">
+        <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="uploadDialogVisible.set(false)" />
+        <p-button label="Subir Documento" (onClick)="saveUpload()" [loading]="isUploading()"
+            [disabled]="!selectedFile()" />
+    </ng-template>
+</p-dialog>

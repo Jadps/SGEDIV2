@@ -95,6 +95,16 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
             },
             new()
             {
+                Id = "mis-documentos",
+                Description = "Mis Documentos",
+                Icon = "pi pi-file",
+                Action = "/dashboard/mis-documentos",
+                Order = 2,
+                ModuleTypeId = 1,
+                AllowedRoles = [SystemRoles.Alumno]
+            },
+            new()
+            {
                 Id = "anexos",
                 Description = "Plantillas de Anexos",
                 Icon = "pi pi-file-word",

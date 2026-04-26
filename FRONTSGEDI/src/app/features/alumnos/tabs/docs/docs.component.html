@@ -1,19 +1,14 @@
 <div class="p-6">
   <div class="flex justify-between items-center mb-6">
     <h3 class="text-lg font-medium text-white">Documentos del Alumno</h3>
-    
+
     @if (canReview() && availableSemestres().length > 0) {
-      <div class="flex items-center gap-3">
-        <span class="text-xs text-zinc-500 uppercase tracking-wider font-medium">Filtrar por Periodo:</span>
-        <p-select 
-          [options]="availableSemestres()" 
-          [(ngModel)]="selectedSemestre" 
-          (onChange)="onSemestreChange()" 
-          placeholder="Todos los periodos"
-          [showClear]="true"
-          styleClass="bg-zinc-900/50 border-white/10 text-sm h-9 flex items-center"
-        />
-      </div>
+    <div class="flex items-center gap-3">
+      <span class="text-xs text-zinc-500 uppercase tracking-wider font-medium">Filtrar por Periodo:</span>
+      <p-select [options]="availableSemestres()" [(ngModel)]="selectedSemestre" (onChange)="onSemestreChange()"
+        placeholder="Todos los periodos" [showClear]="true"
+        styleClass="bg-zinc-900/50 border-white/10 text-sm h-9 flex items-center" />
+    </div>
     }
   </div>
 
@@ -30,11 +25,12 @@
     </ng-template>
     <ng-template pTemplate="body" let-doc>
       <tr class="transition-colors hover:bg-white/5">
-        <td class="text-sm font-medium text-zinc-300">{{ formatTipo(doc.tipo) }}</td>
+        <td class="text-sm font-medium text-zinc-300">{{ anexoMeta.formatTipo(doc.tipo) }}</td>
         <td class="text-xs text-zinc-400">{{ doc.semestre }}</td>
         <td class="text-xs text-zinc-400">v{{ doc.version }}</td>
         <td>
-          <app-status-badge [severity]="getSeverity(doc.estado)" [text]="getEstadoText(doc.estado)" />
+          <app-status-badge [severity]="anexoMeta.getSeverity(doc.estado)"
+            [text]="anexoMeta.getEstadoText(doc.estado)" />
         </td>
         <td class="text-xs text-zinc-500">{{ doc.fechaSubida | date:'shortDate' }}</td>
         <td class="flex gap-2">
@@ -76,7 +72,7 @@
         <div class="flex items-center gap-3">
           <i class="pi pi-file-word text-blue-400"></i>
           <div>
-            <span class="block text-sm text-white font-medium">{{ formatTipo(temp.tipo) }}</span>
+            <span class="block text-sm text-white font-medium">{{ anexoMeta.formatTipo(temp.tipo) }}</span>
             <span class="text-[10px] text-zinc-500 uppercase">Formato Oficial</span>
           </div>
         </div>
@@ -108,7 +104,7 @@
       <textarea pTextarea [autoResize]="true" rows="5"
         class="w-full p-4 bg-zinc-800/50 border border-white/10 rounded-xl text-white outline-none focus:border-white/30 placeholder:text-zinc-600"
         [(ngModel)]="motivoRechazo" placeholder="Ej: El documento no es legible o falta la firma del director.">
-        </textarea>
+      </textarea>
     </div>
     <ng-template pTemplate="footer">
       <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="rejectDialogVisible.set(false)" />
@@ -117,28 +113,30 @@
     </ng-template>
   </p-dialog>
 
-  <p-dialog [visible]="adminUploadVisible()" (visibleChange)="adminUploadVisible.set($event)" header="Subida Administrativa" [modal]="true" draggable="false"
-    [style]="{width: '500px'}" styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
+  <p-dialog [visible]="adminUploadVisible()" (visibleChange)="adminUploadVisible.set($event)"
+    header="Subida Administrativa" [modal]="true" draggable="false" [style]="{width: '500px'}"
+    styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
     @if (adminUploadVisible()) {
-      <div class="flex flex-col gap-6 mt-4">
-        <div class="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-          <div class="flex items-center gap-3">
-            <i class="pi pi-shield text-emerald-400"></i>
-            <p class="text-sm text-zinc-300">
-              Estás subiendo el documento <strong>{{ formatTipo(selectedDocForAdminUpload()?.tipo) }}</strong> en nombre
-              del alumno.
-              <span class="block mt-1 text-emerald-400 font-medium">El documento será marcado como APROBADO
-                automáticamente.</span>
-            </p>
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <label class="text-sm text-zinc-400">Archivo a subir (.pdf, .doc, .docx)</label>
-          <app-file-uploader color="emerald" icon="pi-shield" label="Subir y Validar"
-            description="Se guardará como la versión oficial aprobada." (fileSelected)="adminSelectedFile.set($event)" />
+    <div class="flex flex-col gap-6 mt-4">
+      <div class="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+        <div class="flex items-center gap-3">
+          <i class="pi pi-shield text-emerald-400"></i>
+          <p class="text-sm text-zinc-300">
+            Estás subiendo el documento <strong>{{ anexoMeta.formatTipo(selectedDocForAdminUpload()?.tipo) }}</strong>
+            en nombre
+            del alumno.
+            <span class="block mt-1 text-emerald-400 font-medium">El documento será marcado como APROBADO
+              automáticamente.</span>
+          </p>
         </div>
       </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm text-zinc-400">Archivo a subir (.pdf, .doc, .docx)</label>
+        <app-file-uploader color="emerald" icon="pi-shield" label="Subir y Validar"
+          description="Se guardará como la versión oficial aprobada." (fileSelected)="adminSelectedFile.set($event)" />
+      </div>
+    </div>
     }
     <ng-template pTemplate="footer">
       <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="adminUploadVisible.set(false)" />
@@ -146,7 +144,4 @@
         [disabled]="!adminSelectedFile()" severity="success" />
     </ng-template>
   </p-dialog>
-
-
-
 </div>

@@ -46,6 +46,13 @@ export const routes: Routes = [
                 canActivate: [permissionGuard, roleGuard],
                 data: { roles: ['Admin', 'Coordinador'] }
             },
+            {
+                path: 'dashboard/mis-documentos',
+                title: 'Mis Documentos | SGEDI',
+                loadComponent: () => import('./features/mis-documentos/mis-documentos.component').then(m => m.MisDocumentosComponent),
+                canActivate: [permissionGuard, roleGuard],
+                data: { roles: ['Alumno'] }
+            },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
     },
