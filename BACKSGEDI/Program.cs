@@ -140,21 +140,25 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        
+        await context.Database.MigrateAsync();
+        
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("Migraciones aplicadas correctamente.");
         var appOpts = services.GetRequiredService<IOptions<AppOptions>>().Value;
         if (appOpts.RunSeeder)
         {
-            var context = services.GetRequiredService<ApplicationDbContext>();
             var adminOptions = services.GetRequiredService<IOptions<AdminOptions>>();
             await DbInitializer.SeedAsync(context, adminOptions);
             
-            var logger = services.GetRequiredService<ILogger<Program>>();
             logger.LogInformation("Database seeding executed successfully.");
         }
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Ocurrió un error al sembrar la base de datos.");
+        logger.LogError(ex, "Ocurrió un error al migrar o sembrar la base de datos.");
     }
 }
 
