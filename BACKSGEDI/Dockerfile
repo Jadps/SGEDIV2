@@ -15,8 +15,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8080
-
+USER root
+RUN mkdir -p /app/uploads /app/logs
+RUN chown -R $APP_UID:$APP_UID /app/uploads /app/logs
 USER $APP_UID
-
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "BACKSGEDI.dll"]
