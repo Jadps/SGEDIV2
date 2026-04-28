@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using BACKSGEDI.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace BACKSGEDI.Infrastructure.Services;
 
@@ -11,16 +12,16 @@ public class LocalFileStorageService : IStorageService
 
     public string BasePath => _basePath;
 
-    public LocalFileStorageService(ILogger<LocalFileStorageService> logger, IConfiguration configuration)
+    public LocalFileStorageService(ILogger<LocalFileStorageService> logger, IOptions<StorageOptions> options)
     {
         _logger = logger;
-        _basePath = configuration["Storage:BasePath"] ?? "Uploads";
+        _basePath = options.Value.BasePath;    
     }
 
     public async Task<string> UploadFileAsync(IFormFile file, string alumnoId, string tipoDocumento, string semestre, CancellationToken ct = default)
     {
         var relativePath = Path.Combine("Students", alumnoId, semestre);
-        var absolutePath = Path.Combine(Directory.GetCurrentDirectory(), _basePath, relativePath);
+        var absolutePath = Path.Combine(_basePath, relativePath);
 
         if (!Directory.Exists(absolutePath))
         {
@@ -46,7 +47,7 @@ public class LocalFileStorageService : IStorageService
     public async Task<string> UploadPlantillaAsync(IFormFile file, string tipoPlantilla, CancellationToken ct = default)
     {
         var relativePath = Path.Combine("Plantillas", tipoPlantilla);
-        var absolutePath = Path.Combine(Directory.GetCurrentDirectory(), _basePath, relativePath);
+        var absolutePath = Path.Combine(_basePath, relativePath);
 
         if (!Directory.Exists(absolutePath))
         {
@@ -71,7 +72,7 @@ public class LocalFileStorageService : IStorageService
 
     public void DeleteStudentFolder(string alumnoId)
     {
-        var folderPath = Path.Combine(Directory.GetCurrentDirectory(), _basePath, "Students", alumnoId);
+        var folderPath = Path.Combine(_basePath, "Students", alumnoId);
 
         if (Directory.Exists(folderPath))
         {
