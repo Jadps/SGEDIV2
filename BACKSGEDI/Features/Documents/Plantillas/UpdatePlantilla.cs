@@ -21,8 +21,8 @@ public class UpdatePlantillaValidator : Validator<UpdatePlantillaRequest>
     {
         RuleFor(x => x.File)
             .NotNull()
-            .Must(f => FileValidationHelper.IsValidPdfOrWord(f, options.Value.MaxFileSizeInBytes))
-            .WithMessage($"La plantilla debe ser PDF o Word y menor a {options.Value.MaxFileSizeInBytes / 1024 / 1024}MB.");
+            .Must(f => FileValidationHelper.IsValidWord(f, options.Value.MaxFileSizeInBytes))
+            .WithMessage($"La plantilla debe ser un documento de Word (.doc o .docx) y menor a {options.Value.MaxFileSizeInBytes / 1024 / 1024}MB.");
     }
 }
 

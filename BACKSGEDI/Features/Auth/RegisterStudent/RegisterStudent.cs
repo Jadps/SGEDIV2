@@ -47,11 +47,11 @@ public class RegisterStudentValidator : Validator<RegisterStudentRequest>
             .GreaterThanOrEqualTo(6)
             .WithMessage("El alumno debe cursar al menos el sexto semestre para el modelo dual.");
 
-        RuleFor(x => x.HorarioFile).NotNull().Must(f => IsValidPdfAndSize(f, settings.MaxFileSizeInBytes))
+        RuleFor(x => x.HorarioFile).NotNull().Must(f => FileValidationHelper.IsValidPdf(f, settings.MaxFileSizeInBytes))
             .WithMessage($"El horario debe ser PDF y menor a {settings.MaxFileSizeInBytes/1024/1024}MB.");
-        RuleFor(x => x.AnexoIFile).NotNull().Must(f => IsValidPdfAndSize(f, settings.MaxFileSizeInBytes))
+        RuleFor(x => x.AnexoIFile).NotNull().Must(f => FileValidationHelper.IsValidPdf(f, settings.MaxFileSizeInBytes))
             .WithMessage($"El Anexo I debe ser PDF y menor a {settings.MaxFileSizeInBytes/1024/1024}MB.");
-        RuleFor(x => x.KardexFile).NotNull().Must(f => IsValidPdfAndSize(f, settings.MaxFileSizeInBytes))
+        RuleFor(x => x.KardexFile).NotNull().Must(f => FileValidationHelper.IsValidPdf(f, settings.MaxFileSizeInBytes))
             .WithMessage($"El Kardex debe ser PDF y menor a {settings.MaxFileSizeInBytes/1024/1024}MB.");
     }
     private static bool IsValidPdfAndSize(IFormFile? file, long maxSize)

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { AlumnoService } from '../../../../core/services/alumno.service';
-import { AnexoMetaService } from '../../../../core/services/anexo-meta.service';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
 import { DialogModule } from 'primeng/dialog';
 import { TextareaModule } from 'primeng/textarea';
@@ -11,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { FileUploaderComponent } from '../../../../shared/components/file-uploader/file-uploader.component';
+import { DocumentActionsService } from '../../../../core/services/document-actions.service';
 
 @Component({
   selector: 'app-alumno-docs-tab',
@@ -22,7 +22,7 @@ import { FileUploaderComponent } from '../../../../shared/components/file-upload
 export class AlumnoDocsTabComponent implements OnInit {
   private readonly alumnoService = inject(AlumnoService);
   private readonly messageService = inject(MessageService);
-  readonly anexoMeta = inject(AnexoMetaService);
+  readonly docActions = inject(DocumentActionsService);
 
   alumnoId = input.required<string>();
   isMyCareer = input<boolean>(false);
@@ -70,7 +70,7 @@ export class AlumnoDocsTabComponent implements OnInit {
   loadDocs() {
     this.loading.set(true);
     const semestre = this.selectedSemestre();
-    this.alumnoService.getDocuments(this.alumnoId(), semestre || undefined).subscribe({
+    this.alumnoService.getExpediente(this.alumnoId(), semestre || undefined).subscribe({
       next: (data) => {
         this.documents.set(data);
         this.loading.set(false);
@@ -97,7 +97,13 @@ export class AlumnoDocsTabComponent implements OnInit {
     const doc = this.selectedDocForProrroga();
     if (!doc || !this.selectedFechaLimite()) return;
 
-    this.alumnoService.extendDeadline(doc.id, new Date(this.selectedFechaLimite())).subscribe({
+    this.alumnoService.extendDeadline({
+      acuerdoId: doc.documentoId,
+      alumnoId: this.alumnoId(),
+      tipoAcuerdo: doc.tipoId,
+      semestre: doc.semestre || this.selectedSemestre() || undefined,
+      nuevaFechaLimite: new Date(this.selectedFechaLimite())
+    }).subscribe({
       next: () => {
         this.prorrogaDialogVisible.set(false);
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Prórroga otorgada correctamente' });
@@ -107,9 +113,13 @@ export class AlumnoDocsTabComponent implements OnInit {
     });
   }
 
+  isDeadlineExpired(date: string | Date | null | undefined): boolean {
+    return this.docActions.isDeadlineExpired(date);
+  }
+
   review(doc: any, aprobado: boolean) {
     if (aprobado) {
-      this.alumnoService.reviewDocument(this.alumnoId(), doc.id, aprobado, undefined).subscribe(() => this.loadDocs());
+      this.alumnoService.reviewDocument(this.alumnoId(), doc.archivo.id, aprobado, undefined).subscribe(() => this.loadDocs());
     } else {
       this.docToReview.set(doc);
       this.motivoRechazo.set('');
@@ -122,21 +132,18 @@ export class AlumnoDocsTabComponent implements OnInit {
     const motivo = this.motivoRechazo();
     if (!doc || !motivo) return;
 
-    this.alumnoService.reviewDocument(this.alumnoId(), doc.id, false, motivo).subscribe(() => {
+    this.alumnoService.reviewDocument(this.alumnoId(), doc.archivo.id, false, motivo).subscribe(() => {
       this.rejectDialogVisible.set(false);
       this.loadDocs();
     });
   }
 
   viewDocument(id: string) {
-    this.alumnoService.downloadDocument(id).subscribe({
-      next: (blob) => window.open(window.URL.createObjectURL(blob), '_blank'),
-      error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al cargar el documento' })
-    });
+    this.docActions.viewDocument(id);
   }
 
   download(id: number) {
-    this.alumnoService.downloadTemplate(id);
+    this.docActions.downloadTemplate(id);
   }
 
   openAdminUpload(doc: any) {
@@ -152,7 +159,7 @@ export class AlumnoDocsTabComponent implements OnInit {
 
     this.isUploadingAdmin.set(true);
     const upload$ = doc.esAcuerdo
-      ? this.alumnoService.uploadAdministrativeAcuerdo(doc.id, file)
+      ? this.alumnoService.uploadAdministrativeAcuerdo(doc.archivo?.id, file)
       : this.alumnoService.uploadAdministrativePersonalDoc(this.alumnoId(), doc.tipoId, file);
 
     upload$.subscribe({

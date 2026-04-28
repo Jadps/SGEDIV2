@@ -14,6 +14,10 @@ export class PlantillaService {
     return this.http.get<any[]>(`${environment.apiUrl}${API_ENDPOINTS.PLANTILLAS.BASE}`);
   }
 
+  getTemplateTypes(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}${API_ENDPOINTS.PLANTILLAS.BASE}/tipos`);
+  }
+
   uploadTemplate(tipoDocumento: number, file: File): Observable<any> {
     const formData = new FormData();
     formData.append('TipoDocumento', tipoDocumento.toString());

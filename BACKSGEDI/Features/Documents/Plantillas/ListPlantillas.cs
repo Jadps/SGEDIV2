@@ -13,7 +13,14 @@ public record PlantillaDto
     public int Id { get; init; }
     public int TipoDocumento { get; init; }
     public string Tipo { get; init; } = string.Empty;
+    public string Label { get; init; } = string.Empty;
     public DateTime FechaSubida { get; init; }
+}
+
+public record TipoPlantillaDto
+{
+    public string Label { get; init; } = string.Empty;
+    public int Value { get; init; }
 }
 
 public class ListPlantillas : EndpointWithoutRequest<List<PlantillaDto>>
@@ -43,6 +50,7 @@ public class ListPlantillas : EndpointWithoutRequest<List<PlantillaDto>>
                 Id = p.Id,
                 TipoDocumento = (int)p.TipoDocumento,
                 Tipo = p.TipoDocumento.ToString(),
+                Label = p.TipoDocumento.ToString().Replace("Anexo", "Anexo "),
                 FechaSubida = p.FechaSubida
             })
             .ToListAsync(ct);
@@ -52,3 +60,24 @@ public class ListPlantillas : EndpointWithoutRequest<List<PlantillaDto>>
     }
 }
 
+public class GetPlantillaTipos : EndpointWithoutRequest<List<TipoPlantillaDto>>
+{
+    public override void Configure()
+    {
+        Get("/api/plantillas/tipos");
+        Roles(SystemRoles.Admin, SystemRoles.Coordinador);
+    }
+
+    public override async Task HandleAsync(CancellationToken ct)
+    {
+        var tipos = Enum.GetValues<TipoAcuerdo>()
+            .Select(t => new TipoPlantillaDto 
+            { 
+                Label = t.ToString().Replace("Anexo", "Anexo "), 
+                Value = (int)t 
+            })
+            .ToList();
+
+        await Result<List<TipoPlantillaDto>>.Success(tipos).ToResult().ExecuteAsync(HttpContext);
+    }
+}

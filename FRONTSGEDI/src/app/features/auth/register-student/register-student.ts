@@ -41,6 +41,8 @@ export class RegisterStudentComponent {
     private readonly catalogService = inject(CatalogService);
     private readonly notificationService = inject(NotificationService);
 
+    readonly apiUrl = environment.apiUrl;
+
     readonly careers = toSignal(this.catalogService.getCarreras(), { initialValue: [] });
 
     readonly semesters = [

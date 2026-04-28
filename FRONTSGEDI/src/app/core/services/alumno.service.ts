@@ -54,13 +54,13 @@ export class AlumnoService {
     );
   }
 
-  getDocuments(alumnoId: string, semestre?: string): Observable<any[]> {
+  getExpediente(alumnoId: string, semestre?: string): Observable<any[]> {
     let params = new HttpParams();
     if (semestre) {
       params = params.set('semestre', semestre);
     }
     return this.http.get<any[]>(
-      `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.DOCUMENTS.replace('{id}', alumnoId)}`,
+      `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.EXPEDIENTE.replace('{id}', alumnoId)}`,
       { params }
     );
   }
@@ -93,10 +93,10 @@ export class AlumnoService {
     });
   }
 
-  extendDeadline(acuerdoId: string, nuevaFechaLimite: Date): Observable<void> {
+  extendDeadline(payload: { acuerdoId?: string, alumnoId?: string, tipoAcuerdo?: number, semestre?: string, nuevaFechaLimite: Date }): Observable<void> {
     return this.http.patch<void>(
-      `${environment.apiUrl}/acuerdos/${acuerdoId}/prorroga`,
-      { acuerdoId, nuevaFechaLimite: nuevaFechaLimite.toISOString() }
+      `${environment.apiUrl}/acuerdos/prorroga`,
+      { ...payload, nuevaFechaLimite: payload.nuevaFechaLimite.toISOString() }
     );
   }
 

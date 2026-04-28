@@ -45,12 +45,6 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
 
         var allModules = GetDefaultModules();
 
-        if (roleClaims.Any(r => r.Contains(SystemRoles.Admin, StringComparison.OrdinalIgnoreCase)))
-        {
-            await Result<List<ModuleDto>>.Success(allModules).ToResult().ExecuteAsync(HttpContext);
-            return;
-        }
-
         var filteredModules = FilterModules(allModules, roleClaims);
 
         await Result<List<ModuleDto>>.Success(filteredModules).ToResult().ExecuteAsync(HttpContext);
@@ -68,7 +62,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                 Action = "/dashboard",
                 Order = 1,
                 ModuleTypeId = 1,
-                AllowedRoles = [SystemRoles.Alumno, SystemRoles.Profesor, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno]
+                AllowedRoles = [SystemRoles.Alumno, SystemRoles.Profesor, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno, SystemRoles.Admin]
             },
             new()
             {
@@ -78,7 +72,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                 Action = null,
                 Order = 2,
                 ModuleTypeId = 1,
-                AllowedRoles = [SystemRoles.Profesor, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno],
+                AllowedRoles = [SystemRoles.Profesor, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno, SystemRoles.Admin],
                 SubModules =
                 [
                     new SubModuleDto
@@ -89,7 +83,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                         Action = "/dashboard/alumnos",
                         Order = 1,
                         ModuleTypeId = 2,
-                        AllowedRoles = [SystemRoles.Profesor, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno]
+                        AllowedRoles = [SystemRoles.Profesor, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno, SystemRoles.Admin]
                     }
                 ]
             },
@@ -111,7 +105,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                 Action = "/dashboard/anexos",
                 Order = 3,
                 ModuleTypeId = 1,
-                AllowedRoles = [SystemRoles.Coordinador]
+                AllowedRoles = [SystemRoles.Coordinador, SystemRoles.Admin]
             },
             new()
             {
@@ -121,7 +115,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                 Action = "/dashboard/fechas-limite",
                 Order = 4,
                 ModuleTypeId = 1,
-                AllowedRoles = [SystemRoles.Coordinador]
+                AllowedRoles = [SystemRoles.Coordinador, SystemRoles.Admin]
             }
         ];
     }

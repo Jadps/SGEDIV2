@@ -17,9 +17,21 @@ public static class DocumentoPermissions
         { TipoAcuerdo.AnexoVIII, new[] { SystemRoles.Alumno, SystemRoles.Admin } }
     };
 
+    private static readonly Dictionary<TipoDocumentoAlumno, string[]> StudentUploadPermissions = new()
+    {
+        { TipoDocumentoAlumno.Horario, new[] { SystemRoles.Alumno, SystemRoles.Admin, SystemRoles.Coordinador } },
+        { TipoDocumentoAlumno.Kardex, new[] { SystemRoles.Alumno, SystemRoles.Admin, SystemRoles.Coordinador } }
+    };
+
     public static bool CanUpload(TipoAcuerdo tipo, IEnumerable<string> roles)
     {
         if (!UploadPermissions.TryGetValue(tipo, out var allowedRoles)) return false;
+        return roles.Any(r => allowedRoles.Contains(r));
+    }
+
+    public static bool CanUpload(TipoDocumentoAlumno tipo, IEnumerable<string> roles)
+    {
+        if (!StudentUploadPermissions.TryGetValue(tipo, out var allowedRoles)) return false;
         return roles.Any(r => allowedRoles.Contains(r));
     }
 }

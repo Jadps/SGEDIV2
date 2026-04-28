@@ -26,7 +26,7 @@
                   <i class="pi pi-file-word text-blue-400 text-lg"></i>
                 </div>
                 <div>
-                  <span class="block text-white font-semibold">{{ anexoMeta.formatTipo(temp.tipo) }}</span>
+                  <span class="block text-white font-semibold">{{ temp.label }}</span>
                   <span class="text-[10px] text-zinc-500 uppercase tracking-widest">Formato Oficial</span>
                 </div>
               </div>
@@ -65,7 +65,7 @@
     </div>
     <div class="flex flex-col gap-2">
       <label class="text-sm text-zinc-400">Archivo Word (.doc, .docx)</label>
-      <app-file-uploader (fileSelected)="selectedFile.set($event)" />
+      <app-file-uploader accept=".doc,.docx" description="Documento de Word (.doc, .docx)" (fileSelected)="selectedFile.set($event)" />
     </div>
   </div>
   }
@@ -89,8 +89,8 @@
       </div>
     </div>
     <div class="flex flex-col gap-2">
-      <label class="text-sm text-zinc-400">Nuevo Archivo (.doc, .docx, .pdf)</label>
-      <app-file-uploader color="purple" icon="pi-sync" label="Seleccionar nuevo archivo"
+      <label class="text-sm text-zinc-400">Nuevo Archivo Word (.doc, .docx)</label>
+      <app-file-uploader color="purple" icon="pi-sync" label="Seleccionar nuevo archivo" accept=".doc,.docx"
         description="Reemplazará el archivo actual inmediatamente." (fileSelected)="editSelectedFile.set($event)" />
     </div>
   </div>

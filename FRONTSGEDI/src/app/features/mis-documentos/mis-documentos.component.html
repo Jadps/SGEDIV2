@@ -21,7 +21,7 @@
                     </div>
                 </div>
 
-                <p-table [value]="mergedDocuments()" styleClass="p-datatable-sm glass-table" [loading]="loading()">
+                <p-table [value]="expediente()" styleClass="p-datatable-sm glass-table" [loading]="loading()">
                     <ng-template pTemplate="header">
                         <tr>
                             <th>Documento</th>
@@ -33,12 +33,12 @@
                     </ng-template>
                     <ng-template pTemplate="body" let-doc>
                         <tr>
-                            <td class="font-medium text-zinc-200">{{ anexoMeta.formatTipo(doc.tipo) }}</td>
+                            <td class="font-medium text-zinc-200">{{ doc.label }}</td>
                             <td>
                                 @if (doc.fechaLimite) {
                                 <span class="text-xs font-medium"
-                                    [class.text-red-400]="isDeadlineExpired(doc.fechaLimite)"
-                                    [class.text-green-400]="!isDeadlineExpired(doc.fechaLimite)">
+                                    [class.text-red-400]="isDeadlineExpired(doc.fechaLimite) && doc.estado !== 1"
+                                    [class.text-green-400]="!isDeadlineExpired(doc.fechaLimite) || doc.estado === 1">
                                     {{ doc.fechaLimite | date:'dd/MM/yyyy' }}
                                 </span>
                                 } @else {
@@ -55,20 +55,20 @@
                                 }
                             </td>
                             <td>
-                                <app-status-badge [severity]="anexoMeta.getSeverity(doc.estado)"
-                                    [text]="anexoMeta.getEstadoText(doc.estado)" />
+                                <app-status-badge [severity]="doc.estadoSeverity"
+                                    [text]="doc.estadoText" />
                             </td>
                             <td>
                                 <div class="flex items-center justify-center gap-2">
-                                    @if (doc.version > 0) {
+                                    @if (doc.archivo) {
                                     <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="secondary"
-                                        (onClick)="viewDocument(doc.id)" pTooltip="Ver Documento"
+                                        (onClick)="viewDocument(doc.archivo.id)" pTooltip="Ver Documento"
                                         tooltipPosition="bottom" />
                                     }
-                                    @if (doc.estado !== 1) {
+                                    @if (doc.puedeSubir) {
                                     <p-button icon="pi pi-upload" [rounded]="true" [text]="true" severity="info"
                                         (onClick)="openUpload(doc)"
-                                        [pTooltip]="doc.estado === 0 ? 'Subir Documento' : 'Subir Nueva Versión'"
+                                        [pTooltip]="doc.estado === -1 ? 'Subir Documento' : 'Subir Nueva Versión'"
                                         tooltipPosition="bottom" />
                                     }
                                 </div>
@@ -91,7 +91,7 @@
                                 <i class="pi pi-file-word text-blue-500"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-bold text-zinc-200">{{ anexoMeta.formatTipo(template.tipo) }}</p>
+                                <p class="text-sm font-bold text-zinc-200">{{ template.label }}</p>
                                 <p class="text-[10px] text-zinc-500 font-medium uppercase tracking-widest">Formato
                                     Oficial</p>
                             </div>
@@ -107,7 +107,7 @@
 </div>
 
 <p-dialog [(visible)]="uploadDialogVisible"
-    [header]="'Subir ' + (anexoMeta.formatTipo(selectedDocForUpload()?.tipo) || selectedDocForUpload()?.tipo)"
+    [header]="'Subir ' + (selectedDocForUpload()?.label || '')"
     [modal]="true" draggable="false" [style]="{width: '500px'}"
     styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
     @if (uploadDialogVisible()) {
@@ -121,9 +121,8 @@
             </div>
         </div>
         <div class="flex flex-col gap-2">
-            <label class="text-sm text-zinc-400">Archivo (.pdf, .doc, .docx)</label>
-            <app-file-uploader (fileSelected)="selectedFile.set($event)" label="Seleccionar archivo"
-                description="Asegúrate de que sea legible y esté actualizado." />
+            <label class="text-sm text-zinc-400">Archivo PDF</label>
+            <app-file-uploader accept="application/pdf" description="Solo archivos PDF (Máx. 10MB)" (fileSelected)="selectedFile.set($event)" label="Seleccionar archivo" />
         </div>
     </div>
     }

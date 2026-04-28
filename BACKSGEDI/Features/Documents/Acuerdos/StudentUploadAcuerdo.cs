@@ -23,8 +23,8 @@ public class StudentUploadAcuerdoValidator : Validator<StudentUploadAcuerdoReque
     {
         RuleFor(x => x.File)
             .NotNull()
-            .Must(f => FileValidationHelper.IsValidPdfOrWord(f, options.Value.MaxFileSizeInBytes))
-            .WithMessage($"El archivo debe ser PDF o Word y menor a {options.Value.MaxFileSizeInBytes / 1024 / 1024}MB.");
+            .Must(f => FileValidationHelper.IsValidPdf(f, options.Value.MaxFileSizeInBytes))
+            .WithMessage($"El archivo debe ser un PDF y menor a {options.Value.MaxFileSizeInBytes / 1024 / 1024}MB.");
     }
 }
 

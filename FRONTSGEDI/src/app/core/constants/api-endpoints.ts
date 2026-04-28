@@ -11,7 +11,8 @@ export const API_ENDPOINTS = {
   STUDENTS: {
     LIST: '/alumnos',
     DETAIL: '/alumnos/{id}',
-    DOCUMENTS: '/alumnos/{id}/documentos'
+    DOCUMENTS: '/alumnos/{id}/documentos',
+    EXPEDIENTE: '/alumnos/{id}/expediente'
   },
   PLANTILLAS: {
     BASE: '/plantillas',

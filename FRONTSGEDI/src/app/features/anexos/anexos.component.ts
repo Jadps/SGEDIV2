@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, signal, computed, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PlantillaService } from '../../core/services/plantilla.service';
-import { AnexoMetaService } from '../../core/services/anexo-meta.service';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -31,7 +30,6 @@ export class AnexosComponent implements OnInit {
   private readonly plantillaService = inject(PlantillaService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
-  readonly anexoMeta = inject(AnexoMetaService);
 
   templates = signal<any[]>([]);
   loading = signal(false);
@@ -46,13 +44,21 @@ export class AnexosComponent implements OnInit {
   editingTemplateId = signal<number | null>(null);
   editingTemplateName = signal('');
   editSelectedFile = signal<File | null>(null);
+  allTipos = signal<any[]>([]);
 
-  availableTipos = computed(() =>
-    this.anexoMeta.getAvailableTipos(this.templates().map(t => t.tipoDocumento))
-  );
+  availableTipos = computed(() => {
+    const existing = this.templates().map(t => t.tipoDocumento);
+    return this.allTipos().filter(t => !existing.includes(t.value));
+  });
+
 
   ngOnInit() {
     this.loadTemplates();
+    this.loadTypes();
+  }
+
+  loadTypes() {
+    this.plantillaService.getTemplateTypes().subscribe(data => this.allTipos.set(data));
   }
 
   loadTemplates() {
@@ -98,7 +104,7 @@ export class AnexosComponent implements OnInit {
 
   openEdit(temp: any) {
     this.editingTemplateId.set(temp.id);
-    this.editingTemplateName.set(this.anexoMeta.formatTipo(temp.tipo));
+    this.editingTemplateName.set(temp.label);
     this.editSelectedFile.set(null);
     this.editDialogVisible.set(true);
   }

@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, signal, computed, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AlumnoService } from '../../core/services/alumno.service';
-import { AnexoMetaService } from '../../core/services/anexo-meta.service';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -9,6 +8,7 @@ import { MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { FileUploaderComponent } from '../../shared/components/file-uploader/file-uploader.component';
 import { TooltipModule } from 'primeng/tooltip';
+import { DocumentActionsService } from '../../core/services/document-actions.service';
 
 @Component({
   selector: 'app-mis-documentos',
@@ -20,37 +20,12 @@ import { TooltipModule } from 'primeng/tooltip';
 export class MisDocumentosComponent implements OnInit {
   private readonly alumnoService = inject(AlumnoService);
   private readonly messageService = inject(MessageService);
-  readonly anexoMeta = inject(AnexoMetaService);
+  readonly docActions = inject(DocumentActionsService);
 
   profile = signal<any>(null);
-  documents = signal<any[]>([]);
+  expediente = signal<any[]>([]);
   templates = signal<any[]>([]);
-  deadlines = signal<any[]>([]);
   loading = signal(false);
-
-  mergedDocuments = computed(() => {
-    const realDocs = this.documents();
-    const scheduledDeadlines = this.deadlines();
-
-    return this.anexoMeta.expectedDocuments.map(expected => {
-      const real = realDocs.find(d =>
-        (expected.esAcuerdo && d.esAcuerdo && d.tipoId === expected.tipoId) ||
-        (!expected.esAcuerdo && !d.esAcuerdo && d.tipoId === expected.tipoId)
-      );
-      const scheduled = scheduledDeadlines.find(sd => sd.tipoAcuerdo === expected.tipoId);
-
-      return real ? { ...real, label: expected.label } : {
-        label: expected.label,
-        tipo: expected.label,
-        tipoId: expected.tipoId,
-        esAcuerdo: expected.esAcuerdo,
-        estado: -1,
-        version: 0,
-        semestre: 'Pendiente',
-        fechaLimite: scheduled?.fechaLimite
-      };
-    });
-  });
 
   uploadDialogVisible = model(false);
   selectedDocForUpload = signal<any>(null);
@@ -77,14 +52,9 @@ export class MisDocumentosComponent implements OnInit {
     const alumnoId = this.profile()?.id;
     if (!alumnoId) return;
 
-    this.alumnoService.getDocuments(alumnoId).subscribe({
-      next: (data) => this.documents.set(data),
-      error: () => this.loading.set(false)
-    });
-
-    this.alumnoService.getMyDeadlines().subscribe({
+    this.alumnoService.getExpediente(alumnoId).subscribe({
       next: (data) => {
-        this.deadlines.set(data);
+        this.expediente.set(data);
         this.loading.set(false);
       },
       error: () => this.loading.set(false)
@@ -128,19 +98,14 @@ export class MisDocumentosComponent implements OnInit {
   }
 
   viewDocument(id: string) {
-    this.alumnoService.downloadDocument(id).subscribe({
-      next: (blob) => window.open(window.URL.createObjectURL(blob), '_blank'),
-      error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al cargar el documento' })
-    });
+    this.docActions.viewDocument(id);
   }
 
   downloadTemplate(id: number) {
-    this.alumnoService.downloadTemplate(id);
+    this.docActions.downloadTemplate(id);
   }
 
   isDeadlineExpired(date: string | Date | null | undefined): boolean {
-    if (!date) return false;
-    const d = typeof date === 'string' ? new Date(date) : date;
-    return d < new Date();
+    return this.docActions.isDeadlineExpired(date);
   }
 }

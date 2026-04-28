@@ -19,23 +19,37 @@
         <th>Semestre</th>
         <th>Versión</th>
         <th>Estado</th>
-        <th>Fecha</th>
+        <th>Fecha Límite</th>
+        <th>Fecha Subida</th>
         <th class="w-32"></th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-doc>
       <tr class="transition-colors hover:bg-white/5">
-        <td class="text-sm font-medium text-zinc-300">{{ anexoMeta.formatTipo(doc.tipo) }}</td>
-        <td class="text-xs text-zinc-400">{{ doc.semestre }}</td>
+        <td class="text-sm font-medium text-zinc-300">{{ doc.label }}</td>
+        <td class="text-xs text-zinc-400">{{ doc.semestre || '--' }}</td>
         <td class="text-xs text-zinc-400">v{{ doc.version }}</td>
         <td>
-          <app-status-badge [severity]="anexoMeta.getSeverity(doc.estado)"
-            [text]="anexoMeta.getEstadoText(doc.estado)" />
+          <app-status-badge [severity]="doc.estadoSeverity"
+            [text]="doc.estadoText" />
         </td>
-        <td class="text-xs text-zinc-500">{{ doc.fechaSubida | date:'shortDate' }}</td>
+        <td>
+          @if (doc.fechaLimite) {
+          <span class="text-xs font-medium"
+            [class.text-red-400]="isDeadlineExpired(doc.fechaLimite) && doc.estado !== 1"
+            [class.text-green-400]="!isDeadlineExpired(doc.fechaLimite) || doc.estado === 1">
+            {{ doc.fechaLimite | date:'dd/MM/yyyy' }}
+          </span>
+          } @else {
+          <span class="text-xs text-zinc-600">--</span>
+          }
+        </td>
+        <td class="text-xs text-zinc-500">{{ (doc.archivo?.fechaSubida | date:'shortDate') || '--' }}</td>
         <td class="flex gap-2">
-          <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info" (onClick)="viewDocument(doc.id)"
+          @if (doc.archivo) {
+          <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info" (onClick)="viewDocument(doc.archivo.id)"
             pTooltip="Ver Documento" />
+          }
 
           @if (canReview()) {
           <p-button icon="pi pi-upload" [rounded]="true" [text]="true" severity="success"
@@ -72,7 +86,7 @@
         <div class="flex items-center gap-3">
           <i class="pi pi-file-word text-blue-400"></i>
           <div>
-            <span class="block text-sm text-white font-medium">{{ anexoMeta.formatTipo(temp.tipo) }}</span>
+            <span class="block text-sm text-white font-medium">{{ temp.label }}</span>
             <span class="text-[10px] text-zinc-500 uppercase">Formato Oficial</span>
           </div>
         </div>
@@ -122,7 +136,7 @@
         <div class="flex items-center gap-3">
           <i class="pi pi-shield text-emerald-400"></i>
           <p class="text-sm text-zinc-300">
-            Estás subiendo el documento <strong>{{ anexoMeta.formatTipo(selectedDocForAdminUpload()?.tipo) }}</strong>
+            Estás subiendo el documento <strong>{{ selectedDocForAdminUpload()?.label }}</strong>
             en nombre
             del alumno.
             <span class="block mt-1 text-emerald-400 font-medium">El documento será marcado como APROBADO
@@ -132,9 +146,9 @@
       </div>
 
       <div class="flex flex-col gap-2">
-        <label class="text-sm text-zinc-400">Archivo a subir (.pdf, .doc, .docx)</label>
-        <app-file-uploader color="emerald" icon="pi-shield" label="Subir y Validar"
-          description="Se guardará como la versión oficial aprobada." (fileSelected)="adminSelectedFile.set($event)" />
+        <label class="text-sm text-zinc-400">Archivo PDF</label>
+        <app-file-uploader color="emerald" icon="pi-shield" label="Subir y Validar" accept="application/pdf"
+          description="Solo archivos PDF oficiales." (fileSelected)="adminSelectedFile.set($event)" />
       </div>
     </div>
     }
