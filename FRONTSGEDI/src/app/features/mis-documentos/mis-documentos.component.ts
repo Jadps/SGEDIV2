@@ -1,6 +1,8 @@
 import { Component, inject, OnInit, signal, computed, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { AlumnoService } from '../../core/services/alumno.service';
+
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -9,6 +11,8 @@ import { DialogModule } from 'primeng/dialog';
 import { FileUploaderComponent } from '../../shared/components/file-uploader/file-uploader.component';
 import { TooltipModule } from 'primeng/tooltip';
 import { DocumentActionsService } from '../../core/services/document-actions.service';
+import { SKIP_ERROR_NOTIFICATION } from '../../core/constants/http-context';
+
 
 @Component({
   selector: 'app-mis-documentos',
@@ -78,10 +82,12 @@ export class MisDocumentosComponent implements OnInit {
     if (!doc || !file || !alumnoId) return;
 
     this.isUploading.set(true);
+    const context = new HttpContext().set(SKIP_ERROR_NOTIFICATION, true);
 
     const upload$ = doc.esAcuerdo
-      ? this.alumnoService.uploadStudentAcuerdo(doc.tipoId, file)
-      : this.alumnoService.uploadAdministrativePersonalDoc(alumnoId, doc.tipoId, file);
+      ? this.alumnoService.uploadStudentAcuerdo(doc.tipoId, file, context)
+      : this.alumnoService.uploadAdministrativePersonalDoc(alumnoId, doc.tipoId, file, context);
+
 
     upload$.subscribe({
       next: () => {

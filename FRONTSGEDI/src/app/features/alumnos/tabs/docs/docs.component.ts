@@ -1,4 +1,5 @@
-import { Component, inject, input, OnInit, signal, computed, model } from '@angular/core';
+import { Component, inject, input, signal, computed, model, effect, untracked } from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -19,7 +20,8 @@ import { DocumentActionsService } from '../../../../core/services/document-actio
   templateUrl: './docs.component.html',
   styleUrl: './docs.component.css'
 })
-export class AlumnoDocsTabComponent implements OnInit {
+export class AlumnoDocsTabComponent {
+
   private readonly alumnoService = inject(AlumnoService);
   private readonly messageService = inject(MessageService);
   readonly docActions = inject(DocumentActionsService);
@@ -50,11 +52,20 @@ export class AlumnoDocsTabComponent implements OnInit {
   availableSemestres = signal<string[]>([]);
   selectedSemestre = model<string | null>(null);
 
-  ngOnInit() {
-    this.loadSemestres();
-    this.loadDocs();
-    this.loadTemplates();
+  constructor() {
+    effect(() => {
+      const id = this.alumnoId();
+      if (id) {
+        untracked(() => {
+          this.selectedSemestre.set(null);
+          this.loadSemestres();
+          this.loadDocs();
+          this.loadTemplates();
+        });
+      }
+    });
   }
+
 
   loadSemestres() {
     if (!this.canReview()) return;

@@ -1,6 +1,9 @@
 import { inject, Injectable } from '@angular/core';
+import { HttpContext } from '@angular/common/http';
 import { AlumnoService } from './alumno.service';
 import { MessageService } from 'primeng/api';
+import { SKIP_ERROR_NOTIFICATION } from '../constants/http-context';
+
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +13,9 @@ export class DocumentActionsService {
   private readonly messageService = inject(MessageService);
 
   viewDocument(id: string) {
-    this.alumnoService.downloadDocument(id).subscribe({
+    const context = new HttpContext().set(SKIP_ERROR_NOTIFICATION, true);
+    this.alumnoService.downloadDocument(id, context).subscribe({
+
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         window.open(url, '_blank');
@@ -24,8 +29,25 @@ export class DocumentActionsService {
   }
 
   downloadTemplate(id: number) {
-    this.alumnoService.downloadTemplate(id);
+    const context = new HttpContext().set(SKIP_ERROR_NOTIFICATION, true);
+    this.alumnoService.downloadTemplate(id, context).subscribe({
+
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Plantilla_${id}.docx`; // Filename could be improved if available in headers
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pudo descargar la plantilla.'
+      })
+    });
   }
+
 
   isDeadlineExpired(date: string | Date | null | undefined): boolean {
     if (!date) return false;

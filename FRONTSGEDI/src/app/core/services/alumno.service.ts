@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpContext } from '@angular/common/http';
+
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { API_ENDPOINTS } from '../constants/api-endpoints';
@@ -82,16 +83,22 @@ export class AlumnoService {
     return this.http.get<any[]>(`${environment.apiUrl}${API_ENDPOINTS.PLANTILLAS.BASE}`);
   }
 
-  downloadTemplate(id: number): void {
-    const url = `${environment.apiUrl}${API_ENDPOINTS.PLANTILLAS.DOWNLOAD.replace('{id}', id.toString())}`;
-    window.open(url, '_blank');
-  }
-
-  downloadDocument(id: string): Observable<Blob> {
-    return this.http.get(`${environment.apiUrl}/documentos/${id}/download`, {
-      responseType: 'blob'
+  downloadTemplate(id: number, context?: HttpContext): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}${API_ENDPOINTS.PLANTILLAS.DOWNLOAD.replace('{id}', id.toString())}`, {
+      responseType: 'blob',
+      context
     });
   }
+
+
+
+  downloadDocument(id: string, context?: HttpContext): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/documentos/${id}/download`, {
+      responseType: 'blob',
+      context
+    });
+  }
+
 
   extendDeadline(payload: { acuerdoId?: string, alumnoId?: string, tipoAcuerdo?: number, semestre?: string, nuevaFechaLimite: Date }): Observable<void> {
     return this.http.patch<void>(
@@ -110,23 +117,25 @@ export class AlumnoService {
     );
   }
 
-  uploadStudentAcuerdo(tipoAcuerdo: number, file: File): Observable<void> {
+  uploadStudentAcuerdo(tipoAcuerdo: number, file: File, context?: HttpContext): Observable<void> {
     const formData = new FormData();
     formData.append('TipoAcuerdo', tipoAcuerdo.toString());
     formData.append('File', file);
-    return this.http.post<void>(`${environment.apiUrl}/alumnos/me/documentos/acuerdos`, formData);
+    return this.http.post<void>(`${environment.apiUrl}/alumnos/me/documentos/acuerdos`, formData, { context });
   }
 
-  uploadAdministrativePersonalDoc(alumnoId: string, tipoDocumento: number, file: File): Observable<void> {
+  uploadAdministrativePersonalDoc(alumnoId: string, tipoDocumento: number, file: File, context?: HttpContext): Observable<void> {
     const formData = new FormData();
     formData.append('AlumnoId', alumnoId);
     formData.append('TipoDocumento', tipoDocumento.toString());
     formData.append('File', file);
     return this.http.post<void>(
       `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.DOCUMENTS.replace('{id}', alumnoId)}`,
-      formData
+      formData,
+      { context }
     );
   }
+
 
   getMyDeadlines(): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/alumnos/me/fechas-limite`);

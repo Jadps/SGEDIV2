@@ -5,6 +5,8 @@ import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
 import { API_ENDPOINTS } from '../constants/api-endpoints';
+import { SKIP_ERROR_NOTIFICATION } from '../constants/http-context';
+
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     const authService = inject(AuthService);
@@ -56,20 +58,32 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                     );
                 }
             } else if (error.status !== 401) {
-                let detail = 'Ocurrió un error inesperado. Inténtelo de nuevo.';
+                if (req.context.get(SKIP_ERROR_NOTIFICATION)) {
+                    return throwError(() => error);
+                }
+                let detail = error.error?.detail || error.error?.message;
+                let summary = 'Error';
 
-                if (error.status === 400) {
-                    detail = error.error?.detail || error.error?.message || 'La solicitud es inválida.';
-                } else if (error.status === 403) {
-                    detail = 'No tiene permisos para realizar esta acción.';
-                } else if (error.status === 500) {
-                    detail = 'Error interno del servidor. El equipo técnico ha sido notificado.';
-                } else if (error.status === 429) {
-                    detail = 'Demasiadas solicitudes. Por favor, espere un momento.';
+                if (!detail) {
+                    summary = 'Error del Sistema';
+                    if (error.status === 400) {
+                        detail = 'La solicitud es inválida.';
+                    } else if (error.status === 403) {
+                        detail = 'No tiene permisos para realizar esta acción.';
+                    } else if (error.status === 404) {
+                        detail = 'El recurso solicitado no fue encontrado.';
+                    } else if (error.status === 500) {
+                        detail = 'Error interno del servidor. El equipo técnico ha sido notificado.';
+                    } else if (error.status === 429) {
+                        detail = 'Demasiadas solicitudes. Por favor, espere un momento.';
+                    } else {
+                        detail = 'Ocurrió un error inesperado. Inténtelo de nuevo.';
+                    }
                 }
 
-                notificationService.error('Error del Sistema', detail);
+                notificationService.error(summary, detail);
             }
+
 
             return throwError(() => error);
         })

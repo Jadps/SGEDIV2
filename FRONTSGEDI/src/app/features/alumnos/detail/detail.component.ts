@@ -1,4 +1,5 @@
-import { Component, inject, input, output, signal, OnChanges } from '@angular/core';
+import { Component, inject, input, output, signal, effect, untracked } from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { TabsModule } from 'primeng/tabs';
@@ -18,7 +19,8 @@ import { AlumnoDocsTabComponent } from '../tabs/docs/docs.component';
   ],
   templateUrl: './detail.component.html',
 })
-export class AlumnoDetailModalComponent implements OnChanges {
+export class AlumnoDetailModalComponent {
+
   private readonly alumnoService = inject(AlumnoService);
 
   alumnoId = input.required<string>();
@@ -30,17 +32,24 @@ export class AlumnoDetailModalComponent implements OnChanges {
   loading = signal(false);
   activeTab = signal<string>('info');
 
+  constructor() {
+    effect(() => {
+      const isVisible = this.visible();
+      const id = this.alumnoId();
+
+      if (isVisible && id) {
+        untracked(() => this.fetch());
+      }
+    });
+  }
+
+
   onTabChange(event: string | number | undefined) {
     if (event !== undefined) {
       this.activeTab.set(event as string);
     }
   }
 
-  ngOnChanges() {
-    if (this.visible() && this.alumnoId()) {
-      this.fetch();
-    }
-  }
 
   private fetch() {
     this.loading.set(true);

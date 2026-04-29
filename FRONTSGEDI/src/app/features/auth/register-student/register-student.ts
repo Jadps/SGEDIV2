@@ -8,9 +8,11 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { FileUploadModule, FileSelectEvent } from 'primeng/fileupload';
 import { NotificationService } from '../../../core/services/notification.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { API_ENDPOINTS } from '../../../core/constants/api-endpoints';
+import { SKIP_ERROR_NOTIFICATION } from '../../../core/constants/http-context';
+
 import { CommonModule } from '@angular/common';
 import { CatalogService } from '../../../core/services/catalog.service';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -68,8 +70,12 @@ export class RegisterStudentComponent {
 
     downloadAnexoI(): void {
         this.isDownloading.set(true);
-        this.http.get(`${this.apiUrl}/plantillas/public/anexo-i`, { responseType: 'blob' })
+        this.http.get(`${this.apiUrl}/plantillas/public/anexo-i`, { 
+            responseType: 'blob',
+            context: new HttpContext().set(SKIP_ERROR_NOTIFICATION, true)
+        })
             .subscribe({
+
                 next: (blob) => {
                     const url = window.URL.createObjectURL(blob);
                     const link = document.createElement('a');
@@ -121,8 +127,11 @@ export class RegisterStudentComponent {
         formData.append('anexoIFile', this.anexoIFile);
         formData.append('kardexFile', this.kardexFile);
 
-        this.http.post(`${environment.apiUrl}${API_ENDPOINTS.AUTH.REGISTER_STUDENT}`, formData)
+        this.http.post(`${environment.apiUrl}${API_ENDPOINTS.AUTH.REGISTER_STUDENT}`, formData, {
+            context: new HttpContext().set(SKIP_ERROR_NOTIFICATION, true)
+        })
             .subscribe({
+
                 next: () => {
                     this.isLoading.set(false);
                     this.notificationService.success(
