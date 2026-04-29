@@ -12,6 +12,10 @@ export class MenuService {
   public menuItems = signal<ModuleDto[]>([]);
 
   loadMenu() {
+    const currentMenu = this.menuItems();
+    if (currentMenu.length > 0) {
+      return of(currentMenu);
+    }
     return this.catalogService.getMenuModules().pipe(
       tap(modules => {
         this.menuItems.set(modules);

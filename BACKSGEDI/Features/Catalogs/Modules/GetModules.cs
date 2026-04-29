@@ -59,7 +59,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                 Id = "dashboard",
                 Description = "Dashboard",
                 Icon = "pi pi-home",
-                Action = "/dashboard",
+                Action = "dashboard",
                 Order = 1,
                 ModuleTypeId = 1,
                 AllowedRoles = [SystemRoles.Alumno, SystemRoles.Profesor, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno, SystemRoles.Admin]
@@ -80,7 +80,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                         Id = "alumnos-list",
                         Description = "Lista de Alumnos",
                         Icon = "pi pi-list",
-                        Action = "/dashboard/alumnos",
+                        Action = "alumnos",
                         Order = 1,
                         ModuleTypeId = 2,
                         AllowedRoles = [SystemRoles.Profesor, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno, SystemRoles.Admin]
@@ -92,7 +92,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                 Id = "mis-documentos",
                 Description = "Mis Documentos",
                 Icon = "pi pi-file",
-                Action = "/dashboard/mis-documentos",
+                Action = "mis-documentos",
                 Order = 2,
                 ModuleTypeId = 1,
                 AllowedRoles = [SystemRoles.Alumno]
@@ -102,7 +102,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                 Id = "anexos",
                 Description = "Plantillas de Anexos",
                 Icon = "pi pi-file-word",
-                Action = "/dashboard/anexos",
+                Action = "anexos",
                 Order = 3,
                 ModuleTypeId = 1,
                 AllowedRoles = [SystemRoles.Coordinador, SystemRoles.Admin]
@@ -112,7 +112,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                 Id = "fechas-limite",
                 Description = "Configuración Fechas Límite",
                 Icon = "pi pi-calendar-clock",
-                Action = "/dashboard/fechas-limite",
+                Action = "fechas-limite",
                 Order = 4,
                 ModuleTypeId = 1,
                 AllowedRoles = [SystemRoles.Coordinador, SystemRoles.Admin]

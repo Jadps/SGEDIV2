@@ -6,7 +6,7 @@ import { map, Observable, of } from 'rxjs';
 export const permissionGuard: CanActivateFn = (route, state): Observable<boolean> => {
     const router = inject(Router);
     const menuService = inject(MenuService);
-    const targetUrl = state.url;
+    const targetUrl = state.url.split('?')[0];
 
     if (targetUrl === '/' || targetUrl === '/dashboard') {
         return of(true);
@@ -15,7 +15,11 @@ export const permissionGuard: CanActivateFn = (route, state): Observable<boolean
     return menuService.loadMenu().pipe(
         map(() => {
             const allowedUrls = menuService.getAllowedUrls();
-            const isAllowed = allowedUrls.some(url => targetUrl === url || targetUrl.startsWith(url + '/'));
+
+            const isAllowed = allowedUrls.some(url => {
+                const normalizedUrl = url.startsWith('/') ? url : `/${url}`;
+                return targetUrl === normalizedUrl || targetUrl.startsWith(normalizedUrl + '/');
+            });
 
             if (isAllowed) {
                 return true;
