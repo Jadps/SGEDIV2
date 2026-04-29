@@ -7,7 +7,6 @@ import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { FileUploadModule, FileSelectEvent } from 'primeng/fileupload';
-import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
@@ -35,7 +34,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 })
 export class RegisterStudentComponent {
     private readonly fb = inject(NonNullableFormBuilder);
-    private readonly authService = inject(AuthService);
     private readonly router = inject(Router);
     private readonly http = inject(HttpClient);
     private readonly catalogService = inject(CatalogService);
@@ -66,6 +64,31 @@ export class RegisterStudentComponent {
     kardexFile: File | null = null;
 
     readonly isLoading = signal(false);
+    readonly isDownloading = signal(false);
+
+    downloadAnexoI(): void {
+        this.isDownloading.set(true);
+        this.http.get(`${this.apiUrl}/plantillas/public/anexo-i`, { responseType: 'blob' })
+            .subscribe({
+                next: (blob) => {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'Anexo_I.docx';
+                    link.click();
+                    window.URL.revokeObjectURL(url);
+                    this.isDownloading.set(false);
+                },
+                error: () => {
+                    this.isDownloading.set(false);
+                    this.notificationService.error(
+                        'Error',
+                        'No hay una plantilla vigente para el Anexo I en este momento.'
+                    );
+                }
+            });
+    }
+
 
     onFileSelect(event: FileSelectEvent, type: 'horario' | 'anexo' | 'kardex'): void {
         const file = event.files[0];
