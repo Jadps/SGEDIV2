@@ -35,60 +35,8 @@ public static class DbInitializer
             }
         }
 
-        var carreras = new List<CatCarrera>
-        {
-            new CatCarrera { Id = 1, Clave = "IGE", Nombre = "Ingeniería en Gestión Empresarial", IsDeleted = false },
-            new CatCarrera { Id = 2, Clave = "ITIC", Nombre = "Ingeniería en Tecnologías de la Información y Comunicaciones", IsDeleted = false },
-            new CatCarrera { Id = 3, Clave = "II", Nombre = "Ingeniería Industrial", IsDeleted = false },
-            new CatCarrera { Id = 4, Clave = "IA", Nombre = "Ingeniería en Administración", IsDeleted = false },
-            new CatCarrera { Id = 5, Clave = "IDA", Nombre = "Ingeniería en Desarrollo de Aplicaciones", IsDeleted = false },
-            new CatCarrera { Id = 6, Clave = "IE", Nombre = "Ingeniería Eléctrica", IsDeleted = false },
-            new CatCarrera { Id = 7, Clave = "IEM", Nombre = "Ingeniería Electromecánica", IsDeleted = false },
-            new CatCarrera { Id = 8, Clave = "IEL", Nombre = "Ingeniería Electrónica", IsDeleted = false },
-            new CatCarrera { Id = 9, Clave = "IM", Nombre = "Ingeniería Mecánica", IsDeleted = false },
-            new CatCarrera { Id = 10, Clave = "IMT", Nombre = "Ingeniería Mecatrónica", IsDeleted = false }
-        };
 
-        foreach (var carrera in carreras)
-        {
-            var exists = await context.Carreras.AnyAsync(c => c.Id == carrera.Id);
-            if (!exists)
-            {
-                context.Carreras.Add(carrera);
-            }
-
-            var emailCoord = $"Coordinador{carrera.Clave}@tlalnepantla.tecnm.mx";
-            var coordExists = await context.Usuarios.IgnoreQueryFilters().AnyAsync(u => u.Email == emailCoord);
-            if (!coordExists)
-            {
-                var currentYear = DateTime.UtcNow.Year.ToString();
-                var passwordStr = $"{currentYear}{carrera.Clave}";
-
-                var coordUser = new Usuario
-                {
-                    Id = Guid.NewGuid(),
-                    Name = $"Coordinador {carrera.Clave}",
-                    Email = emailCoord,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(passwordStr),
-                    Roles = new List<UsuarioRol>
-                    {
-                        new UsuarioRol { Role = SystemRoles.Coordinador }
-                    },
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                context.Usuarios.Add(coordUser);
-
-                var coordinadorEntity = new Coordinador
-                {
-                    Id = Guid.NewGuid(),
-                    UsuarioId = coordUser.Id,
-                    CarreraId = carrera.Id
-                };
-
-                context.Coordinadores.Add(coordinadorEntity);
-            }
-                            var hildaEmail = "hilda.diaz@tlalnepantla.tecnm.mx";
+        var hildaEmail = "hilda.diaz@tlalnepantla.tecnm.mx";
         var hildaExists = await context.Usuarios.IgnoreQueryFilters().AnyAsync(u => u.Email == hildaEmail);
         if (!hildaExists)
         {
@@ -127,5 +75,4 @@ public static class DbInitializer
 
         await context.SaveChangesAsync();
     }
-}
 }
