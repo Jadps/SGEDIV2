@@ -18,4 +18,7 @@ public class Usuario : ISoftDelete, IActivatable
     public Alumno? Alumno { get; set; }
     public Coordinador? Coordinador { get; set; }
     public JefeDepartamento? JefeDepartamento { get; set; }
+    public Profesor? Profesor { get; set; }
+    public AsesorInterno? AsesorInterno { get; set; }
+    public AsesorExterno? AsesorExterno { get; set; }
 }

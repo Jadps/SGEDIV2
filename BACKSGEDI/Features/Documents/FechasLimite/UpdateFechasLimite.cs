@@ -44,6 +44,27 @@ public class UpdateFechasLimite : Endpoint<UpdateFechasLimiteRequest>
 
     public override async Task HandleAsync(UpdateFechasLimiteRequest req, CancellationToken ct)
     {
+        if (!User.GetRoles().Contains(SystemRoles.Admin))
+        {
+            var userId = User.GetUserId();
+            var userInfo = await _db.Usuarios
+                .Include(u => u.Coordinador)
+                .Include(u => u.JefeDepartamento)
+                .FirstOrDefaultAsync(u => u.Id == userId, ct);
+
+            int allowedCarreraId = 0;
+            if (userInfo?.Coordinador != null)
+                allowedCarreraId = userInfo.Coordinador.CarreraId;
+            else if (userInfo?.JefeDepartamento != null)
+                allowedCarreraId = userInfo.JefeDepartamento.CarreraId;
+
+            if (req.CarreraId != allowedCarreraId)
+            {
+                await Result.Failure(Error.Forbidden("FechasLimite.Forbidden", "No tienes permisos para modificar fechas límite de otra carrera")).ToResult().ExecuteAsync(HttpContext);
+                return;
+            }
+        }
+
         var semestre = string.IsNullOrEmpty(req.Semestre) ? SemestreHelper.GetSemestreActual() : req.Semestre;
 
         var existing = await _db.ConfiguracionesFechasLimites

@@ -32,7 +32,13 @@ export class FechasLimiteComponent implements OnInit {
   hasChanges = signal(false);
 
   ngOnInit() {
-    this.catalogService.getCarreras().subscribe(data => this.carreras.set(data));
+    this.catalogService.getCarreras().subscribe(data => {
+      this.carreras.set(data);
+      if (data.length === 1) {
+        this.selectedCarrera = data[0].id;
+        this.loadFechas();
+      }
+    });
   }
 
   loadFechas() {

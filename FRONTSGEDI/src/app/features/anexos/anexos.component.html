@@ -61,7 +61,7 @@
     <div class="flex flex-col gap-2">
       <label class="text-sm text-zinc-400">Tipo de Anexo</label>
       <p-select [options]="availableTipos()" [(ngModel)]="selectedTipo" optionLabel="label" optionValue="value"
-        placeholder="Selecciona el anexo" styleClass="w-full bg-zinc-800/50 border-white/10" />
+        placeholder="Selecciona el anexo" styleClass="w-full bg-zinc-800/50 border-white/10" appendTo="body" />
     </div>
     <div class="flex flex-col gap-2">
       <label class="text-sm text-zinc-400">Archivo Word (.doc, .docx)</label>

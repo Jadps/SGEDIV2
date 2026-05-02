@@ -88,8 +88,44 @@ public static class DbInitializer
 
                 context.Coordinadores.Add(coordinadorEntity);
             }
+                            var hildaEmail = "hilda.diaz@tlalnepantla.tecnm.mx";
+        var hildaExists = await context.Usuarios.IgnoreQueryFilters().AnyAsync(u => u.Email == hildaEmail);
+        if (!hildaExists)
+        {
+            var hildaUser = new Usuario
+            {
+                Id = Guid.NewGuid(),
+                Name = "Hilda Diaz",
+                Email = hildaEmail,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminConfig.Pass.Trim()),
+                Roles = new List<UsuarioRol>
+                {
+                    new UsuarioRol { Role = SystemRoles.AsesorInterno },
+                    new UsuarioRol { Role = SystemRoles.Profesor }
+                },
+                CreatedAt = DateTime.UtcNow
+            };
+
+            context.Usuarios.Add(hildaUser);
+
+            var asesorInterno = new AsesorInterno
+            {
+                Id = Guid.NewGuid(),
+                UsuarioId = hildaUser.Id,
+                NumeroEmpleado = "ITTLA-001",
+                Cubiculo = "Cubículo A"
+            };
+            context.AsesoresInternos.Add(asesorInterno);
+
+            var profesor = new Profesor
+            {
+                Id = Guid.NewGuid(),
+                UsuarioId = hildaUser.Id
+            };
+            context.Profesores.Add(profesor);
         }
 
         await context.SaveChangesAsync();
     }
+}
 }

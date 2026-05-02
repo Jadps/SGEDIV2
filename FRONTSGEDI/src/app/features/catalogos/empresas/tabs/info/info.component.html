@@ -1,0 +1,46 @@
+<div class="p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-white/90 mb-4 flex items-center">
+                <i class="pi pi-building mr-2 text-primary"></i> Identificación
+            </h3>
+            
+            <div class="flex flex-col gap-2">
+                <label for="nombre" class="text-sm font-medium text-zinc-400">Nombre de la Empresa</label>
+                <input pInputText id="nombre" [(ngModel)]="empresa().nombre" class="w-full" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="rfc" class="text-sm font-medium text-zinc-400">RFC</label>
+                <input pInputText id="rfc" [(ngModel)]="empresa().rfc" class="w-full" />
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-white/90 mb-4 flex items-center">
+                <i class="pi pi-map-marker mr-2 text-primary"></i> Contacto y Ubicación
+            </h3>
+
+            <div class="flex flex-col gap-2">
+                <label for="correo" class="text-sm font-medium text-zinc-400">Correo Electrónico</label>
+                <input pInputText id="correo" [(ngModel)]="empresa().correo" class="w-full" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="telefono" class="text-sm font-medium text-zinc-400">Teléfono</label>
+                <input pInputText id="telefono" [(ngModel)]="empresa().telefono" class="w-full" />
+            </div>
+        </div>
+
+        <div class="col-span-1 md:col-span-2 space-y-4">
+            <div class="flex flex-col gap-2">
+                <label for="direccion" class="text-sm font-medium text-zinc-400">Dirección Completa</label>
+                <input pInputText id="direccion" [(ngModel)]="empresa().direccion" class="w-full" />
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-end mt-8">
+        <p-button label="Actualizar Datos" icon="pi pi-save" (onClick)="save()" />
+    </div>
+</div>

@@ -1,0 +1,59 @@
+<p-dialog [visible]="visible()" (visibleChange)="!$event && onClose.emit()" [modal]="true" [draggable]="false"
+    position="top" [style]="{ width: '600px', maxWidth: '95vw', marginTop: '4rem' }" [contentStyle]="{ padding: '0' }"
+    appendTo="body"
+    styleClass="materia-modal glass-dark border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+    [header]="loading() ? 'Cargando...' : (materia()?.nombre || 'Nueva Materia')">
+
+    @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+        <p-progressSpinner strokeWidth="3" styleClass="w-10 h-10" />
+    </div>
+    } @else if (materia()) {
+    <div class="p-6 space-y-6">
+        <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-white/90 mb-4 flex items-center">
+                <i class="pi pi-bookmark mr-2 text-primary"></i> Información de la Materia
+            </h3>
+            
+            <div class="flex flex-col gap-2">
+                <label for="carrera" class="text-sm font-medium text-zinc-400">Carrera</label>
+                <p-select [options]="carreras()" [(ngModel)]="materia()!.carreraId" optionLabel="nombre" optionValue="id" 
+                    placeholder="Seleccionar Carrera" class="w-full" appendTo="body" />
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-2 min-w-0">
+                    <label for="clave" class="text-sm font-medium text-zinc-400">Clave</label>
+                    <input pInputText id="clave" [(ngModel)]="materia()!.clave" class="w-full" placeholder="Ej. SCD-1011" />
+                </div>
+
+                <div class="flex flex-col gap-2 min-w-0">
+                    <label for="nombre" class="text-sm font-medium text-zinc-400">Nombre de la Materia</label>
+                    <input pInputText id="nombre" [(ngModel)]="materia()!.nombre" class="w-full" placeholder="Ej. Estructura de Datos" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-2 min-w-0">
+                    <label for="creditos" class="text-sm font-medium text-zinc-400">Créditos</label>
+                    <p-inputNumber id="creditos" [(ngModel)]="materia()!.creditos" [min]="1" [showButtons]="true"
+                        styleClass="w-full" inputStyleClass="w-full" />
+                </div>
+
+                <div class="flex flex-col gap-2 min-w-0">
+                    <label for="semestre" class="text-sm font-medium text-zinc-400">Semestre</label>
+                    <p-inputNumber id="semestre" [(ngModel)]="materia()!.semestre" [min]="1" [max]="12" [showButtons]="true"
+                        styleClass="w-full" inputStyleClass="w-full" />
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-8">
+            <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="onClose.emit()" />
+            <p-button [label]="materiaId() ? 'Actualizar Materia' : 'Guardar Materia'" 
+                      [icon]="materiaId() ? 'pi pi-save' : 'pi pi-check'" 
+                      (onClick)="save()" />
+        </div>
+    </div>
+    }
+</p-dialog>

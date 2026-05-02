@@ -25,6 +25,12 @@ export const API_ENDPOINTS = {
   CATALOGS: {
     MODULES: '/catalogs/modules',
     ROLES: '/catalogs/roles',
-    CARRERAS: '/catalogs/carreras'
+    CARRERAS: '/catalogs/carreras',
+    EMPRESAS: '/catalogs/empresas',
+    MATERIAS: '/catalogs/materias'
+  },
+  USER_MANAGEMENT: {
+    INTERNAL: '/users/internal',
+    EXTERNAL: '/users/external'
   }
 };

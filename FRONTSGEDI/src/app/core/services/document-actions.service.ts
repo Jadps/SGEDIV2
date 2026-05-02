@@ -36,7 +36,7 @@ export class DocumentActionsService {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `Plantilla_${id}.docx`; // Filename could be improved if available in headers
+        link.download = `Plantilla_${id}.docx`;
         link.click();
         window.URL.revokeObjectURL(url);
       },
