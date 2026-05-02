@@ -87,9 +87,7 @@ public override async Task HandleAsync(ListStudentRequest req, CancellationToken
             CreatedAt = a.Usuario.CreatedAt,
             IsAccountActive = a.Usuario.IsActive,
 
-            IsMyCareer = isAdmin ||
-                         _db.Coordinadores.Any(c => c.UsuarioId == userId && c.CarreraId == a.CarreraId) ||
-                         _db.JefesDepartamento.Any(j => j.UsuarioId == userId && j.CarreraId == a.CarreraId),
+            IsMyCareer = true,
 
             //IsMyStudent = isAdmin || _db.Alumnos.Any(am => am.Id == a.Id && am.ProfesorId == userId),
             //IsMyAdvisory = isAdmin || _db.Alumnos.Any(as => as.Id == a.Id && as.AsesorExternoId == userId),

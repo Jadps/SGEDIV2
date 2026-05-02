@@ -13,6 +13,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmationService } from 'primeng/api';
 import { MateriaDetailModalComponent } from './detail/detail.component';
 
 @Component({
@@ -36,6 +37,7 @@ import { MateriaDetailModalComponent } from './detail/detail.component';
 export class MateriasComponent implements OnInit {
   private readonly catalogService = inject(CatalogService);
   private readonly notificationService = inject(NotificationService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   materias = signal<MateriaDto[]>([]);
   carreras = signal<CarreraDto[]>([]);
@@ -98,14 +100,19 @@ export class MateriasComponent implements OnInit {
   }
 
   deleteMateria(id: string) {
-    if (confirm('¿Estás seguro de eliminar esta materia?')) {
-      this.catalogService.deleteMateria(id).subscribe({
-        next: () => {
-          this.notificationService.success('Materia eliminada', 'La materia se ha eliminado correctamente');
-          this.loadMaterias();
-        }
-      });
-    }
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de eliminar esta materia?',
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.catalogService.deleteMateria(id).subscribe({
+          next: () => {
+            this.notificationService.success('Materia eliminada', 'La materia se ha eliminado correctamente');
+            this.loadMaterias();
+          }
+        });
+      }
+    });
   }
 
   onSearch(event: any) {

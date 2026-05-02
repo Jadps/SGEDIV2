@@ -13,6 +13,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
 import { computed } from '@angular/core';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-empresas',
@@ -34,6 +35,7 @@ import { computed } from '@angular/core';
 export class EmpresasComponent implements OnInit {
   private readonly catalogService = inject(CatalogService);
   private readonly notificationService = inject(NotificationService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   empresas = signal<EmpresaDto[]>([]);
   loading = signal<boolean>(false);
@@ -79,14 +81,19 @@ export class EmpresasComponent implements OnInit {
 
 
   deleteEmpresa(id: string) {
-    if (confirm('¿Estás seguro de eliminar esta empresa?')) {
-      this.catalogService.deleteEmpresa(id).subscribe({
-        next: () => {
-          this.notificationService.success('Empresa eliminada', 'La empresa se ha eliminado correctamente');
-          this.loadEmpresas();
-        }
-      });
-    }
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de eliminar esta empresa?',
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.catalogService.deleteEmpresa(id).subscribe({
+          next: () => {
+            this.notificationService.success('Empresa eliminada', 'La empresa se ha eliminado correctamente');
+            this.loadEmpresas();
+          }
+        });
+      }
+    });
   }
 
   onSearch(event: any) {

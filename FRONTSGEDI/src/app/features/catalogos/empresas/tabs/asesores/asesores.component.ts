@@ -9,6 +9,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { UserManagementService } from '../../../../../core/services/user-management.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { ExternalUserDto, CreateExternalUserRequest } from '../../../../../core/models/external-user.dto';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-empresa-asesores-tab',
@@ -19,6 +20,7 @@ import { ExternalUserDto, CreateExternalUserRequest } from '../../../../../core/
 export class EmpresaAsesoresTabComponent implements OnInit {
   private readonly userService = inject(UserManagementService);
   private readonly notificationService = inject(NotificationService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   empresaId = input.required<string>();
 
@@ -28,7 +30,7 @@ export class EmpresaAsesoresTabComponent implements OnInit {
   isNew = signal<boolean>(true);
   
   editingAsesor = signal<Partial<ExternalUserDto>>({});
-  tempPassword = '';
+  tempPassword = signal<string>('');
 
   ngOnInit() {
     this.loadAsesores();
@@ -53,7 +55,7 @@ export class EmpresaAsesoresTabComponent implements OnInit {
         puesto: '',
         telefonoOficina: ''
     });
-    this.tempPassword = '';
+    this.tempPassword.set('');
     this.isNew.set(true);
     this.displayModal.set(true);
   }
@@ -69,7 +71,7 @@ export class EmpresaAsesoresTabComponent implements OnInit {
       const request: CreateExternalUserRequest = {
         name: this.editingAsesor().name!,
         email: this.editingAsesor().email!,
-        password: this.tempPassword,
+        password: this.tempPassword(),
         empresaId: this.empresaId(),
         puesto: this.editingAsesor().puesto!,
         telefonoOficina: this.editingAsesor().telefonoOficina!
@@ -93,13 +95,18 @@ export class EmpresaAsesoresTabComponent implements OnInit {
   }
 
   deleteAsesor(id: string) {
-    if (confirm('¿Estás seguro de eliminar este asesor?')) {
-      this.userService.deleteExternalUser(id).subscribe({
-        next: () => {
-          this.notificationService.success('Asesor eliminado', 'El registro se ha marcado como inactivo');
-          this.loadAsesores();
-        }
-      });
-    }
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de eliminar este asesor?',
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.userService.deleteExternalUser(id).subscribe({
+          next: () => {
+            this.notificationService.success('Asesor eliminado', 'El registro se ha marcado como inactivo');
+            this.loadAsesores();
+          }
+        });
+      }
+    });
   }
 }

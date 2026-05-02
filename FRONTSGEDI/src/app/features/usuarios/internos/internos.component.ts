@@ -11,7 +11,6 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService } from 'primeng/api';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { NotificationService } from '../../../core/services/notification.service';
 import { InternalUserDetailModalComponent } from './detail/detail.component';
 
@@ -28,7 +27,6 @@ import { InternalUserDetailModalComponent } from './detail/detail.component';
     IconFieldModule,
     InputIconModule,
     TooltipModule,
-    ConfirmDialogModule,
     InternalUserDetailModalComponent
   ],
   templateUrl: './internos.component.html'

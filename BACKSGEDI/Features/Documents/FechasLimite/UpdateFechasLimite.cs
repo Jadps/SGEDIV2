@@ -47,16 +47,13 @@ public class UpdateFechasLimite : Endpoint<UpdateFechasLimiteRequest>
         if (!User.GetRoles().Contains(SystemRoles.Admin))
         {
             var userId = User.GetUserId();
-            var userInfo = await _db.Usuarios
-                .Include(u => u.Coordinador)
-                .Include(u => u.JefeDepartamento)
-                .FirstOrDefaultAsync(u => u.Id == userId, ct);
+            int? allowedCarreraIdNullable = await _db.Usuarios
+                .Where(u => u.Id == userId)
+                .Select(u => u.Coordinador != null ? u.Coordinador.CarreraId :
+                             u.JefeDepartamento != null ? u.JefeDepartamento.CarreraId : (int?)null)
+                .FirstOrDefaultAsync(ct);
 
-            int allowedCarreraId = 0;
-            if (userInfo?.Coordinador != null)
-                allowedCarreraId = userInfo.Coordinador.CarreraId;
-            else if (userInfo?.JefeDepartamento != null)
-                allowedCarreraId = userInfo.JefeDepartamento.CarreraId;
+            int allowedCarreraId = allowedCarreraIdNullable ?? 0;
 
             if (req.CarreraId != allowedCarreraId)
             {

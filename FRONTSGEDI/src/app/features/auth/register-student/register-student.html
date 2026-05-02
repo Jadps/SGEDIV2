@@ -102,11 +102,11 @@
                             <label for="file-horario" class="group relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200 px-3 py-5 min-h-[96px] text-center
                        border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.03]
                        hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-500/10"
-                                [class.!border-blue-400]="horarioFile" [class.dark:!border-blue-500]="horarioFile"
-                                [class.!bg-blue-50]="horarioFile" [class.dark:!bg-blue-500/10]="horarioFile">
+                                [class.!border-blue-400]="horarioFile()" [class.dark:!border-blue-500]="horarioFile()"
+                                [class.!bg-blue-50]="horarioFile()" [class.dark:!bg-blue-500/10]="horarioFile()">
                                 <input id="file-horario" type="file" accept="application/pdf" class="sr-only"
                                     (change)="onNativeFileSelect($event, 'horario')" />
-                                @if (!horarioFile) {
+                                @if (!horarioFile()) {
                                 <i
                                     class="pi pi-cloud-upload text-xl text-zinc-300 dark:text-zinc-600 group-hover:text-blue-400 transition-colors duration-200"></i>
                                 <span
@@ -118,7 +118,7 @@
                                 <i class="pi pi-file-pdf text-xl text-blue-500 dark:text-blue-400"></i>
                                 <span
                                     class="text-[10px] font-bold text-blue-600 dark:text-blue-400 truncate w-full px-1 leading-tight">
-                                    {{ horarioFile.name }}
+                                    {{ horarioFile()!.name }}
                                 </span>
                                 <span class="text-[9px] text-zinc-400 dark:text-zinc-500">Toca para cambiar</span>
                                 }
@@ -143,11 +143,11 @@
                             <label for="file-anexo" class="group relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200 px-3 py-5 min-h-[96px] text-center
                        border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.03]
                        hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-500/10"
-                                [class.!border-blue-400]="anexoIFile" [class.dark:!border-blue-500]="anexoIFile"
-                                [class.!bg-blue-50]="anexoIFile" [class.dark:!bg-blue-500/10]="anexoIFile">
+                                [class.!border-blue-400]="anexoIFile()" [class.dark:!border-blue-500]="anexoIFile()"
+                                [class.!bg-blue-50]="anexoIFile()" [class.dark:!bg-blue-500/10]="anexoIFile()">
                                 <input id="file-anexo" type="file" accept="application/pdf" class="sr-only"
                                     (change)="onNativeFileSelect($event, 'anexo')" />
-                                @if (!anexoIFile) {
+                                @if (!anexoIFile()) {
                                 <i
                                     class="pi pi-cloud-upload text-xl text-zinc-300 dark:text-zinc-600 group-hover:text-blue-400 transition-colors duration-200"></i>
                                 <span
@@ -159,7 +159,7 @@
                                 <i class="pi pi-file-pdf text-xl text-blue-500 dark:text-blue-400"></i>
                                 <span
                                     class="text-[10px] font-bold text-blue-600 dark:text-blue-400 truncate w-full px-1 leading-tight">
-                                    {{ anexoIFile.name }}
+                                    {{ anexoIFile()!.name }}
                                 </span>
                                 <span class="text-[9px] text-zinc-400 dark:text-zinc-500">Toca para cambiar</span>
                                 }
@@ -172,11 +172,11 @@
                             <label for="file-kardex" class="group relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200 px-3 py-5 min-h-[96px] text-center
                        border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.03]
                        hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-500/10"
-                                [class.!border-blue-400]="kardexFile" [class.dark:!border-blue-500]="kardexFile"
-                                [class.!bg-blue-50]="kardexFile" [class.dark:!bg-blue-500/10]="kardexFile">
+                                [class.!border-blue-400]="kardexFile()" [class.dark:!border-blue-500]="kardexFile()"
+                                [class.!bg-blue-50]="kardexFile()" [class.dark:!bg-blue-500/10]="kardexFile()">
                                 <input id="file-kardex" type="file" accept="application/pdf" class="sr-only"
                                     (change)="onNativeFileSelect($event, 'kardex')" />
-                                @if (!kardexFile) {
+                                @if (!kardexFile()) {
                                 <i
                                     class="pi pi-cloud-upload text-xl text-zinc-300 dark:text-zinc-600 group-hover:text-blue-400 transition-colors duration-200"></i>
                                 <span
@@ -188,7 +188,7 @@
                                 <i class="pi pi-file-pdf text-xl text-blue-500 dark:text-blue-400"></i>
                                 <span
                                     class="text-[10px] font-bold text-blue-600 dark:text-blue-400 truncate w-full px-1 leading-tight">
-                                    {{ kardexFile.name }}
+                                    {{ kardexFile()!.name }}
                                 </span>
                                 <span class="text-[9px] text-zinc-400 dark:text-zinc-500">Toca para cambiar</span>
                                 }
@@ -199,7 +199,7 @@
                 </div>
                 <div class="pt-6 flex flex-col gap-4">
                     <p-button type="submit" label="Completar Registro" icon="pi pi-user-plus" [loading]="isLoading()"
-                        [disabled]="registerForm.invalid || !horarioFile || !anexoIFile || !kardexFile"
+                        [disabled]="registerForm.invalid || !horarioFile() || !anexoIFile() || !kardexFile()"
                         styleClass="w-full !py-4 !rounded-2xl !bg-blue-600 !border-blue-600 hover:!bg-blue-500 hover:!border-blue-500 shadow-xl shadow-blue-500/20 text-lg font-bold transition-all" />
 
                     <p class="text-center text-sm text-zinc-500 dark:text-zinc-400">

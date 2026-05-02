@@ -28,8 +28,6 @@ public class ListExternalUsersEndpoint : EndpointWithoutRequest<List<ExternalUse
         var empresaId = Query<Guid?>("empresaId");
 
         var query = _db.Usuarios
-            .Include(u => u.Roles)
-            .Include(u => u.AsesorExterno).ThenInclude(ae => ae!.Empresa)
             .Where(u => u.AsesorExterno != null);
 
         if (empresaId.HasValue && empresaId.Value != Guid.Empty)

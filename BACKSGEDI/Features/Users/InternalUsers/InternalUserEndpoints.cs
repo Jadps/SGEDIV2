@@ -27,11 +27,7 @@ public class ListInternalUsersEndpoint : EndpointWithoutRequest<List<InternalUse
     public override async Task HandleAsync(CancellationToken ct)
     {
         var users = await _db.Usuarios
-            .Include(u => u.Roles)
-            .Include(u => u.Coordinador).ThenInclude(c => c!.Carrera)
-            .Include(u => u.JefeDepartamento).ThenInclude(j => j!.Carrera)
-            .Include(u => u.Profesor)
-            .Include(u => u.AsesorInterno)
+
             .Where(u => u.Roles.Any(r => r.Role != SystemRoles.Alumno && r.Role != SystemRoles.AsesorExterno))
             .Select(u => new InternalUserDto(
                 u.Id,

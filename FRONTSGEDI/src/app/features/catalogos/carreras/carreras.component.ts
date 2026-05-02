@@ -11,6 +11,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmationService } from 'primeng/api';
 import { CarreraDetailModalComponent } from './detail/detail.component';
 
 @Component({
@@ -33,6 +34,7 @@ import { CarreraDetailModalComponent } from './detail/detail.component';
 export class CarrerasComponent implements OnInit {
   private readonly catalogService = inject(CatalogService);
   private readonly notificationService = inject(NotificationService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   carreras = signal<CarreraDto[]>([]);
   loading = signal<boolean>(false);
@@ -76,14 +78,19 @@ export class CarrerasComponent implements OnInit {
   }
 
   deleteCarrera(id: number) {
-    if (confirm('¿Estás seguro de eliminar esta carrera?')) {
-      this.catalogService.deleteCarrera(id).subscribe({
-        next: () => {
-          this.notificationService.success('Carrera eliminada', 'La carrera se ha eliminado correctamente');
-          this.loadCarreras();
-        }
-      });
-    }
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de eliminar esta carrera?',
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.catalogService.deleteCarrera(id).subscribe({
+          next: () => {
+            this.notificationService.success('Carrera eliminada', 'La carrera se ha eliminado correctamente');
+            this.loadCarreras();
+          }
+        });
+      }
+    });
   }
 
   onSearch(event: any) {

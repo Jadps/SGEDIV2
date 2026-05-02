@@ -36,15 +36,14 @@ public class ListMateriasEndpoint : Endpoint<ListMateriasRequest, List<MateriaDt
         if (!User.GetRoles().Contains(SystemRoles.Admin))
         {
             var userId = User.GetUserId();
-            var userInfo = await _db.Usuarios
-                .Include(u => u.Coordinador)
-                .Include(u => u.JefeDepartamento)
-                .FirstOrDefaultAsync(u => u.Id == userId, ct);
+            int? filterCarreraIdFromDb = await _db.Usuarios
+                .Where(u => u.Id == userId)
+                .Select(u => u.Coordinador != null ? u.Coordinador.CarreraId :
+                             u.JefeDepartamento != null ? u.JefeDepartamento.CarreraId : (int?)null)
+                .FirstOrDefaultAsync(ct);
 
-            if (userInfo?.Coordinador != null)
-                filterCarreraId = userInfo.Coordinador.CarreraId;
-            else if (userInfo?.JefeDepartamento != null)
-                filterCarreraId = userInfo.JefeDepartamento.CarreraId;
+            if (filterCarreraIdFromDb.HasValue)
+                filterCarreraId = filterCarreraIdFromDb.Value;
         }
 
         if (filterCarreraId.HasValue && filterCarreraId.Value > 0)
@@ -78,15 +77,14 @@ public class CreateMateriaEndpoint : Endpoint<CreateMateriaRequest, MateriaDto>
         if (!User.GetRoles().Contains(SystemRoles.Admin))
         {
             var userId = User.GetUserId();
-            var userInfo = await _db.Usuarios
-                .Include(u => u.Coordinador)
-                .Include(u => u.JefeDepartamento)
-                .FirstOrDefaultAsync(u => u.Id == userId, ct);
+            int? allowedCarreraId = await _db.Usuarios
+                .Where(u => u.Id == userId)
+                .Select(u => u.Coordinador != null ? u.Coordinador.CarreraId :
+                             u.JefeDepartamento != null ? u.JefeDepartamento.CarreraId : (int?)null)
+                .FirstOrDefaultAsync(ct);
 
-            if (userInfo?.Coordinador != null)
-                carreraId = userInfo.Coordinador.CarreraId;
-            else if (userInfo?.JefeDepartamento != null)
-                carreraId = userInfo.JefeDepartamento.CarreraId;
+            if (allowedCarreraId.HasValue)
+                carreraId = allowedCarreraId.Value;
         }
 
         var materia = new Materia
@@ -132,16 +130,13 @@ public class UpdateMateriaEndpoint : Endpoint<UpdateMateriaRequest, MateriaDto>
         if (!User.GetRoles().Contains(SystemRoles.Admin))
         {
             var userId = User.GetUserId();
-            var userInfo = await _db.Usuarios
-                .Include(u => u.Coordinador)
-                .Include(u => u.JefeDepartamento)
-                .FirstOrDefaultAsync(u => u.Id == userId, ct);
+            int? allowedCarreraIdNullable = await _db.Usuarios
+                .Where(u => u.Id == userId)
+                .Select(u => u.Coordinador != null ? u.Coordinador.CarreraId :
+                             u.JefeDepartamento != null ? u.JefeDepartamento.CarreraId : (int?)null)
+                .FirstOrDefaultAsync(ct);
 
-            int allowedCarreraId = 0;
-            if (userInfo?.Coordinador != null)
-                allowedCarreraId = userInfo.Coordinador.CarreraId;
-            else if (userInfo?.JefeDepartamento != null)
-                allowedCarreraId = userInfo.JefeDepartamento.CarreraId;
+            int allowedCarreraId = allowedCarreraIdNullable ?? 0;
 
             if (materia.CarreraId != allowedCarreraId)
             {
@@ -189,16 +184,13 @@ public class DeleteMateriaEndpoint : EndpointWithoutRequest
         if (!User.GetRoles().Contains(SystemRoles.Admin))
         {
             var userId = User.GetUserId();
-            var userInfo = await _db.Usuarios
-                .Include(u => u.Coordinador)
-                .Include(u => u.JefeDepartamento)
-                .FirstOrDefaultAsync(u => u.Id == userId, ct);
+            int? allowedCarreraIdNullable = await _db.Usuarios
+                .Where(u => u.Id == userId)
+                .Select(u => u.Coordinador != null ? u.Coordinador.CarreraId :
+                             u.JefeDepartamento != null ? u.JefeDepartamento.CarreraId : (int?)null)
+                .FirstOrDefaultAsync(ct);
 
-            int allowedCarreraId = 0;
-            if (userInfo?.Coordinador != null)
-                allowedCarreraId = userInfo.Coordinador.CarreraId;
-            else if (userInfo?.JefeDepartamento != null)
-                allowedCarreraId = userInfo.JefeDepartamento.CarreraId;
+            int allowedCarreraId = allowedCarreraIdNullable ?? 0;
 
             if (materia.CarreraId != allowedCarreraId)
             {

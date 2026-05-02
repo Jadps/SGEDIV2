@@ -61,9 +61,9 @@ export class RegisterStudentComponent {
         semestreId: [null as number | null, [Validators.required, Validators.min(6)]],
     });
 
-    horarioFile: File | null = null;
-    anexoIFile: File | null = null;
-    kardexFile: File | null = null;
+    horarioFile = signal<File | null>(null);
+    anexoIFile = signal<File | null>(null);
+    kardexFile = signal<File | null>(null);
 
     readonly isLoading = signal(false);
     readonly isDownloading = signal(false);
@@ -98,13 +98,13 @@ export class RegisterStudentComponent {
 
     onFileSelect(event: FileSelectEvent, type: 'horario' | 'anexo' | 'kardex'): void {
         const file = event.files[0];
-        if (type === 'horario') this.horarioFile = file;
-        else if (type === 'anexo') this.anexoIFile = file;
-        else if (type === 'kardex') this.kardexFile = file;
+        if (type === 'horario') this.horarioFile.set(file);
+        else if (type === 'anexo') this.anexoIFile.set(file);
+        else if (type === 'kardex') this.kardexFile.set(file);
     }
 
     onSubmit(): void {
-        if (this.registerForm.invalid || !this.horarioFile || !this.anexoIFile || !this.kardexFile) {
+        if (this.registerForm.invalid || !this.horarioFile() || !this.anexoIFile() || !this.kardexFile()) {
             this.notificationService.warn(
                 'Faltan datos',
                 'Por favor completa todos los campos y sube los 3 archivos PDF requeridos.'
@@ -123,9 +123,9 @@ export class RegisterStudentComponent {
         formData.append('carreraId', values.carreraId!.toString());
         formData.append('semestreId', values.semestreId!.toString());
 
-        formData.append('horarioFile', this.horarioFile);
-        formData.append('anexoIFile', this.anexoIFile);
-        formData.append('kardexFile', this.kardexFile);
+        formData.append('horarioFile', this.horarioFile()!);
+        formData.append('anexoIFile', this.anexoIFile()!);
+        formData.append('kardexFile', this.kardexFile()!);
 
         this.http.post(`${environment.apiUrl}${API_ENDPOINTS.AUTH.REGISTER_STUDENT}`, formData, {
             context: new HttpContext().set(SKIP_ERROR_NOTIFICATION, true)
@@ -150,8 +150,8 @@ export class RegisterStudentComponent {
         const file = input.files?.[0];
         if (!file) return;
 
-        if (type === 'horario') this.horarioFile = file;
-        else if (type === 'anexo') this.anexoIFile = file;
-        else if (type === 'kardex') this.kardexFile = file;
+        if (type === 'horario') this.horarioFile.set(file);
+        else if (type === 'anexo') this.anexoIFile.set(file);
+        else if (type === 'kardex') this.kardexFile.set(file);
     }
 }

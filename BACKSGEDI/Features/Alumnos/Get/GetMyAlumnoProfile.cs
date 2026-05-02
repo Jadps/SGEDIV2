@@ -33,25 +33,25 @@ public class GetMyAlumnoProfile : EndpointWithoutRequest<MyAlumnoProfileDto>
     public override async Task HandleAsync(CancellationToken ct)
     {
         var userId = User.GetUserId();
-        var alumno = await _db.Alumnos
+        var dto = await _db.Alumnos
             .AsNoTracking()
-            .Include(a => a.Carrera)
-            .Include(a => a.Usuario)
-            .FirstOrDefaultAsync(a => a.UsuarioId == userId, ct);
+            .Where(a => a.UsuarioId == userId)
+            .Select(a => new MyAlumnoProfileDto
+            {
+                Id = a.Id,
+                Matricula = a.Matricula,
+                Carrera = a.Carrera.Nombre,
+                NombreCompleto = a.Usuario.Name
+            })
+            .FirstOrDefaultAsync(ct);
 
-        if (alumno == null)
+        if (dto == null)
         {
             await Result<MyAlumnoProfileDto>.Failure(Error.NotFound("Alumno.NotFound", "No se encontró el perfil del alumno."))
                 .ToResult().ExecuteAsync(HttpContext);
             return;
         }
 
-        await Result<MyAlumnoProfileDto>.Success(new MyAlumnoProfileDto
-        {
-            Id = alumno.Id,
-            Matricula = alumno.Matricula,
-            Carrera = alumno.Carrera.Nombre,
-            NombreCompleto = $"{alumno.Usuario.Name}"
-        }).ToResult().ExecuteAsync(HttpContext);
+        await Result<MyAlumnoProfileDto>.Success(dto).ToResult().ExecuteAsync(HttpContext);
     }
 }
