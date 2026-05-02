@@ -24,6 +24,11 @@ export class UserManagementService {
     return this.http.put<InternalUserDto>(`${environment.apiUrl}${API_ENDPOINTS.USER_MANAGEMENT.INTERNAL}`, request);
   }
 
+  toggleInternalUserStatus(id: string): Observable<boolean> {
+    const url = `${environment.apiUrl}${API_ENDPOINTS.USER_MANAGEMENT.INTERNAL_TOGGLE_STATUS}`.replace('{id}', id);
+    return this.http.patch<boolean>(url, {});
+  }
+
   getExternalUsers(empresaId?: string): Observable<ExternalUserDto[]> {
     let params = {};
     if (empresaId) {

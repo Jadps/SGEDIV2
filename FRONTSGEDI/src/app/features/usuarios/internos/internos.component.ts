@@ -82,8 +82,7 @@ export class InternosComponent implements OnInit {
       acceptLabel: newStatus ? 'Activar' : 'Desactivar',
       acceptButtonProps: { label: newStatus ? 'Activar' : 'Desactivar', severity: newStatus ? 'success' : 'danger' },
       accept: () => {
-        const updatedUser = { ...user, isActive: newStatus };
-        this.userService.updateInternalUser(updatedUser).subscribe({
+        this.userService.toggleInternalUserStatus(user.id).subscribe({
           next: () => {
             this.notificationService.success(
               `Usuario ${newStatus ? 'activado' : 'desactivado'}`,

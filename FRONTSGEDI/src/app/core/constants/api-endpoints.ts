@@ -31,6 +31,7 @@ export const API_ENDPOINTS = {
   },
   USER_MANAGEMENT: {
     INTERNAL: '/users/internal',
+    INTERNAL_TOGGLE_STATUS: '/users/internal/{id}/toggle-status',
     EXTERNAL: '/users/external'
   }
 };

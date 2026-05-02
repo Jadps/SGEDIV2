@@ -146,8 +146,16 @@ public class UpdateInternalUserEndpoint : Endpoint<UpdateInternalUserRequest, In
         user.Email = req.Email;
         user.IsActive = req.IsActive;
 
-        _db.UsuariosRoles.RemoveRange(user.Roles);
-        user.Roles = req.Roles.Select(r => new UsuarioRol { Role = r }).ToList();
+        foreach (var r in user.Roles.ToList())
+            _db.Entry(r).State = EntityState.Detached;
+
+        await _db.UsuariosRoles
+            .IgnoreQueryFilters()
+            .Where(r => r.UsuarioId == user.Id)
+            .ExecuteDeleteAsync(ct);
+
+        foreach (var role in req.Roles)
+            _db.UsuariosRoles.Add(new UsuarioRol { UsuarioId = user.Id, Role = role });
 
         if (req.Roles.Contains(SystemRoles.Coordinador) && req.CarreraId.HasValue)
         {
@@ -204,5 +212,37 @@ public class UpdateInternalUserEndpoint : Endpoint<UpdateInternalUserRequest, In
         var dto = new InternalUserDto(user.Id, user.Name, user.Email, req.Roles, user.IsActive, req.CarreraId, carreraNombre, req.NumeroEmpleado, req.Cubiculo);
         
         await Result<InternalUserDto>.Success(dto).ToResult().ExecuteAsync(HttpContext);
+    }
+}
+
+public record ToggleInternalUserStatusRequest(Guid Id);
+
+public class ToggleInternalUserStatusEndpoint : Endpoint<ToggleInternalUserStatusRequest>
+{
+    private readonly ApplicationDbContext _db;
+    public ToggleInternalUserStatusEndpoint(ApplicationDbContext db) => _db = db;
+
+    public override void Configure()
+    {
+        Patch("/api/users/internal/{Id}/toggle-status");
+        Roles(SystemRoles.Admin);
+    }
+
+    public override async Task HandleAsync(ToggleInternalUserStatusRequest req, CancellationToken ct)
+    {
+        var user = await _db.Usuarios
+            .FirstOrDefaultAsync(u => u.Id == req.Id, ct);
+
+        if (user == null)
+        {
+            await Result.Failure(Error.NotFound("User.NotFound", "Usuario no encontrado")).ToResult().ExecuteAsync(HttpContext);
+            return;
+        }
+
+        user.IsActive = !user.IsActive;
+
+        await _db.SaveChangesAsync(ct);
+
+        await Result<bool>.Success(user.IsActive).ToResult().ExecuteAsync(HttpContext);
     }
 }
