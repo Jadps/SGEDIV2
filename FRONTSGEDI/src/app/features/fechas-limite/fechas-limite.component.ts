@@ -28,19 +28,25 @@ export class FechasLimiteComponent implements OnInit {
   loading = signal(false);
   saving = signal(false);
 
-  selectedCarrera: number | null = null;
+  selectedCarrera = signal<number | null>(null);
   hasChanges = signal(false);
 
   ngOnInit() {
-    this.catalogService.getCarreras().subscribe(data => this.carreras.set(data));
+    this.catalogService.getCarreras().subscribe(data => {
+      this.carreras.set(data);
+      if (data.length === 1) {
+        this.selectedCarrera.set(data[0].id);
+        this.loadFechas();
+      }
+    });
   }
 
   loadFechas() {
-    if (!this.selectedCarrera) return;
+    if (!this.selectedCarrera()) return;
     this.loading.set(true);
     this.hasChanges.set(false);
 
-    this.fechasLimiteService.getFechasLimite(this.selectedCarrera).subscribe({
+    this.fechasLimiteService.getFechasLimite(this.selectedCarrera()!).subscribe({
       next: (data: FechaLimiteDto[]) => {
         const mapped = data.map(d => {
           const date = new Date(d.fechaLimite);
@@ -68,12 +74,12 @@ export class FechasLimiteComponent implements OnInit {
   }
 
   saveChanges() {
-    if (!this.selectedCarrera) return;
+    if (!this.selectedCarrera()) return;
 
     this.saving.set(true);
 
     const request = {
-      carreraId: this.selectedCarrera,
+      carreraId: this.selectedCarrera()!,
       fechas: this.fechas().map(f => ({
         tipoAcuerdo: f.tipoAcuerdo,
         fechaLimite: new Date(f.fechaLimiteStr).toISOString()

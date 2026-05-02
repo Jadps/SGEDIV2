@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { permissionGuard } from './core/guards/permission.guard';
-import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
     {
@@ -29,29 +28,49 @@ export const routes: Routes = [
                 path: 'alumnos',
                 title: 'Lista de Alumnos | SGEDI',
                 loadComponent: () => import('./features/alumnos/list/list.component').then(m => m.AlumnoListComponent),
-                canActivate: [permissionGuard, roleGuard],
-                data: { roles: ['Admin', 'Profesor', 'Coordinador', 'JefeDepartamento', 'AsesorInterno', 'AsesorExterno'] }
+                canActivate: [permissionGuard]
             },
             {
                 path: 'anexos',
                 title: 'Plantillas de Anexos | SGEDI',
                 loadComponent: () => import('./features/anexos/anexos.component').then(m => m.AnexosComponent),
-                canActivate: [permissionGuard, roleGuard],
-                data: { roles: ['Admin', 'Coordinador'] }
+                canActivate: [permissionGuard]
             },
             {
                 path: 'fechas-limite',
                 title: 'Fechas Límite | SGEDI',
                 loadComponent: () => import('./features/fechas-limite/fechas-limite.component').then(m => m.FechasLimiteComponent),
-                canActivate: [permissionGuard, roleGuard],
-                data: { roles: ['Admin', 'Coordinador'] }
+                canActivate: [permissionGuard]
             },
             {
                 path: 'mis-documentos',
                 title: 'Mis Documentos | SGEDI',
                 loadComponent: () => import('./features/mis-documentos/mis-documentos.component').then(m => m.MisDocumentosComponent),
-                canActivate: [permissionGuard, roleGuard],
-                data: { roles: ['Alumno'] }
+                canActivate: [permissionGuard]
+            },
+            {
+                path: 'catalogos/carreras',
+                title: 'Carreras | SGEDI',
+                loadComponent: () => import('./features/catalogos/carreras/carreras.component').then(m => m.CarrerasComponent),
+                canActivate: [permissionGuard]
+            },
+            {
+                path: 'catalogos/empresas',
+                title: 'Empresas | SGEDI',
+                loadComponent: () => import('./features/catalogos/empresas/empresas.component').then(m => m.EmpresasComponent),
+                canActivate: [permissionGuard]
+            },
+            {
+                path: 'catalogos/materias',
+                title: 'Materias | SGEDI',
+                loadComponent: () => import('./features/catalogos/materias/materias.component').then(m => m.MateriasComponent),
+                canActivate: [permissionGuard]
+            },
+            {
+                path: 'usuarios/internos',
+                title: 'Usuarios Internos | SGEDI',
+                loadComponent: () => import('./features/usuarios/internos/internos.component').then(m => m.InternosComponent),
+                canActivate: [permissionGuard]
             },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]

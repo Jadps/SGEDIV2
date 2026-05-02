@@ -63,9 +63,9 @@
                     <div class="flex flex-col gap-2">
                         <label for="carrera"
                             class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Carrera</label>
-                        <p-select id="carrera" [options]="careers()" formControlName="carreraId" optionLabel="name"
+                        <p-select id="carrera" [options]="careers()" formControlName="carreraId" optionLabel="nombre"
                             optionValue="id" placeholder="Selecciona tu carrera" [fluid]="true"
-                            styleClass="transition-all" />
+                            styleClass="transition-all" appendTo="body" />
                         @if (registerForm.get('carreraId')?.hasError('required') &&
                         registerForm.get('carreraId')?.touched) {
                         <small class="text-red-500 font-medium">Selecciona una carrera.</small>
@@ -77,7 +77,7 @@
                             class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Semestre</label>
                         <p-select id="semestre" [options]="semesters" formControlName="semestreId" optionLabel="name"
                             optionValue="id" placeholder="Selecciona tu semestre" [fluid]="true"
-                            styleClass="transition-all" />
+                            styleClass="transition-all" appendTo="body" />
                         @if (registerForm.get('semestreId')?.hasError('required') &&
                         registerForm.get('semestreId')?.touched) {
                         <small class="text-red-500 font-medium">Selecciona un semestre.</small>
@@ -102,11 +102,11 @@
                             <label for="file-horario" class="group relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200 px-3 py-5 min-h-[96px] text-center
                        border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.03]
                        hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-500/10"
-                                [class.!border-blue-400]="horarioFile" [class.dark:!border-blue-500]="horarioFile"
-                                [class.!bg-blue-50]="horarioFile" [class.dark:!bg-blue-500/10]="horarioFile">
+                                [class.!border-blue-400]="horarioFile()" [class.dark:!border-blue-500]="horarioFile()"
+                                [class.!bg-blue-50]="horarioFile()" [class.dark:!bg-blue-500/10]="horarioFile()">
                                 <input id="file-horario" type="file" accept="application/pdf" class="sr-only"
                                     (change)="onNativeFileSelect($event, 'horario')" />
-                                @if (!horarioFile) {
+                                @if (!horarioFile()) {
                                 <i
                                     class="pi pi-cloud-upload text-xl text-zinc-300 dark:text-zinc-600 group-hover:text-blue-400 transition-colors duration-200"></i>
                                 <span
@@ -118,7 +118,7 @@
                                 <i class="pi pi-file-pdf text-xl text-blue-500 dark:text-blue-400"></i>
                                 <span
                                     class="text-[10px] font-bold text-blue-600 dark:text-blue-400 truncate w-full px-1 leading-tight">
-                                    {{ horarioFile.name }}
+                                    {{ horarioFile()!.name }}
                                 </span>
                                 <span class="text-[9px] text-zinc-400 dark:text-zinc-500">Toca para cambiar</span>
                                 }
@@ -127,13 +127,15 @@
 
                         <div class="flex flex-col gap-2">
                             <div class="flex justify-between items-center">
-                                <span class="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">Anexo 1</span>
+                                <span
+                                    class="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">Anexo
+                                    1</span>
                                 <button type="button" (click)="downloadAnexoI()" [disabled]="isDownloading()"
-                                   class="text-[10px] text-blue-500 hover:underline font-bold flex items-center bg-transparent border-none cursor-pointer p-0 disabled:opacity-50">
+                                    class="text-[10px] text-blue-500 hover:underline font-bold flex items-center bg-transparent border-none cursor-pointer p-0 disabled:opacity-50">
                                     @if (isDownloading()) {
-                                        <i class="pi pi-spin pi-spinner mr-1 text-[8px]"></i>
+                                    <i class="pi pi-spin pi-spinner mr-1 text-[8px]"></i>
                                     } @else {
-                                        <i class="pi pi-download mr-1 text-[8px]"></i>
+                                    <i class="pi pi-download mr-1 text-[8px]"></i>
                                     }
                                     Descargar Formato
                                 </button>
@@ -141,11 +143,11 @@
                             <label for="file-anexo" class="group relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200 px-3 py-5 min-h-[96px] text-center
                        border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.03]
                        hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-500/10"
-                                [class.!border-blue-400]="anexoIFile" [class.dark:!border-blue-500]="anexoIFile"
-                                [class.!bg-blue-50]="anexoIFile" [class.dark:!bg-blue-500/10]="anexoIFile">
+                                [class.!border-blue-400]="anexoIFile()" [class.dark:!border-blue-500]="anexoIFile()"
+                                [class.!bg-blue-50]="anexoIFile()" [class.dark:!bg-blue-500/10]="anexoIFile()">
                                 <input id="file-anexo" type="file" accept="application/pdf" class="sr-only"
                                     (change)="onNativeFileSelect($event, 'anexo')" />
-                                @if (!anexoIFile) {
+                                @if (!anexoIFile()) {
                                 <i
                                     class="pi pi-cloud-upload text-xl text-zinc-300 dark:text-zinc-600 group-hover:text-blue-400 transition-colors duration-200"></i>
                                 <span
@@ -157,7 +159,7 @@
                                 <i class="pi pi-file-pdf text-xl text-blue-500 dark:text-blue-400"></i>
                                 <span
                                     class="text-[10px] font-bold text-blue-600 dark:text-blue-400 truncate w-full px-1 leading-tight">
-                                    {{ anexoIFile.name }}
+                                    {{ anexoIFile()!.name }}
                                 </span>
                                 <span class="text-[9px] text-zinc-400 dark:text-zinc-500">Toca para cambiar</span>
                                 }
@@ -170,11 +172,11 @@
                             <label for="file-kardex" class="group relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200 px-3 py-5 min-h-[96px] text-center
                        border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.03]
                        hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-500/10"
-                                [class.!border-blue-400]="kardexFile" [class.dark:!border-blue-500]="kardexFile"
-                                [class.!bg-blue-50]="kardexFile" [class.dark:!bg-blue-500/10]="kardexFile">
+                                [class.!border-blue-400]="kardexFile()" [class.dark:!border-blue-500]="kardexFile()"
+                                [class.!bg-blue-50]="kardexFile()" [class.dark:!bg-blue-500/10]="kardexFile()">
                                 <input id="file-kardex" type="file" accept="application/pdf" class="sr-only"
                                     (change)="onNativeFileSelect($event, 'kardex')" />
-                                @if (!kardexFile) {
+                                @if (!kardexFile()) {
                                 <i
                                     class="pi pi-cloud-upload text-xl text-zinc-300 dark:text-zinc-600 group-hover:text-blue-400 transition-colors duration-200"></i>
                                 <span
@@ -186,7 +188,7 @@
                                 <i class="pi pi-file-pdf text-xl text-blue-500 dark:text-blue-400"></i>
                                 <span
                                     class="text-[10px] font-bold text-blue-600 dark:text-blue-400 truncate w-full px-1 leading-tight">
-                                    {{ kardexFile.name }}
+                                    {{ kardexFile()!.name }}
                                 </span>
                                 <span class="text-[9px] text-zinc-400 dark:text-zinc-500">Toca para cambiar</span>
                                 }
@@ -197,7 +199,7 @@
                 </div>
                 <div class="pt-6 flex flex-col gap-4">
                     <p-button type="submit" label="Completar Registro" icon="pi pi-user-plus" [loading]="isLoading()"
-                        [disabled]="registerForm.invalid || !horarioFile || !anexoIFile || !kardexFile"
+                        [disabled]="registerForm.invalid || !horarioFile() || !anexoIFile() || !kardexFile()"
                         styleClass="w-full !py-4 !rounded-2xl !bg-blue-600 !border-blue-600 hover:!bg-blue-500 hover:!border-blue-500 shadow-xl shadow-blue-500/20 text-lg font-bold transition-all" />
 
                     <p class="text-center text-sm text-zinc-500 dark:text-zinc-400">

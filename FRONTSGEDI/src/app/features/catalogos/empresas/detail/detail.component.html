@@ -1,0 +1,45 @@
+<p-dialog [visible]="visible()" (visibleChange)="!$event && onClose.emit()" [modal]="true" [draggable]="false"
+    position="top" [style]="{ width: '900px', maxWidth: '95vw', marginTop: '2rem' }" [contentStyle]="{ padding: '0' }"
+    appendTo="body"
+    styleClass="empresa-modal glass-dark border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+    [header]="loading() ? 'Cargando...' : (empresa()?.nombre || 'Nueva Empresa')">
+
+    @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+        <p-progressSpinner strokeWidth="3" styleClass="w-10 h-10" />
+    </div>
+    } @else if (empresa()) {
+    <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)">
+        <p-tablist>
+            <p-tab value="info">
+                <i class="pi pi-building mr-2"></i>Datos Generales
+            </p-tab>
+            @if (empresaId()) {
+                <p-tab value="asesores">
+                    <i class="pi pi-users mr-2"></i>Asesores Externos
+                </p-tab>
+            }
+        </p-tablist>
+        <p-tabpanels>
+            <p-tabpanel value="info">
+                <app-empresa-info-tab [empresa]="empresa()!" (onSave)="saveEmpresa($event)" />
+            </p-tabpanel>
+            @if (empresaId()) {
+                <p-tabpanel value="asesores">
+                    @defer (when activeTab() === 'asesores'; prefetch on idle) {
+                        <app-empresa-asesores-tab [empresaId]="empresaId()!" />
+                    } @placeholder {
+                        <div class="h-32 flex items-center justify-center">
+                            <p class="text-zinc-500">Cargando personal...</p>
+                        </div>
+                    } @loading (after 100ms; minimum 500ms) {
+                        <div class="flex items-center justify-center py-20">
+                            <p-progressSpinner strokeWidth="3" styleClass="w-10 h-10" />
+                        </div>
+                    }
+                </p-tabpanel>
+            }
+        </p-tabpanels>
+    </p-tabs>
+    }
+</p-dialog>

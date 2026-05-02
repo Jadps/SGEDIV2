@@ -60,6 +60,67 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.ToTable("Alumnos");
                 });
 
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.AsesorExterno", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EmpresaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Puesto")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TelefonoOficina")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmpresaId");
+
+                    b.HasIndex("UsuarioId")
+                        .IsUnique();
+
+                    b.ToTable("AsesoresExternos");
+                });
+
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.AsesorInterno", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Cubiculo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("NumeroEmpleado")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId")
+                        .IsUnique();
+
+                    b.ToTable("AsesoresInternos");
+                });
+
             modelBuilder.Entity("BACKSGEDI.Domain.Entities.AuditLog", b =>
                 {
                     b.Property<int>("Id")
@@ -315,6 +376,40 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.ToTable("DocumentosAlumnos");
                 });
 
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.Empresa", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Correo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Direccion")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Rfc")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Telefono")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Empresas");
+                });
+
             modelBuilder.Entity("BACKSGEDI.Domain.Entities.JefeDepartamento", b =>
                 {
                     b.Property<Guid>("Id")
@@ -341,6 +436,39 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("JefesDepartamento");
+                });
+
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.Materia", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("CarreraId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Clave")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Creditos")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Semestre")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarreraId");
+
+                    b.ToTable("Materias");
                 });
 
             modelBuilder.Entity("BACKSGEDI.Domain.Entities.PlantillaDocumento", b =>
@@ -373,6 +501,29 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PlantillasDocumentos");
+                });
+
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.Profesor", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId")
+                        .IsUnique();
+
+                    b.ToTable("Profesores");
                 });
 
             modelBuilder.Entity("BACKSGEDI.Domain.Entities.Usuario", b =>
@@ -461,6 +612,36 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.AsesorExterno", b =>
+                {
+                    b.HasOne("BACKSGEDI.Domain.Entities.Empresa", "Empresa")
+                        .WithMany("AsesoresExternos")
+                        .HasForeignKey("EmpresaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BACKSGEDI.Domain.Entities.Usuario", "Usuario")
+                        .WithOne("AsesorExterno")
+                        .HasForeignKey("BACKSGEDI.Domain.Entities.AsesorExterno", "UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Empresa");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.AsesorInterno", b =>
+                {
+                    b.HasOne("BACKSGEDI.Domain.Entities.Usuario", "Usuario")
+                        .WithOne("AsesorInterno")
+                        .HasForeignKey("BACKSGEDI.Domain.Entities.AsesorInterno", "UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("BACKSGEDI.Domain.Entities.Coordinador", b =>
                 {
                     b.HasOne("BACKSGEDI.Domain.Entities.CatCarrera", "Carrera")
@@ -542,6 +723,28 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.Materia", b =>
+                {
+                    b.HasOne("BACKSGEDI.Domain.Entities.CatCarrera", "Carrera")
+                        .WithMany()
+                        .HasForeignKey("CarreraId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Carrera");
+                });
+
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.Profesor", b =>
+                {
+                    b.HasOne("BACKSGEDI.Domain.Entities.Usuario", "Usuario")
+                        .WithOne("Profesor")
+                        .HasForeignKey("BACKSGEDI.Domain.Entities.Profesor", "UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("BACKSGEDI.Domain.Entities.UsuarioRol", b =>
                 {
                     b.HasOne("BACKSGEDI.Domain.Entities.Usuario", "Usuario")
@@ -558,13 +761,24 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.Navigation("Documentos");
                 });
 
+            modelBuilder.Entity("BACKSGEDI.Domain.Entities.Empresa", b =>
+                {
+                    b.Navigation("AsesoresExternos");
+                });
+
             modelBuilder.Entity("BACKSGEDI.Domain.Entities.Usuario", b =>
                 {
                     b.Navigation("Alumno");
 
+                    b.Navigation("AsesorExterno");
+
+                    b.Navigation("AsesorInterno");
+
                     b.Navigation("Coordinador");
 
                     b.Navigation("JefeDepartamento");
+
+                    b.Navigation("Profesor");
 
                     b.Navigation("Roles");
                 });

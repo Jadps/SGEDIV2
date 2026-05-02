@@ -1,4 +1,5 @@
 export interface CarreraDto {
     id: number;
-    name: string;
+    clave: string;
+    nombre: string;
 }

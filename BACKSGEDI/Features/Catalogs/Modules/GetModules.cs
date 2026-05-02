@@ -116,6 +116,72 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                 Order = 4,
                 ModuleTypeId = 1,
                 AllowedRoles = [SystemRoles.Coordinador, SystemRoles.Admin]
+            },
+            new()
+            {
+                Id = "catalogos",
+                Description = "Catálogos",
+                Icon = "pi pi-folder-open",
+                Action = null,
+                Order = 5,
+                ModuleTypeId = 1,
+                AllowedRoles = [SystemRoles.Admin, SystemRoles.Coordinador],
+                SubModules =
+                [
+                    new SubModuleDto
+                    {
+                        Id = "cat-carreras",
+                        Description = "Carreras",
+                        Icon = "pi pi-id-card",
+                        Action = "catalogos/carreras",
+                        Order = 1,
+                        ModuleTypeId = 2,
+                        AllowedRoles = [SystemRoles.Admin]
+                    },
+                    new SubModuleDto
+                    {
+                        Id = "cat-empresas",
+                        Description = "Empresas",
+                        Icon = "pi pi-building",
+                        Action = "catalogos/empresas",
+                        Order = 2,
+                        ModuleTypeId = 2,
+                        AllowedRoles = [SystemRoles.Admin, SystemRoles.Coordinador]
+                    },
+                    new SubModuleDto
+                    {
+                        Id = "cat-materias",
+                        Description = "Materias",
+                        Icon = "pi pi-book",
+                        Action = "catalogos/materias",
+                        Order = 3,
+                        ModuleTypeId = 2,
+                        AllowedRoles = [SystemRoles.Admin, SystemRoles.Coordinador]
+                    }
+                ]
+            },
+            new()
+            {
+                Id = "usuarios-parent",
+                Description = "Usuarios",
+                Icon = "pi pi-user-edit",
+                Action = null,
+                Order = 6,
+                ModuleTypeId = 1,
+                AllowedRoles = [SystemRoles.Admin],
+                SubModules =
+                [
+                    new SubModuleDto
+                    {
+                        Id = "usuarios-internos",
+                        Description = "Usuarios Internos",
+                        Icon = "pi pi-users",
+                        Action = "usuarios/internos",
+                        Order = 1,
+                        ModuleTypeId = 2,
+                        AllowedRoles = [SystemRoles.Admin]
+                    }
+                ]
             }
         ];
     }

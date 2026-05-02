@@ -22,6 +22,11 @@ public class ApplicationDbContext : DbContext
     public DbSet<AuditLog> AuditLogs { get; set; } = null!;
     public DbSet<Coordinador> Coordinadores { get; set; } = null!;
     public DbSet<JefeDepartamento> JefesDepartamento { get; set; } = null!;
+    public DbSet<Profesor> Profesores { get; set; } = null!;
+    public DbSet<AsesorInterno> AsesoresInternos { get; set; } = null!;
+    public DbSet<AsesorExterno> AsesoresExternos { get; set; } = null!;
+    public DbSet<Empresa> Empresas { get; set; } = null!;
+    public DbSet<Materia> Materias { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -65,6 +70,39 @@ public class ApplicationDbContext : DbContext
             .HasOne(jd => jd.Carrera)
             .WithMany()
             .HasForeignKey(jd => jd.CarreraId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Profesor>()
+            .HasOne(p => p.Usuario)
+            .WithOne(u => u.Profesor)
+            .HasForeignKey<Profesor>(p => p.UsuarioId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AsesorInterno>()
+            .HasOne(ai => ai.Usuario)
+            .WithOne(u => u.AsesorInterno)
+            .HasForeignKey<AsesorInterno>(ai => ai.UsuarioId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AsesorExterno>()
+            .HasOne(ae => ae.Usuario)
+            .WithOne(u => u.AsesorExterno)
+            .HasForeignKey<AsesorExterno>(ae => ae.UsuarioId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AsesorExterno>()
+            .HasOne(ae => ae.Empresa)
+            .WithMany(e => e.AsesoresExternos)
+            .HasForeignKey(ae => ae.EmpresaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Materia>()
+            .HasOne(m => m.Carrera)
+            .WithMany()
+            .HasForeignKey(m => m.CarreraId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<DocumentoAlumno>()

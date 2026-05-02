@@ -71,9 +71,7 @@ public class GetStudentEndpoint : EndpointWithoutRequest<AlumnoDetailDto>
 
                     IsAdmin = isAdmin,
 
-                    IsMyCareer = isAdmin ||
-                                 _db.Coordinadores.Any(c => c.UsuarioId == userId && c.CarreraId == a.CarreraId) ||
-                                 _db.JefesDepartamento.Any(j => j.UsuarioId == userId && j.CarreraId == a.CarreraId),
+                    IsMyCareer = true,
 
                     IsMyStudent = false,
                     IsMyAdvisory = false,

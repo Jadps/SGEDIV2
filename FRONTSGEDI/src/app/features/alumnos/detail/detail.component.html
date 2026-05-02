@@ -1,5 +1,5 @@
 <p-dialog [visible]="visible()" (visibleChange)="!$event && onClose.emit()" [modal]="true" [draggable]="false"
-    position="top" [style]="{ width: '800px', maxWidth: '95vw', marginTop: '2rem' }" [contentStyle]="{ padding: '0' }"
+    position="top" [style]="{ width: '900px', maxWidth: '95vw', marginTop: '2rem' }" [contentStyle]="{ padding: '0' }"
     styleClass="alumno-modal glass-dark border border-white/10 rounded-3xl overflow-hidden"
     [header]="loading() ? 'Cargando...' : (alumno()?.name ?? '')">
 
@@ -26,24 +26,24 @@
             </p-tabpanel>
             <p-tabpanel value="docs">
                 @defer (when activeTab() === 'docs'; prefetch on idle) {
-                    <app-alumno-docs-tab [alumnoId]="alumnoId()" [isMyCareer]="alumno()?.isMyCareer ?? false" />
+                <app-alumno-docs-tab [alumnoId]="alumnoId()" [isMyCareer]="alumno()?.isMyCareer ?? false" />
                 } @placeholder {
-                    <div class="h-32 flex items-center justify-center">
-                        <p class="text-zinc-500">Cargando sección...</p>
-                    </div>
+                <div class="h-32 flex items-center justify-center">
+                    <p class="text-zinc-500">Cargando sección...</p>
+                </div>
                 } @loading (after 100ms; minimum 500ms) {
-                    <div class="flex items-center justify-center py-20">
-                        <p-progressSpinner strokeWidth="3" styleClass="w-10 h-10" />
-                    </div>
+                <div class="flex items-center justify-center py-20">
+                    <p-progressSpinner strokeWidth="3" styleClass="w-10 h-10" />
+                </div>
                 }
             </p-tabpanel>
             <p-tabpanel value="academic">
                 @defer (when activeTab() === 'academic'; prefetch on idle) {
-                    <div class="p-6 text-zinc-500 text-sm">Próximamente</div>
+                <div class="p-6 text-zinc-500 text-sm">Próximamente</div>
                 } @placeholder {
-                    <div class="h-32 flex items-center justify-center">
-                        <p class="text-zinc-500">Cargando sección...</p>
-                    </div>
+                <div class="h-32 flex items-center justify-center">
+                    <p class="text-zinc-500">Cargando sección...</p>
+                </div>
                 }
             </p-tabpanel>
         </p-tabpanels>

@@ -82,12 +82,20 @@ public class GetExpediente : Endpoint<GetExpedienteRequest, List<ExpedienteItemD
 
         var resultList = new List<ExpedienteItemDto>();
 
+        var fechasLimitesCarrera = await _db.ConfiguracionesFechasLimites
+            .AsNoTracking()
+            .Where(f => f.CarreraId == alumno.CarreraId && f.Semestre == semester)
+            .ToListAsync(ct);
+
         foreach (TipoAcuerdo tipo in Enum.GetValues(typeof(TipoAcuerdo)))
         {
             var doc = docsAcuerdos.FirstOrDefault(d => d.TipoAcuerdo == tipo);
+            var config = fechasLimitesCarrera.FirstOrDefault(f => f.TipoAcuerdo == tipo);
+            var defaultFecha = _fechasLimiteService.CalculateDefault(tipo, semester);
+
             var fechaLimite = (doc != null) 
                 ? doc.FechaLimite 
-                : await _fechasLimiteService.GetFechaLimiteAsync(tipo, alumno.CarreraId, semester, ct);
+                : (config != null ? config.FechaLimite : defaultFecha);
 
             resultList.Add(new ExpedienteItemDto
             {
