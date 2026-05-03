@@ -6,7 +6,7 @@ export interface ExternalUserDto {
     empresaNombre: string;
     puesto: string;
     telefonoOficina: string;
-    isActive: boolean;
+    status: number;
 }
 
 export interface CreateExternalUserRequest {

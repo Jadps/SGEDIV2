@@ -5,6 +5,7 @@ using BACKSGEDI.Infrastructure.Data;
 using BACKSGEDI.Infrastructure.Extensions;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
+using BACKSGEDI.Domain.Enums;
 
 namespace BACKSGEDI.Features.Catalogs.Materias;
 
@@ -35,13 +36,7 @@ public class ListMateriasEndpoint : Endpoint<ListMateriasRequest, List<MateriaDt
 
         if (!User.GetRoles().Contains(SystemRoles.Admin))
         {
-            var userId = User.GetUserId();
-            int? filterCarreraIdFromDb = await _db.Usuarios
-                .Where(u => u.Id == userId)
-                .Select(u => u.Coordinador != null ? u.Coordinador.CarreraId :
-                             u.JefeDepartamento != null ? u.JefeDepartamento.CarreraId : (int?)null)
-                .FirstOrDefaultAsync(ct);
-
+            var filterCarreraIdFromDb = await User.GetAllowedCarreraIdAsync(_db, ct);
             if (filterCarreraIdFromDb.HasValue)
                 filterCarreraId = filterCarreraIdFromDb.Value;
         }
@@ -76,13 +71,7 @@ public class CreateMateriaEndpoint : Endpoint<CreateMateriaRequest, MateriaDto>
 
         if (!User.GetRoles().Contains(SystemRoles.Admin))
         {
-            var userId = User.GetUserId();
-            int? allowedCarreraId = await _db.Usuarios
-                .Where(u => u.Id == userId)
-                .Select(u => u.Coordinador != null ? u.Coordinador.CarreraId :
-                             u.JefeDepartamento != null ? u.JefeDepartamento.CarreraId : (int?)null)
-                .FirstOrDefaultAsync(ct);
-
+            var allowedCarreraId = await User.GetAllowedCarreraIdAsync(_db, ct);
             if (allowedCarreraId.HasValue)
                 carreraId = allowedCarreraId.Value;
         }
@@ -129,14 +118,7 @@ public class UpdateMateriaEndpoint : Endpoint<UpdateMateriaRequest, MateriaDto>
 
         if (!User.GetRoles().Contains(SystemRoles.Admin))
         {
-            var userId = User.GetUserId();
-            int? allowedCarreraIdNullable = await _db.Usuarios
-                .Where(u => u.Id == userId)
-                .Select(u => u.Coordinador != null ? u.Coordinador.CarreraId :
-                             u.JefeDepartamento != null ? u.JefeDepartamento.CarreraId : (int?)null)
-                .FirstOrDefaultAsync(ct);
-
-            int allowedCarreraId = allowedCarreraIdNullable ?? 0;
+            var allowedCarreraId = (await User.GetAllowedCarreraIdAsync(_db, ct)) ?? 0;
 
             if (materia.CarreraId != allowedCarreraId)
             {
@@ -183,14 +165,7 @@ public class DeleteMateriaEndpoint : EndpointWithoutRequest
 
         if (!User.GetRoles().Contains(SystemRoles.Admin))
         {
-            var userId = User.GetUserId();
-            int? allowedCarreraIdNullable = await _db.Usuarios
-                .Where(u => u.Id == userId)
-                .Select(u => u.Coordinador != null ? u.Coordinador.CarreraId :
-                             u.JefeDepartamento != null ? u.JefeDepartamento.CarreraId : (int?)null)
-                .FirstOrDefaultAsync(ct);
-
-            int allowedCarreraId = allowedCarreraIdNullable ?? 0;
+            var allowedCarreraId = (await User.GetAllowedCarreraIdAsync(_db, ct)) ?? 0;
 
             if (materia.CarreraId != allowedCarreraId)
             {
@@ -199,7 +174,7 @@ public class DeleteMateriaEndpoint : EndpointWithoutRequest
             }
         }
 
-        materia.IsDeleted = true;
+        materia.Status = (int)EntityStatus.Borrado;
         await _db.SaveChangesAsync(ct);
 
         await Result.Success().ToResult().ExecuteAsync(HttpContext);

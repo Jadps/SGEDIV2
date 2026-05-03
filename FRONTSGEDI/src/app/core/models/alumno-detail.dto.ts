@@ -5,7 +5,7 @@ export interface AlumnoDetailDto {
     matricula: string;
     carrera: string;
     semestre: string;
-    isAccountActive: boolean;
+    status: number;
     statusText: string;
     statusSeverity: string;
     createdAt: string;

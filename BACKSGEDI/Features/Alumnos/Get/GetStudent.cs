@@ -4,6 +4,7 @@ using BACKSGEDI.Infrastructure.Data;
 using BACKSGEDI.Domain.Constants;
 using BACKSGEDI.Infrastructure.Extensions;
 using BACKSGEDI.Domain.Common;
+using BACKSGEDI.Domain.Enums;
 
 namespace BACKSGEDI.Features.Alumnos.Get;
 
@@ -15,7 +16,7 @@ public record AlumnoDetailDto
     public string Matricula { get; init; } = string.Empty;
     public string Carrera { get; init; } = string.Empty;
     public string Semestre { get; init; } = string.Empty;
-    public bool IsAccountActive { get; init; }
+    public int Status { get; init; }
     public string StatusText { get; init; } = string.Empty;
     public string StatusSeverity { get; init; } = "info";
     public DateTime CreatedAt { get; init; }
@@ -54,9 +55,8 @@ public class GetStudentEndpoint : EndpointWithoutRequest<AlumnoDetailDto>
             var isAdmin = roles.Contains(SystemRoles.Admin);
 
             var dto = await _db.Alumnos
-                .IgnoreQueryFilters()
                 .AsNoTracking()
-                .Where(a => a.Id == id && !a.IsDeleted && !a.Usuario.IsDeleted)
+                .Where(a => a.Id == id)
                 .ApplySecurityFilter(userId, roles, _db)
                 .Select(a => new AlumnoDetailDto
                 {
@@ -67,7 +67,7 @@ public class GetStudentEndpoint : EndpointWithoutRequest<AlumnoDetailDto>
                     Carrera = a.Carrera != null ? a.Carrera.Nombre : "N/A",
                     Semestre = $"Semestre {a.SemestreId}",
                     CreatedAt = a.Usuario.CreatedAt,
-                    IsAccountActive = a.Usuario.IsActive,
+                    Status = a.Usuario.Status,
 
                     IsAdmin = isAdmin,
 
@@ -90,8 +90,8 @@ public class GetStudentEndpoint : EndpointWithoutRequest<AlumnoDetailDto>
 
             var final = dto with
             {
-                StatusText = StatusHelper.GetText(dto.IsAccountActive),
-                StatusSeverity = StatusHelper.GetSeverity(dto.IsAccountActive, dto.IsMyCareer)
+                StatusText = StatusHelper.GetText(dto.Status),
+                StatusSeverity = StatusHelper.GetSeverity(dto.Status, dto.IsMyCareer)
             };
 
             await Result<AlumnoDetailDto>.Success(final)

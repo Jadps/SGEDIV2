@@ -1,8 +1,9 @@
 using BACKSGEDI.Domain.Interfaces;
+using BACKSGEDI.Domain.Enums;
 
 namespace BACKSGEDI.Domain.Entities;
 
-public class Materia : ISoftDelete
+public class Materia : IHasStatus
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Clave { get; set; } = string.Empty;
@@ -11,5 +12,5 @@ public class Materia : ISoftDelete
     public int Semestre { get; set; }
     public int CarreraId { get; set; }
     public CatCarrera? Carrera { get; set; }
-    public bool IsDeleted { get; set; } = false;
+    public int Status { get; set; } = (int)EntityStatus.Activo;
 }

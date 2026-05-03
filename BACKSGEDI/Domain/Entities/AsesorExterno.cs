@@ -1,8 +1,9 @@
 using BACKSGEDI.Domain.Interfaces;
+using BACKSGEDI.Domain.Enums;
 
 namespace BACKSGEDI.Domain.Entities;
 
-public class AsesorExterno : ISoftDelete
+public class AsesorExterno : IHasStatus
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Guid UsuarioId { get; set; }
@@ -11,5 +12,5 @@ public class AsesorExterno : ISoftDelete
     public Empresa? Empresa { get; set; }
     public string Puesto { get; set; } = string.Empty;
     public string TelefonoOficina { get; set; } = string.Empty;
-    public bool IsDeleted { get; set; } = false;
+    public int Status { get; set; } = (int)EntityStatus.Activo;
 }

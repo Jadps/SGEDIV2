@@ -1,5 +1,6 @@
 using BACKSGEDI.Domain.Common;
 using BACKSGEDI.Domain.Constants;
+using BACKSGEDI.Domain.Enums;
 using BACKSGEDI.Features.Users.Me;
 using BACKSGEDI.Infrastructure.Data;
 using BACKSGEDI.Infrastructure.Extensions;
@@ -28,7 +29,7 @@ public record AlumnoDto
     public bool IsMyStudent { get; init; }
     public bool IsMyAdvisory { get; init; }
 
-    public bool IsAccountActive { get; init; }
+    public int Status { get; init; }
     public string StatusText { get; init; } = string.Empty;
     public string StatusSeverity { get; init; } = "info";
 }
@@ -61,9 +62,7 @@ public override async Task HandleAsync(ListStudentRequest req, CancellationToken
     }
 
     var query = _db.Alumnos
-        .IgnoreQueryFilters()
         .AsNoTracking()
-        .Where(a => !a.IsDeleted && !a.Usuario.IsDeleted)
         .ApplySecurityFilter(userId, roles, _db); 
 
     if (!string.IsNullOrWhiteSpace(req.SearchTerm)) {
@@ -85,7 +84,7 @@ public override async Task HandleAsync(ListStudentRequest req, CancellationToken
             Matricula = a.Matricula,
             Carrera = a.Carrera != null ? a.Carrera.Nombre : "N/A",
             CreatedAt = a.Usuario.CreatedAt,
-            IsAccountActive = a.Usuario.IsActive,
+            Status = a.Usuario.Status,
 
             IsMyCareer = true,
 
@@ -99,8 +98,8 @@ public override async Task HandleAsync(ListStudentRequest req, CancellationToken
 
     var finalItems = pagedResult.Items.Select(item => item with 
     {
-        StatusText = StatusHelper.GetText(item.IsAccountActive),
-        StatusSeverity = StatusHelper.GetSeverity(item.IsAccountActive, item.IsMyCareer)
+        StatusText = StatusHelper.GetText(item.Status),
+        StatusSeverity = StatusHelper.GetSeverity(item.Status, item.IsMyCareer)
     }).ToList();
 
     var finalResponse = PagedResponse<AlumnoDto>.Create(

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using BACKSGEDI.Configuration;
 using BACKSGEDI.Infrastructure.Data;
 using BACKSGEDI.Domain.Common;
+using BACKSGEDI.Domain.Enums;
 using BACKSGEDI.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
@@ -26,6 +27,7 @@ public record LoginResponse
     public string Email { get; set; } = string.Empty;
     public List<string> Roles { get; set; } = new List<string>();
     public string RefreshToken { get; set; } = string.Empty;
+    public int Status { get; set; }
 }
 
 public class LoginValidator : Validator<LoginRequest>
@@ -83,9 +85,9 @@ public class LoginEndpoint : FastEndpoints.Endpoint<LoginRequest>
         if (user == null || !BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
             return Result<LoginResponse>.Failure(Error.Unauthorized("Auth.InvalidCredentials", "Credenciales inválidas."));
 
-        if (!user.IsActive)
+        if (user.Status == (int)EntityStatus.SinActivar)
             return Result<LoginResponse>.Failure(Error.Unauthorized("Auth.AccountInactive", "Tu cuenta aún no ha sido activada. Contacta a tu coordinador."));
- 
+
         var refreshToken = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(64));
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
@@ -98,7 +100,8 @@ public class LoginEndpoint : FastEndpoints.Endpoint<LoginRequest>
             Name = user.Name,
             Email = user.Email,
             Roles = user.Roles.Select(r => r.Role).ToList(),
-            RefreshToken = refreshToken
+            RefreshToken = refreshToken,
+            Status = user.Status
         };
     }
 
@@ -115,6 +118,7 @@ public class LoginEndpoint : FastEndpoints.Endpoint<LoginRequest>
             o.User.Claims.Add((ClaimTypes.NameIdentifier, user.Id.ToString()));
             o.User.Claims.Add((ClaimTypes.Name, user.Name));
             o.User.Claims.Add((ClaimTypes.Email, user.Email));
+            o.User.Claims.Add(("status", user.Status.ToString()));
         });
         
         var cookieOptions = new CookieOptions

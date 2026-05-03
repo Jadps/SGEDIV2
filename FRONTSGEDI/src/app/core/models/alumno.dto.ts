@@ -4,6 +4,7 @@ export interface AlumnoDto {
     email: string;
     matricula: string;
     carrera: string;
+    status: number;
     statusText: string;
     statusSeverity: string;
     createdAt: string;

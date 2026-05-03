@@ -19,32 +19,33 @@ export class AlumnoInfoTabComponent {
   private readonly toast = inject(MessageService);
 
   alumno = input.required<AlumnoDetailDto>();
-  statusChanged = output<boolean>();
+  statusChanged = output<number>();
 
-  isActive = signal<boolean | null>(null);
+  status = signal<number | null>(null);
   toggling = signal(false);
 
-  currentIsActive = computed(() => this.isActive() ?? this.alumno().isAccountActive);
+  currentStatus = computed(() => this.status() ?? this.alumno().status);
 
   currentStatusText = computed(() =>
-    StatusUtils.getText(this.currentIsActive())
+    StatusUtils.getText(this.currentStatus())
   );
 
   currentStatusSeverity = computed(() =>
-    StatusUtils.getSeverity(this.currentIsActive(), this.alumno().isMyCareer)
+    StatusUtils.getSeverity(this.currentStatus(), this.alumno().isMyCareer)
   );
 
   toggle() {
     this.toggling.set(true);
     this.alumnoService.toggleStatus(this.alumno().id).subscribe({
       next: (res) => {
-        this.isActive.set(res.isActive);
+        this.status.set(res.status);
         this.toggling.set(false);
-        this.statusChanged.emit(res.isActive);
+        this.statusChanged.emit(res.status);
+        const isActive = res.status === 2;
         this.toast.add({
-          severity: res.isActive ? 'success' : 'warn',
-          summary: res.isActive ? 'Cuenta activada' : 'Cuenta desactivada',
-          detail: `La cuenta de ${this.alumno().name} fue ${res.isActive ? 'activada' : 'desactivada'}.`
+          severity: isActive ? 'success' : 'warn',
+          summary: isActive ? 'Cuenta activada' : 'Cuenta desactivada',
+          detail: `La cuenta de ${this.alumno().name} fue ${isActive ? 'activada' : 'desactivada'}.`
         });
       },
       error: () => {

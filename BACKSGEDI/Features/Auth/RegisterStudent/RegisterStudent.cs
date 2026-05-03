@@ -94,8 +94,8 @@ public class RegisterStudentEndpoint : FastEndpoints.Endpoint<RegisterStudentReq
 
     private async Task<Result> RegisterAsync(RegisterStudentRequest req, CancellationToken ct)
     {
-        var emailExists     = await _db.Usuarios.AnyAsync(u => u.Email == req.Email, ct);
-        var matriculaExists = await _db.Alumnos.AnyAsync(a => a.Matricula == req.Matricula, ct);
+        var emailExists     = await _db.Usuarios.IgnoreQueryFilters().AnyAsync(u => u.Email == req.Email, ct);
+        var matriculaExists = await _db.Alumnos.IgnoreQueryFilters().AnyAsync(a => a.Matricula == req.Matricula, ct);
 
         if (emailExists || matriculaExists)
         {
@@ -118,7 +118,7 @@ public class RegisterStudentEndpoint : FastEndpoints.Endpoint<RegisterStudentReq
             {
                 new UsuarioRol { Role = "Alumno" }
             },
-            IsActive = false
+            Status = (int)EntityStatus.SinActivar
         };
 
         var alumno = new Alumno

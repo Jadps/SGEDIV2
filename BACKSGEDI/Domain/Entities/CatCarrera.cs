@@ -1,13 +1,12 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using BACKSGEDI.Domain.Interfaces;
+using BACKSGEDI.Domain.Enums;
 
 namespace BACKSGEDI.Domain.Entities;
 
-[Table("Carreras")]
-public class CatCarrera : ISoftDelete
+public class CatCarrera : IHasStatus
 {
     public int Id { get; set; }
     public string Clave { get; set; } = string.Empty;
     public string Nombre { get; set; } = string.Empty;
-    public bool IsDeleted { get; set; } = false;
+    public int Status { get; set; } = (int)EntityStatus.Activo;
 }

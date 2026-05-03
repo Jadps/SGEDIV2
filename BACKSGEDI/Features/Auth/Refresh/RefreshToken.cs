@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using BACKSGEDI.Configuration;
 using BACKSGEDI.Infrastructure.Data;
+using BACKSGEDI.Domain.Enums;
 using BACKSGEDI.Domain.Common;
 using BACKSGEDI.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Http;
@@ -49,9 +50,10 @@ public class RefreshTokenEndpoint : EndpointWithoutRequest<object>
             return;
         }
 
-        if (!user.IsActive)
+        if (user.Status != (int)EntityStatus.Activo)
         {
-            await Result.Failure(Error.Unauthorized("Auth.AccountInactive", "Tu cuenta está inactiva. Contacta a un administrador.")).ToResult().ExecuteAsync(HttpContext);
+            var msg = user.Status == (int)EntityStatus.SinActivar ? "Tu cuenta aún no ha sido activada." : "Esta cuenta ha sido eliminada.";
+            await Result.Failure(Error.Unauthorized("Auth.AccountInactive", msg)).ToResult().ExecuteAsync(HttpContext);
             return;
         }
 
@@ -72,6 +74,7 @@ public class RefreshTokenEndpoint : EndpointWithoutRequest<object>
             o.User.Claims.Add((ClaimTypes.NameIdentifier, user.Id.ToString()));
             o.User.Claims.Add((ClaimTypes.Name, user.Name));
             o.User.Claims.Add((ClaimTypes.Email, user.Email));
+            o.User.Claims.Add(("status", user.Status.ToString()));
         });
 
         var cookieOptions = new CookieOptions

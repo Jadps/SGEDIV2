@@ -79,13 +79,14 @@ export class AlumnoListComponent implements OnInit {
     this.selectedAlumnoId.set(null);
   }
 
-  onStatusChanged(alumnoId: string, isActive: boolean) {
+  onStatusChanged(alumnoId: string, status: number) {
     this.alumnos.update(list =>
       list.map(a => a.id === alumnoId
         ? {
           ...a,
-          statusText: StatusUtils.getText(isActive),
-          statusSeverity: StatusUtils.getSeverity(isActive)
+          status: status,
+          statusText: StatusUtils.getText(status),
+          statusSeverity: StatusUtils.getSeverity(status)
         }
         : a
       )

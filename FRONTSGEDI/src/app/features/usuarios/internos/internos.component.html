@@ -89,16 +89,16 @@
                         }
                     </td>
                     <td class="py-4 text-center">
-                        <p-tag [value]="user.isActive ? 'Activo' : 'Inactivo'"
-                            [severity]="user.isActive ? 'success' : 'danger'"
+                        <p-tag [value]="user.status === 2 ? 'Activo' : 'Inactivo'"
+                            [severity]="user.status === 2 ? 'success' : 'danger'"
                             [styleClass]="'text-[10px] rounded-full'" />
                     </td>
                     <td class="py-4">
                         <div class="flex gap-2">
-                            <p-button [icon]="user.isActive ? 'pi pi-user-minus' : 'pi pi-user-plus'" [rounded]="true"
-                                [text]="true" [severity]="user.isActive ? 'danger' : 'success'" size="small"
-                                (onClick)="toggleStatus(user)"
-                                [pTooltip]="user.isActive ? 'Desactivar Usuario' : 'Activar Usuario'"
+                            <p-button [icon]="user.status === 2 ? 'pi pi-user-minus' : 'pi pi-user-plus'"
+                                [rounded]="true" [text]="true" [severity]="user.status === 2 ? 'danger' : 'success'"
+                                size="small" (onClick)="toggleStatus(user)"
+                                [pTooltip]="user.status === 2 ? 'Desactivar Usuario' : 'Activar Usuario'"
                                 tooltipPosition="top" />
                         </div>
                     </td>

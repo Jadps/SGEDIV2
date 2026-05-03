@@ -48,8 +48,8 @@ export class AlumnoService {
     return this.http.get<any>(`${environment.apiUrl}/alumnos/me`);
   }
 
-  toggleStatus(id: string): Observable<{ isActive: boolean }> {
-    return this.http.patch<{ isActive: boolean }>(
+  toggleStatus(id: string): Observable<{ status: number }> {
+    return this.http.patch<{ status: number }>(
       `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.DETAIL.replace('{id}', id)}/toggle-status`,
       {}
     );

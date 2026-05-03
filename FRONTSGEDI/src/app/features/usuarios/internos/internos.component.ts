@@ -70,8 +70,8 @@ export class InternosComponent implements OnInit {
   }
 
   toggleStatus(user: InternalUserDto) {
-    const newStatus = !user.isActive;
-    const action = newStatus ? 'activar' : 'desactivar';
+    const isActive = user.status === 2;
+    const action = isActive ? 'desactivar' : 'activar';
 
     this.confirmationService.confirm({
       message: `¿Estás seguro de que deseas ${action} a este usuario?`,
@@ -79,14 +79,14 @@ export class InternosComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       rejectLabel: 'Cancelar',
       rejectButtonProps: { label: 'Cancelar', severity: 'secondary', outlined: true },
-      acceptLabel: newStatus ? 'Activar' : 'Desactivar',
-      acceptButtonProps: { label: newStatus ? 'Activar' : 'Desactivar', severity: newStatus ? 'success' : 'danger' },
+      acceptLabel: isActive ? 'Desactivar' : 'Activar',
+      acceptButtonProps: { label: isActive ? 'Desactivar' : 'Activar', severity: isActive ? 'danger' : 'success' },
       accept: () => {
         this.userService.toggleInternalUserStatus(user.id).subscribe({
           next: () => {
             this.notificationService.success(
-              `Usuario ${newStatus ? 'activado' : 'desactivado'}`,
-              `El usuario se ha ${newStatus ? 'activado' : 'desactivado'} correctamente`
+              `Usuario ${isActive ? 'desactivado' : 'activado'}`,
+              `El usuario se ha ${isActive ? 'desactivado' : 'activado'} correctamente`
             );
             this.loadUsers();
           }

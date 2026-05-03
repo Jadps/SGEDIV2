@@ -16,6 +16,11 @@ export class UserManagementService {
     return this.http.get<InternalUserDto[]>(`${environment.apiUrl}${API_ENDPOINTS.USER_MANAGEMENT.INTERNAL}`);
   }
 
+  getInternalUser(id: string): Observable<InternalUserDto> {
+    const url = `${environment.apiUrl}${API_ENDPOINTS.USER_MANAGEMENT.INTERNAL_GET}`.replace('{id}', id);
+    return this.http.get<InternalUserDto>(url);
+  }
+
   createInternalUser(request: CreateInternalUserRequest): Observable<InternalUserDto> {
     return this.http.post<InternalUserDto>(`${environment.apiUrl}${API_ENDPOINTS.USER_MANAGEMENT.INTERNAL}`, request);
   }
@@ -35,6 +40,11 @@ export class UserManagementService {
       params = { empresaId };
     }
     return this.http.get<ExternalUserDto[]>(`${environment.apiUrl}${API_ENDPOINTS.USER_MANAGEMENT.EXTERNAL}`, { params });
+  }
+
+  getExternalUser(id: string): Observable<ExternalUserDto> {
+    const url = `${environment.apiUrl}${API_ENDPOINTS.USER_MANAGEMENT.EXTERNAL_GET}`.replace('{id}', id);
+    return this.http.get<ExternalUserDto>(url);
   }
 
   createExternalUser(request: CreateExternalUserRequest): Observable<ExternalUserDto> {

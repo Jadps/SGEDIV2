@@ -6,12 +6,13 @@ using BACKSGEDI.Infrastructure.Extensions;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
+using BACKSGEDI.Domain.Enums;
 
 namespace BACKSGEDI.Features.Users.InternalUsers;
 
-public record InternalUserDto(Guid Id, string Name, string Email, List<string> Roles, bool IsActive, int? CarreraId, string? CarreraNombre, string? NumeroEmpleado, string? Cubiculo);
+public record InternalUserDto(Guid Id, string Name, string Email, List<string> Roles, int Status, int? CarreraId, string? CarreraNombre, string? NumeroEmpleado, string? Cubiculo);
 public record CreateInternalUserRequest(string Name, string Email, string Password, List<string> Roles, int? CarreraId, string? NumeroEmpleado, string? Cubiculo);
-public record UpdateInternalUserRequest(Guid Id, string Name, string Email, List<string> Roles, bool IsActive, int? CarreraId, string? NumeroEmpleado, string? Cubiculo);
+public record UpdateInternalUserRequest(Guid Id, string Name, string Email, List<string> Roles, int Status, int? CarreraId, string? NumeroEmpleado, string? Cubiculo);
 
 public class ListInternalUsersEndpoint : EndpointWithoutRequest<List<InternalUserDto>>
 {
@@ -27,14 +28,13 @@ public class ListInternalUsersEndpoint : EndpointWithoutRequest<List<InternalUse
     public override async Task HandleAsync(CancellationToken ct)
     {
         var users = await _db.Usuarios
-
             .Where(u => u.Roles.Any(r => r.Role != SystemRoles.Alumno && r.Role != SystemRoles.AsesorExterno))
             .Select(u => new InternalUserDto(
                 u.Id,
                 u.Name,
                 u.Email,
                 u.Roles.Select(r => r.Role).ToList(),
-                u.IsActive,
+                u.Status,
                 u.Coordinador != null ? u.Coordinador.CarreraId
                     : u.JefeDepartamento != null ? u.JefeDepartamento.CarreraId
                     : null,
@@ -47,6 +47,50 @@ public class ListInternalUsersEndpoint : EndpointWithoutRequest<List<InternalUse
             .ToListAsync(ct);
 
         await Result<List<InternalUserDto>>.Success(users).ToResult().ExecuteAsync(HttpContext);
+    }
+}
+
+public record GetInternalUserRequest(Guid Id);
+
+public class GetInternalUserEndpoint : Endpoint<GetInternalUserRequest, InternalUserDto>
+{
+    private readonly ApplicationDbContext _db;
+    public GetInternalUserEndpoint(ApplicationDbContext db) => _db = db;
+
+    public override void Configure()
+    {
+        Get("/api/users/internal/{Id}");
+        Roles(SystemRoles.Admin);
+    }
+
+    public override async Task HandleAsync(GetInternalUserRequest req, CancellationToken ct)
+    {
+        var user = await _db.Usuarios
+            .Where(u => u.Id == req.Id)
+            .Select(u => new InternalUserDto(
+                u.Id,
+                u.Name,
+                u.Email,
+                u.Roles.Select(r => r.Role).ToList(),
+                u.Status,
+                u.Coordinador != null ? u.Coordinador.CarreraId
+                    : u.JefeDepartamento != null ? u.JefeDepartamento.CarreraId
+                    : null,
+                u.Coordinador != null ? u.Coordinador.Carrera.Nombre
+                    : u.JefeDepartamento != null ? u.JefeDepartamento.Carrera.Nombre
+                    : null,
+                u.AsesorInterno != null ? u.AsesorInterno.NumeroEmpleado : null,
+                u.AsesorInterno != null ? u.AsesorInterno.Cubiculo : null
+            ))
+            .FirstOrDefaultAsync(ct);
+
+        if (user == null)
+        {
+            await Result.Failure(Error.NotFound("User.NotFound", "Usuario no encontrado")).ToResult().ExecuteAsync(HttpContext);
+            return;
+        }
+
+        await Result<InternalUserDto>.Success(user).ToResult().ExecuteAsync(HttpContext);
     }
 }
 
@@ -63,7 +107,7 @@ public class CreateInternalUserEndpoint : Endpoint<CreateInternalUserRequest, In
 
     public override async Task HandleAsync(CreateInternalUserRequest req, CancellationToken ct)
     {
-        var emailExists = await _db.Usuarios.AnyAsync(u => u.Email == req.Email, ct);
+        var emailExists = await _db.Usuarios.IgnoreQueryFilters().AnyAsync(u => u.Email == req.Email, ct);
         if (emailExists)
         {
             await Result.Failure(Error.Conflict("User.EmailExists", "El correo ya está registrado")).ToResult().ExecuteAsync(HttpContext);
@@ -76,7 +120,7 @@ public class CreateInternalUserEndpoint : Endpoint<CreateInternalUserRequest, In
             Email = req.Email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
             Roles = req.Roles.Select(r => new UsuarioRol { Role = r }).ToList(),
-            IsActive = true
+            Status = (int)EntityStatus.Activo
         };
 
         _db.Usuarios.Add(user);
@@ -109,7 +153,7 @@ public class CreateInternalUserEndpoint : Endpoint<CreateInternalUserRequest, In
         await _db.SaveChangesAsync(ct);
 
         var carreraNombre = req.CarreraId.HasValue ? await _db.Carreras.Where(c => c.Id == req.CarreraId.Value).Select(c => c.Nombre).FirstOrDefaultAsync(ct) : null;
-        var dto = new InternalUserDto(user.Id, user.Name, user.Email, req.Roles, user.IsActive, req.CarreraId, carreraNombre, req.NumeroEmpleado, req.Cubiculo);
+        var dto = new InternalUserDto(user.Id, user.Name, user.Email, req.Roles, user.Status, req.CarreraId, carreraNombre, req.NumeroEmpleado, req.Cubiculo);
         
         await Result<InternalUserDto>.Success(dto).ToResult().ExecuteAsync(HttpContext);
     }
@@ -144,13 +188,12 @@ public class UpdateInternalUserEndpoint : Endpoint<UpdateInternalUserRequest, In
 
         user.Name = req.Name;
         user.Email = req.Email;
-        user.IsActive = req.IsActive;
+        user.Status = req.Status;
 
         foreach (var r in user.Roles.ToList())
             _db.Entry(r).State = EntityState.Detached;
 
         await _db.UsuariosRoles
-            .IgnoreQueryFilters()
             .Where(r => r.UsuarioId == user.Id)
             .ExecuteDeleteAsync(ct);
 
@@ -209,7 +252,7 @@ public class UpdateInternalUserEndpoint : Endpoint<UpdateInternalUserRequest, In
         await _db.SaveChangesAsync(ct);
 
         var carreraNombre = req.CarreraId.HasValue ? await _db.Carreras.Where(c => c.Id == req.CarreraId.Value).Select(c => c.Nombre).FirstOrDefaultAsync(ct) : null;
-        var dto = new InternalUserDto(user.Id, user.Name, user.Email, req.Roles, user.IsActive, req.CarreraId, carreraNombre, req.NumeroEmpleado, req.Cubiculo);
+        var dto = new InternalUserDto(user.Id, user.Name, user.Email, req.Roles, user.Status, req.CarreraId, carreraNombre, req.NumeroEmpleado, req.Cubiculo);
         
         await Result<InternalUserDto>.Success(dto).ToResult().ExecuteAsync(HttpContext);
     }
@@ -239,10 +282,10 @@ public class ToggleInternalUserStatusEndpoint : Endpoint<ToggleInternalUserStatu
             return;
         }
 
-        user.IsActive = !user.IsActive;
+        user.Status = user.Status == (int)EntityStatus.Activo ? (int)EntityStatus.SinActivar : (int)EntityStatus.Activo;
 
         await _db.SaveChangesAsync(ct);
 
-        await Result<bool>.Success(user.IsActive).ToResult().ExecuteAsync(HttpContext);
+        await Result<int>.Success(user.Status).ToResult().ExecuteAsync(HttpContext);
     }
 }

@@ -5,6 +5,7 @@ using BACKSGEDI.Infrastructure.Data;
 using BACKSGEDI.Infrastructure.Extensions;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
+using BACKSGEDI.Domain.Enums;
 
 namespace BACKSGEDI.Features.Catalogs.Carreras;
 
@@ -25,17 +26,11 @@ public class ListCarrerasEndpoint : EndpointWithoutRequest<List<CarreraDto>>
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var query = _db.Carreras.AsQueryable();
+        var query = _db.Carreras.IgnoreQueryFilters().AsQueryable();
 
         if (User.Identity != null && User.Identity.IsAuthenticated && !User.GetRoles().Contains(SystemRoles.Admin))
         {
-            var userId = User.GetUserId();
-            int? allowedCarreraId = await _db.Usuarios
-                .Where(u => u.Id == userId)
-                .Select(u => u.Coordinador != null ? u.Coordinador.CarreraId :
-                             u.JefeDepartamento != null ? u.JefeDepartamento.CarreraId : (int?)null)
-                .FirstOrDefaultAsync(ct);
-
+            var allowedCarreraId = await User.GetAllowedCarreraIdAsync(_db, ct);
             if (allowedCarreraId.HasValue)
             {
                 query = query.Where(c => c.Id == allowedCarreraId.Value);
@@ -130,7 +125,7 @@ public class DeleteCarreraEndpoint : EndpointWithoutRequest
             return;
         }
 
-        carrera.IsDeleted = true;
+        carrera.Status = (int)EntityStatus.Borrado;
         await _db.SaveChangesAsync(ct);
 
         await Result.Success().ToResult().ExecuteAsync(HttpContext);

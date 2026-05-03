@@ -19,7 +19,7 @@ DTOs & Data Transfer:
 Requests/Responses: Prefer C# Records for all DTOs and immutable messages. Convert existing classes to records during refactoring.
 Projections: Never use AutoMapper. Use EF Core projections (Select(x => new DTO { ... })) directly on IQueryable to maximize performance.
 Domain & Constraints:
-ISoftDelete / IActivatable: Entities must implement these. When querying, automatically filter by default to only active, non-deleted records unless explicitly asked.
+IHasStatus: All entities must implement IHasStatus. Use the EntityStatus enum (1: SinActivar, 2: Activo, 3: Borrado). Global query filters MUST exclude Borrado (3) by default, but allow SinActivar (1) and Activo (2).
 Common Utilities: Prefer methods in Domain/Common (Pagination, SemestreHelper, etc.).
 Constants & Roles: Use the Roles defined in Constants; do not query a nonexistent Roles table.
 Claims Handling: CRITICAL: Do not parse Claims manually in endpoints. Always use the extension methods provided in Infrastructure/Extensions/UserExtensions.cs.

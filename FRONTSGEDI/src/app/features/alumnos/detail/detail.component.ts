@@ -26,7 +26,7 @@ export class AlumnoDetailModalComponent {
   alumnoId = input.required<string>();
   visible = input.required<boolean>();
   onClose = output<void>();
-  statusChanged = output<boolean>();
+  statusChanged = output<number>();
 
   alumno = signal<AlumnoDetailDto | null>(null);
   loading = signal(false);

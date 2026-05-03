@@ -62,7 +62,7 @@ export class InternalUserDetailModalComponent {
             email: '',
             password: '',
             roles: [],
-            isActive: true
+            status: 2
           });
         });
       }
@@ -75,13 +75,13 @@ export class InternalUserDetailModalComponent {
   }
 
   private fetch() {
+    const id = this.userId();
+    if (!id) return;
+
     this.loading.set(true);
-    this.userService.getInternalUsers().subscribe({
+    this.userService.getInternalUser(id).subscribe({
       next: (data) => {
-        const found = data.find(u => u.id === this.userId());
-        if (found) {
-          this.user.set({ ...found });
-        }
+        this.user.set({ ...data });
         this.loading.set(false);
       },
       error: () => this.loading.set(false)

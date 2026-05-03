@@ -36,28 +36,28 @@ public class ApplicationDbContext : DbContext
             .HasOne(ur => ur.Usuario)
             .WithMany(u => u.Roles)
             .HasForeignKey(ur => ur.UsuarioId)
-            .IsRequired()
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Alumno>()
             .HasOne(a => a.Usuario)
             .WithOne(u => u.Alumno)
             .HasForeignKey<Alumno>(a => a.UsuarioId)
-            .IsRequired()
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Coordinador>()
             .HasOne(c => c.Usuario)
             .WithOne(u => u.Coordinador)
             .HasForeignKey<Coordinador>(c => c.UsuarioId)
-            .IsRequired()
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<JefeDepartamento>()
             .HasOne(jd => jd.Usuario)
             .WithOne(u => u.JefeDepartamento)
             .HasForeignKey<JefeDepartamento>(jd => jd.UsuarioId)
-            .IsRequired()
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Coordinador>()
@@ -76,21 +76,21 @@ public class ApplicationDbContext : DbContext
             .HasOne(p => p.Usuario)
             .WithOne(u => u.Profesor)
             .HasForeignKey<Profesor>(p => p.UsuarioId)
-            .IsRequired()
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AsesorInterno>()
             .HasOne(ai => ai.Usuario)
             .WithOne(u => u.AsesorInterno)
             .HasForeignKey<AsesorInterno>(ai => ai.UsuarioId)
-            .IsRequired()
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AsesorExterno>()
             .HasOne(ae => ae.Usuario)
             .WithOne(u => u.AsesorExterno)
             .HasForeignKey<AsesorExterno>(ae => ae.UsuarioId)
-            .IsRequired()
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AsesorExterno>()
@@ -109,7 +109,7 @@ public class ApplicationDbContext : DbContext
             .HasOne(da => da.Alumno)
             .WithMany(a => a.Documentos)
             .HasForeignKey(da => da.AlumnoId)
-            .IsRequired()
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<DocumentoAcuerdo>(entity =>
@@ -117,7 +117,7 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(d => d.Alumno)
                 .WithMany()
                 .HasForeignKey(d => d.AlumnoId)
-                .IsRequired()
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(d => d.Profesor)
@@ -149,23 +149,12 @@ public class ApplicationDbContext : DbContext
 
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            if (typeof(ISoftDelete).IsAssignableFrom(entityType.ClrType))
+            if (typeof(IHasStatus).IsAssignableFrom(entityType.ClrType))
             {
                 var parameter = Expression.Parameter(entityType.ClrType, "e");
-                var propertyMethodInfo = typeof(ISoftDelete).GetProperty(nameof(ISoftDelete.IsDeleted));
-                var isDeletedProperty = Expression.Property(parameter, propertyMethodInfo!);
-                var compareExpression = Expression.Equal(isDeletedProperty, Expression.Constant(false));
-                var lambda = Expression.Lambda(compareExpression, parameter);
-
-                modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
-            }
-
-            if (typeof(IActivatable).IsAssignableFrom(entityType.ClrType))
-            {
-                var parameter = Expression.Parameter(entityType.ClrType, "e");
-                var propertyMethodInfo = typeof(IActivatable).GetProperty(nameof(IActivatable.IsActive));
-                var isActiveProperty = Expression.Property(parameter, propertyMethodInfo!);
-                var compareExpression = Expression.Equal(isActiveProperty, Expression.Constant(true));
+                var propertyMethodInfo = typeof(IHasStatus).GetProperty(nameof(IHasStatus.Status));
+                var statusProperty = Expression.Property(parameter, propertyMethodInfo!);
+                var compareExpression = Expression.NotEqual(statusProperty, Expression.Constant(3));
                 var lambda = Expression.Lambda(compareExpression, parameter);
 
                 modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);

@@ -9,7 +9,8 @@
         <div class="flex items-center gap-3">
             <p-iconfield>
                 <p-inputicon class="pi pi-search"></p-inputicon>
-                <input pInputText type="text" placeholder="Buscar empresa..." (input)="onSearch($event)"
+                <input pInputText type="text" name="empresaSearchInputDummy" autocomplete="nope"
+                    placeholder="Buscar empresa..." (input)="onSearch($event)"
                     class="w-full md:w-64 rounded-2xl glass-dark border-white/10" />
             </p-iconfield>
             <p-button label="Nueva Empresa" icon="pi pi-plus" (onClick)="openNew()" styleClass="rounded-2xl" />

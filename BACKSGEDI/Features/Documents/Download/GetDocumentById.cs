@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using BACKSGEDI.Infrastructure.Data;
 using BACKSGEDI.Domain.Common;
 using BACKSGEDI.Infrastructure.Extensions;
+using BACKSGEDI.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System;
@@ -69,9 +70,8 @@ public class GetDocumentById : EndpointWithoutRequest
         var roles = User.GetRoles();
         
         var tienePermiso = await _db.Alumnos
-            .IgnoreQueryFilters()
             .ApplySecurityFilter(userId, roles, _db)
-            .AnyAsync(a => a.Id == alumnoIdDoc && !a.IsDeleted, ct);
+            .AnyAsync(a => a.Id == alumnoIdDoc, ct);
 
         if (!tienePermiso)
         {

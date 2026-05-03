@@ -5,6 +5,7 @@ using BACKSGEDI.Infrastructure.Data;
 using BACKSGEDI.Infrastructure.Extensions;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
+using BACKSGEDI.Domain.Enums;
 
 namespace BACKSGEDI.Features.Catalogs.Empresas;
 
@@ -117,7 +118,7 @@ public class DeleteEmpresaEndpoint : EndpointWithoutRequest
             return;
         }
 
-        empresa.IsDeleted = true;
+        empresa.Status = (int)EntityStatus.Borrado;
         await _db.SaveChangesAsync(ct);
 
         await Result.Success().ToResult().ExecuteAsync(HttpContext);

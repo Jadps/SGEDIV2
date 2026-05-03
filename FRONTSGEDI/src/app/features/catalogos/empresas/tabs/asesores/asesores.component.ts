@@ -61,9 +61,13 @@ export class EmpresaAsesoresTabComponent implements OnInit {
   }
 
   editAsesor(asesor: ExternalUserDto) {
-    this.editingAsesor.set({ ...asesor });
-    this.isNew.set(false);
-    this.displayModal.set(true);
+    this.userService.getExternalUser(asesor.id).subscribe({
+      next: (data) => {
+        this.editingAsesor.set({ ...data });
+        this.isNew.set(false);
+        this.displayModal.set(true);
+      }
+    });
   }
 
   save() {

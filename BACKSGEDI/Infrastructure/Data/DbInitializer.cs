@@ -1,4 +1,5 @@
 using BCrypt.Net;
+using BACKSGEDI.Domain.Enums;
 using BACKSGEDI.Configuration;
 using BACKSGEDI.Domain.Constants;
 using BACKSGEDI.Domain.Entities;
@@ -71,6 +72,29 @@ public static class DbInitializer
                 UsuarioId = hildaUser.Id
             };
             context.Profesores.Add(profesor);
+        }
+
+        var carreras = new List<CatCarrera>
+        {
+            new CatCarrera { Id = 1, Clave = "IGE", Nombre = "Ingeniería en Gestión Empresarial", Status = (int)EntityStatus.Activo },
+            new CatCarrera { Id = 2, Clave = "ITIC", Nombre = "Ingeniería en Tecnologías de la Información y Comunicaciones", Status = (int)EntityStatus.Activo },
+            new CatCarrera { Id = 3, Clave = "II", Nombre = "Ingeniería Industrial", Status = (int)EntityStatus.Activo },
+            new CatCarrera { Id = 4, Clave = "IA", Nombre = "Ingeniería en Administración", Status = (int)EntityStatus.Activo },
+            new CatCarrera { Id = 5, Clave = "IDA", Nombre = "Ingeniería en Desarrollo de Aplicaciones", Status = (int)EntityStatus.Activo },
+            new CatCarrera { Id = 6, Clave = "IE", Nombre = "Ingeniería Eléctrica", Status = (int)EntityStatus.Activo },
+            new CatCarrera { Id = 7, Clave = "IEM", Nombre = "Ingeniería Electromecánica", Status = (int)EntityStatus.Activo },
+            new CatCarrera { Id = 8, Clave = "IEL", Nombre = "Ingeniería Electrónica", Status = (int)EntityStatus.Activo },
+            new CatCarrera { Id = 9, Clave = "IM", Nombre = "Ingeniería Mecánica", Status = (int)EntityStatus.Activo },
+            new CatCarrera { Id = 10, Clave = "IMT", Nombre = "Ingeniería Mecatrónica", Status = (int)EntityStatus.Activo }
+        };
+
+        foreach (var carrera in carreras)
+        {
+            var exists = await context.Carreras.IgnoreQueryFilters().AnyAsync(c => c.Id == carrera.Id);
+            if (!exists)
+            {
+                context.Carreras.Add(carrera);
+            }
         }
 
         await context.SaveChangesAsync();

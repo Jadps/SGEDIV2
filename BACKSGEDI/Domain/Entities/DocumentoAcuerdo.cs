@@ -3,7 +3,7 @@ using BACKSGEDI.Domain.Interfaces;
 
 namespace BACKSGEDI.Domain.Entities;
 
-public class DocumentoAcuerdo : ISoftDelete
+public class DocumentoAcuerdo
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     
@@ -35,6 +35,5 @@ public class DocumentoAcuerdo : ISoftDelete
     public Guid SubidoPorUsuarioId { get; set; }
     public Guid? RevisadoPorUsuarioId { get; set; }
     public DateTime? FechaRevision { get; set; }
-    public bool IsDeleted { get; set; } = false;
 }
 

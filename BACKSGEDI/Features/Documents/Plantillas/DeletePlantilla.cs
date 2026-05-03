@@ -4,6 +4,7 @@ using BACKSGEDI.Infrastructure.Data;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using BACKSGEDI.Infrastructure.Extensions;
+using BACKSGEDI.Domain.Enums;
 
 namespace BACKSGEDI.Features.Documents.Plantillas;
 
@@ -31,7 +32,7 @@ public class DeletePlantilla : EndpointWithoutRequest
             return;
         }
 
-        plantilla.IsDeleted = true;
+        plantilla.Status = (int)EntityStatus.Borrado;
         plantilla.EsVigente = false;
         
         await _db.SaveChangesAsync(ct);

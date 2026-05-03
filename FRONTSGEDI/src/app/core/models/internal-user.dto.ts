@@ -3,7 +3,7 @@ export interface InternalUserDto {
     name: string;
     email: string;
     roles: string[];
-    isActive: boolean;
+    status: number;
     carreraId?: number;
     carreraNombre?: string;
     numeroEmpleado?: string;

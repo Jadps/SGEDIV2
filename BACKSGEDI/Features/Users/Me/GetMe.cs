@@ -13,7 +13,7 @@ public record MeResponse
     public string LastName { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
     public List<string> Roles { get; set; } = [];
-    public int CatStatusAccountId { get; set; } = 1;
+    public int Status { get; set; } = 0;
 }
 
 public class GetMeEndpoint : EndpointWithoutRequest<MeResponse>
@@ -50,7 +50,7 @@ public class GetMeEndpoint : EndpointWithoutRequest<MeResponse>
             LastName = lastName,
             FullName = nameClaim,
             Roles = roleClaims,
-            CatStatusAccountId = 1
+            Status = User.GetStatus()
         };
 
         await Result<MeResponse>.Success(response).ToResult().ExecuteAsync(HttpContext);
