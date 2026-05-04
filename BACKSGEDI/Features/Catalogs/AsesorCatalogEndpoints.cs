@@ -52,7 +52,7 @@ public class GetAsesorExternosCatalogEndpoint : EndpointWithoutRequest<List<Ases
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var empresaId = Query<Guid?>("empresaId");
+        var empresaId = Query<Guid?>("empresaId", false);
 
         var query = _db.AsesoresExternos.AsNoTracking();
 
@@ -84,12 +84,12 @@ public class GetProfesoresCatalogEndpoint : EndpointWithoutRequest<List<Profesor
     public override void Configure()
     {
         Get("/api/catalogs/profesores");
-        Roles(SystemRoles.Admin, SystemRoles.Coordinador);
+        Roles(SystemRoles.Admin, SystemRoles.Coordinador, SystemRoles.Alumno);
     }
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var carreraId = Query<int?>("carreraId");
+        var carreraId = Query<int?>("carreraId", false);
 
         var query = _db.Profesores.AsNoTracking();
 
@@ -101,7 +101,7 @@ public class GetProfesoresCatalogEndpoint : EndpointWithoutRequest<List<Profesor
                 p.Usuario.Email,
                 null,
                 null,
-                null
+                p.NumeroEmpleado
             ))
             .ToListAsync(ct);
 

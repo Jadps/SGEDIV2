@@ -96,8 +96,13 @@
     </div>
   </div>
 
-  <p-dialog [(visible)]="prorrogaDialogVisible" header="Otorgar Prórroga" [modal]="true" draggable="false"
-    [style]="{width: '400px'}">
+  <p-dialog [(visible)]="prorrogaDialogVisible" 
+    header="Otorgar Prórroga" 
+    [modal]="true" 
+    [draggable]="false"
+    position="top"
+    [style]="{ width: '400px', marginTop: '4rem' }"
+    styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
     <div class="flex flex-col gap-4 mt-2">
       <p class="text-zinc-400 text-sm">Selecciona la nueva fecha límite para la entrega de este anexo.</p>
       <input type="datetime-local"
@@ -110,8 +115,13 @@
     </ng-template>
   </p-dialog>
 
-  <p-dialog [(visible)]="rejectDialogVisible" header="Motivo de Rechazo" [modal]="true" draggable="false"
-    [style]="{width: '450px'}" styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
+  <p-dialog [(visible)]="rejectDialogVisible" 
+    header="Motivo de Rechazo" 
+    [modal]="true" 
+    [draggable]="false"
+    position="top"
+    [style]="{ width: '450px', marginTop: '4rem' }" 
+    styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
     <div class="flex flex-col gap-4 mt-2">
       <p class="text-zinc-400 text-sm">Por favor, indica el motivo por el cual estás rechazando este documento. El
         alumno podrá verlo para corregirlo.</p>
@@ -128,8 +138,12 @@
   </p-dialog>
 
   <p-dialog [visible]="adminUploadVisible()" (visibleChange)="adminUploadVisible.set($event)"
-    header="Subida Administrativa" [modal]="true" draggable="false" [style]="{width: '500px'}"
-    styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
+    header="Subida Administrativa" 
+    [modal]="true" 
+    [draggable]="false" 
+    position="top"
+    [style]="{ width: '500px', marginTop: '4rem' }"
+    styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
     @if (adminUploadVisible()) {
     <div class="flex flex-col gap-6 mt-4">
       <div class="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">

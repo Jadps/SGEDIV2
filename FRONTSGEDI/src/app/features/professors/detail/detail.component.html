@@ -1,14 +1,16 @@
 <p-dialog [visible]="visible()" (visibleChange)="!$event && onClose.emit()" [modal]="true" [draggable]="false"
-    [header]="data()?.materiaNombre" [style]="{ width: '700px' }" styleClass="glass-dark border border-white/10 rounded-3xl overflow-hidden"
+    position="top"
+    [header]="data()?.materiaNombre" [style]="{ width: '700px', marginTop: '4rem' }" 
+    styleClass="crud-modal" maskStyleClass="backdrop-blur-md"
     [contentStyle]="{ padding: '0' }">
     
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)">
         <p-tablist>
             <p-tab value="info">
-                <i class="pi pi-info-circle mr-2"></i>Details
+                <i class="pi pi-info-circle mr-2"></i>Detalles
             </p-tab>
             <p-tab value="contracts">
-                <i class="pi pi-file-pdf mr-2"></i>Contracts
+                <i class="pi pi-file-pdf mr-2"></i>Contratos
             </p-tab>
         </p-tablist>
 

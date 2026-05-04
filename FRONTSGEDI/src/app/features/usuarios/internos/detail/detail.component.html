@@ -1,6 +1,6 @@
 <p-dialog [visible]="visible()" (visibleChange)="!$event && onClose.emit()" [modal]="true" [draggable]="false"
     position="top" [style]="{ width: '600px', maxWidth: '95vw', marginTop: '4rem' }" [contentStyle]="{ padding: '0' }"
-    appendTo="body" styleClass="user-modal glass-dark border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+    appendTo="body" styleClass="crud-modal" maskStyleClass="backdrop-blur-md"
     [header]="loading() ? 'Cargando...' : (user()?.name || 'Nuevo Usuario Interno')">
 
     @if (loading()) {
@@ -15,8 +15,8 @@
             </h3>
 
             <div class="flex flex-col gap-2">
-                <label for="name" class="text-sm font-medium text-zinc-400">Nombre Completo</label>
-                <input pInputText id="name" [(ngModel)]="user()!.name" class="w-full" placeholder="Ej. Juan Pérez" />
+                <label for="name" class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Nombre Completo</label>
+                <input pInputText id="name" [(ngModel)]="user()!.name" class="crud-input" placeholder="Ej. Juan Pérez" />
             </div>
             @if (!userId()) {
             <div class="flex flex-col gap-2">
@@ -26,15 +26,15 @@
             </div>
             }
             <div class="flex flex-col gap-2">
-                <label for="email" class="text-sm font-medium text-zinc-400">Correo Institucional</label>
-                <input pInputText id="email" [(ngModel)]="user()!.email" class="w-full" placeholder="usuario@tecnm.mx"
+                <label for="email" class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Correo Institucional</label>
+                <input pInputText id="email" [(ngModel)]="user()!.email" class="crud-input" placeholder="usuario@tecnm.mx"
                     autocomplete="nope" />
             </div>
 
             <div class="flex flex-col gap-2">
-                <label class="text-sm font-medium text-zinc-400">Roles Asignados</label>
+                <label class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Roles Asignados</label>
                 <p-multiSelect [options]="availableRoles()" [(ngModel)]="user()!.roles" optionLabel="label"
-                    optionValue="value" placeholder="Seleccionar Roles" class="w-full" appendTo="body" />
+                    optionValue="value" placeholder="Seleccionar Roles" styleClass="crud-input !py-1" appendTo="body" />
             </div>
 
             @if (hasRole('Coordinador') || hasRole('Jefe de Departamento')) {
@@ -50,21 +50,22 @@
             @if (hasRole('Asesor Interno') || hasRole('Profesor')) {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
                 <div class="flex flex-col gap-2">
-                    <label for="emp" class="text-sm font-medium text-zinc-400">Número de Empleado</label>
-                    <input pInputText id="emp" [(ngModel)]="user()!.numeroEmpleado" class="w-full" />
+                    <label for="emp" class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Número de Empleado</label>
+                    <input pInputText id="emp" [(ngModel)]="user()!.numeroEmpleado" class="crud-input" />
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label for="cub" class="text-sm font-medium text-zinc-400">Cubículo / Oficina</label>
-                    <input pInputText id="cub" [(ngModel)]="user()!.cubiculo" class="w-full" />
+                    <label for="cub" class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Cubículo / Oficina</label>
+                    <input pInputText id="cub" [(ngModel)]="user()!.cubiculo" class="crud-input" />
                 </div>
             </div>
             }
         </div>
 
-        <div class="flex justify-end gap-3 mt-8">
-            <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="onClose.emit()" />
+        <div class="flex justify-end gap-3 mt-8 p-6 bg-black/20 border-t border-white/5">
+            <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="onClose.emit()" styleClass="!text-zinc-400" />
             <p-button [label]="userId() ? 'Actualizar Usuario' : 'Guardar Usuario'"
-                [icon]="userId() ? 'pi pi-save' : 'pi pi-check'" (onClick)="save()" />
+                [icon]="userId() ? 'pi pi-save' : 'pi pi-check'" (onClick)="save()"
+                styleClass="rounded-xl px-8 shadow-lg shadow-primary/20" />
         </div>
     </div>
     }

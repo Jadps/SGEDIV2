@@ -54,17 +54,4 @@ export class AlumnoService {
       payload
     );
   }
-
-  getCargaAcademica(alumnoId: string): Observable<any[]> {
-    return this.http.get<any[]>(
-      `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.CARGA_ACADEMICA.replace('{id}', alumnoId)}`
-    );
-  }
-
-  setCargaAcademica(materias: { materiaId: string; profesorId: string }[]): Observable<void> {
-    return this.http.post<void>(
-      `${environment.apiUrl}${API_ENDPOINTS.STUDENTS.CARGA_ACADEMICA.replace('{id}', 'me')}`,
-      { materias }
-    );
-  }
 }

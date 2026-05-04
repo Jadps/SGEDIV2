@@ -35,6 +35,15 @@
   @apply glass rounded-3xl p-6 shadow-xl shadow-black/[0.02] dark:shadow-white/[0.02] ring-1 ring-black/5 dark:ring-white/5;
 }
 
+@utility crud-modal {
+  @apply glass-dark border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl shadow-black/50;
+}
+
+@utility crud-input {
+  @apply !bg-zinc-900/50 !border-white/10 focus:!border-primary/50 !rounded-xl !py-3 px-4 transition-all duration-200;
+}
+
+
 @keyframes fade-in-up {
   from {
     opacity: 0;

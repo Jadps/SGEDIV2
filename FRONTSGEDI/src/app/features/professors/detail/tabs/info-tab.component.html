@@ -1,0 +1,82 @@
+<div class="p-8 space-y-8 animate-fade-in-up">
+    <section class="space-y-4">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                <i class="pi pi-book text-blue-400 text-sm"></i>
+            </div>
+            <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-blue-400/80">Información de la Materia</h3>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6 p-5 rounded-2xl bg-white/[0.02] border border-white/5 backdrop-blur-sm">
+            <div class="space-y-1">
+                <span class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Clave / Código</span>
+                <div class="flex items-center gap-2">
+                    <span
+                        class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-mono text-sm border border-blue-500/20">
+                        {{ data().materiaClave }}
+                    </span>
+                </div>
+            </div>
+            <div class="space-y-1">
+                <span class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Créditos</span>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-bolt text-amber-400/60 text-xs"></i>
+                    <span class="text-zinc-200 font-semibold">{{ data().materiaCreditos }} créditos</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <div class="flex items-center gap-2 mb-2">
+            <div
+                class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                <i class="pi pi-user text-emerald-400 text-sm"></i>
+            </div>
+            <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-emerald-400/80">Catedrático Asignado</h3>
+        </div>
+
+        <div
+            class="rounded-3xl bg-gradient-to-br from-white/[0.04] to-transparent border border-white/10 overflow-hidden shadow-2xl">
+            <div class="p-6 flex items-center gap-5 border-b border-white/5">
+                <div class="relative">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-zinc-800 to-zinc-700 flex items-center justify-center text-zinc-300 shadow-inner border border-white/10">
+                        <i class="pi pi-user text-3xl"></i>
+                    </div>
+                    <div
+                        class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-[#121212] shadow-lg shadow-emerald-500/20">
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <div class="text-xl font-bold text-white tracking-tight leading-tight mb-1">{{ data().profesorNombre
+                        }}</div>
+                    <div class="flex items-center gap-2 text-zinc-400 text-sm">
+                        <i class="pi pi-envelope text-[10px]"></i>
+                        <span class="hover:text-emerald-400 transition-colors cursor-pointer underline-offset-4">{{
+                            data().profesorEmail }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 divide-x divide-white/5">
+                <div class="p-5 flex flex-col gap-1 hover:bg-white/[0.02] transition-colors group">
+                    <span
+                        class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest group-hover:text-zinc-400">Nómina
+                        / Empleado</span>
+                    <span class="text-zinc-200 font-mono text-sm">{{ data().profesorNumeroEmpleado || 'N/A' }}</span>
+                </div>
+                <div class="p-5 flex flex-col gap-1 hover:bg-white/[0.02] transition-colors group">
+                    <span
+                        class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest group-hover:text-zinc-400">Ubicación
+                        / Cubículo</span>
+                    <div class="flex items-center gap-2">
+                        <i class="pi pi-map-marker text-red-400/60 text-xs"></i>
+                        <span class="text-zinc-200 text-sm font-medium">{{ data().cubiculoProfesor || 'No asignado'
+                            }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

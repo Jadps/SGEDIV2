@@ -26,7 +26,7 @@ public class ListMateriasEndpoint : Endpoint<ListMateriasRequest, List<MateriaDt
     public override void Configure()
     {
         Get("/api/catalogs/materias");
-        Roles(SystemRoles.Admin, SystemRoles.Coordinador, SystemRoles.JefeDepartamento);
+        Roles(SystemRoles.Admin, SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.Alumno);
     }
 
     public override async Task HandleAsync(ListMateriasRequest req, CancellationToken ct)

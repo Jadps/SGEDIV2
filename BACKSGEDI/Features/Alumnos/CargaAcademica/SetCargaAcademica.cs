@@ -51,6 +51,30 @@ public class SetCargaAcademica : Endpoint<SetCargaAcademicaRequest>
             return;
         }
 
+        if (req.Materias.Count > 8)
+        {
+            await Result.Failure(Error.Validation("CargaAcademica.MaxMaterias", "No se permiten más de 8 materias por semestre.")).ToResult().ExecuteAsync(HttpContext);
+            return;
+        }
+
+        var distinctMaterias = req.Materias.Select(m => m.MateriaId).Distinct().Count();
+        if (distinctMaterias != req.Materias.Count)
+        {
+            await Result.Failure(Error.Validation("CargaAcademica.Duplicadas", "No se permiten materias duplicadas en la carga académica.")).ToResult().ExecuteAsync(HttpContext);
+            return;
+        }
+
+        var materiaIds = req.Materias.Select(m => m.MateriaId).ToList();
+        var totalCreditos = await _db.Materias
+            .Where(m => materiaIds.Contains(m.Id))
+            .SumAsync(m => m.Creditos, ct);
+
+        if (totalCreditos > 36)
+        {
+            await Result.Failure(Error.Validation("CargaAcademica.MaxCreditos", $"La carga excede el límite de 36 créditos. (Total intentado: {totalCreditos})")).ToResult().ExecuteAsync(HttpContext);
+            return;
+        }
+
         var semestreActual = SemestreHelper.GetSemestreActual();
 
         var cargaAnterior = await _db.CargasAcademicas
@@ -87,6 +111,7 @@ public class SetCargaAcademica : Endpoint<SetCargaAcademicaRequest>
                 a.AlumnoId == alumno.Id && 
                 a.TipoAcuerdo == TipoAcuerdo.AnexoIII && 
                 a.ProfesorId == materia.ProfesorId && 
+                a.MateriaId == materia.MateriaId && 
                 a.Semestre == semestreActual && 
                 a.RutaArchivo != null, ct);
 
@@ -96,6 +121,7 @@ public class SetCargaAcademica : Endpoint<SetCargaAcademicaRequest>
                 {
                     AlumnoId = alumno.Id,
                     ProfesorId = materia.ProfesorId,
+                    MateriaId = materia.MateriaId,
                     TipoAcuerdo = TipoAcuerdo.AnexoIII,
                     Semestre = semestreActual,
                     FechaLimite = fechaLimiteAnexo3,
@@ -110,6 +136,7 @@ public class SetCargaAcademica : Endpoint<SetCargaAcademicaRequest>
                 a.AlumnoId == alumno.Id && 
                 a.TipoAcuerdo == TipoAcuerdo.AnexoVII && 
                 a.ProfesorId == materia.ProfesorId && 
+                a.MateriaId == materia.MateriaId && 
                 a.Semestre == semestreActual && 
                 a.RutaArchivo != null, ct);
 
@@ -119,6 +146,7 @@ public class SetCargaAcademica : Endpoint<SetCargaAcademicaRequest>
                 {
                     AlumnoId = alumno.Id,
                     ProfesorId = materia.ProfesorId,
+                    MateriaId = materia.MateriaId,
                     TipoAcuerdo = TipoAcuerdo.AnexoVII,
                     Semestre = semestreActual,
                     FechaLimite = fechaLimiteAnexo7,

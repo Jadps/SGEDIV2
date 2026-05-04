@@ -1,18 +1,17 @@
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormArray, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { AlumnoService } from '../../core/services/alumno.service';
-import { CatalogService } from '../../core/services/catalog.service';
-import { UserManagementService } from '../../core/services/user-management.service';
+import { CatalogService, ProfesorCatalogDto } from '../../core/services/catalog.service';
 import { MessageService } from 'primeng/api';
-import { MateriaDto } from '../../core/models/materia.dto';
-import { InternalUserDto } from '../../core/models/internal-user.dto';
 import { ProfessorDetailComponent } from './detail/detail.component';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { map, of } from 'rxjs';
+import { of } from 'rxjs';
+import { CargaAcademicaService } from '../../core/services/carga-academica.service';
 
 @Component({
   selector: 'app-professor-list',
@@ -26,9 +25,10 @@ import { map, of } from 'rxjs';
 })
 export class ProfessorListComponent implements OnInit {
   private readonly studentService = inject(AlumnoService);
+  private readonly cargaService = inject(CargaAcademicaService);
   private readonly catalogService = inject(CatalogService);
-  private readonly userService = inject(UserManagementService);
   private readonly toast = inject(MessageService);
+  private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
 
   isLoading = signal(false);
@@ -45,11 +45,9 @@ export class ProfessorListComponent implements OnInit {
     stream: ({ params: { id, editing } }) => (editing && id) ? this.catalogService.getMaterias(id) : of([])
   });
 
-  professorsResource = rxResource<any[], boolean>({
+  professorsResource = rxResource<ProfesorCatalogDto[], boolean>({
     params: () => this.isEditing(),
-    stream: ({ params: editing }) => editing ? this.userService.getInternalUsers().pipe(
-      map(users => users.filter(u => u.roles.includes('Profesor')))
-    ) : of([])
+    stream: ({ params: editing }) => editing ? this.catalogService.getProfesores() : of([])
   });
 
   loadForm = this.fb.group({
@@ -58,6 +56,27 @@ export class ProfessorListComponent implements OnInit {
 
   get items() {
     return this.loadForm.get('items') as FormArray;
+  }
+
+  get totalCredits(): number {
+    const allSubjects = this.subjectsResource.value() || [];
+    const selectedIds = this.items.controls.map(c => c.get('materiaId')?.value).filter(id => id);
+    return selectedIds.reduce((sum, id) => {
+      const subject = allSubjects.find(s => s.id === id);
+      return sum + (subject ? subject.creditos : 0);
+    }, 0);
+  }
+
+  get canAddRow(): boolean {
+    return this.items.length < 8 && this.totalCredits < 36;
+  }
+
+  getAvailableSubjects(index: number): any[] {
+    const allSubjects = this.subjectsResource.value() || [];
+    const selectedSubjectIds = this.items.controls
+      .map((c, i) => (i !== index ? c.get('materiaId')?.value : null))
+      .filter(id => id);
+    return allSubjects.filter(s => !selectedSubjectIds.includes(s.id));
   }
 
   ngOnInit() {
@@ -69,7 +88,7 @@ export class ProfessorListComponent implements OnInit {
 
   fetchLoad() {
     this.isLoading.set(true);
-    this.studentService.getCargaAcademica('me').subscribe({
+    this.cargaService.getCargaAcademica('me').subscribe({
       next: (data) => {
         this.academicLoad.set(data);
         this.items.clear();
@@ -113,16 +132,16 @@ export class ProfessorListComponent implements OnInit {
 
     this.isSaving.set(true);
     const payload = this.items.value;
-    this.studentService.setCargaAcademica(payload).subscribe({
+    this.cargaService.setCargaAcademica(payload).subscribe({
       next: () => {
         this.isSaving.set(false);
         this.isEditing.set(false);
-        this.fetchLoad();
-        this.toast.add({ severity: 'success', summary: 'Success', detail: 'Academic load saved successfully' });
+        this.toast.add({ severity: 'success', summary: 'Éxito', detail: 'Carga académica guardada. Tus Anexos III y VII ya están disponibles.' });
+        this.router.navigate(['/mis-documentos']);
       },
       error: () => {
         this.isSaving.set(false);
-        this.toast.add({ severity: 'error', summary: 'Error', detail: 'Could not save academic load' });
+        this.toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar la carga académica.' });
       }
     });
   }

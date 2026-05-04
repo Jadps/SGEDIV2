@@ -54,8 +54,13 @@
   </div>
 </div>
 
-<p-dialog [(visible)]="displayDialog" header="Subir Nueva Plantilla" [modal]="true" draggable="false"
-  [style]="{width: '500px'}" styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
+<p-dialog [(visible)]="displayDialog" 
+  header="Subir Nueva Plantilla" 
+  [modal]="true" 
+  [draggable]="false"
+  position="top"
+  [style]="{ width: '500px', marginTop: '4rem' }" 
+  styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
   @if (displayDialog()) {
   <div class="flex flex-col gap-6 mt-4">
     <div class="flex flex-col gap-2">
@@ -76,8 +81,13 @@
   </ng-template>
 </p-dialog>
 
-<p-dialog [(visible)]="editDialogVisible" header="Reemplazar Archivo de Plantilla" [modal]="true" draggable="false"
-  [style]="{width: '500px'}" styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
+<p-dialog [(visible)]="editDialogVisible" 
+  header="Reemplazar Archivo de Plantilla" 
+  [modal]="true" 
+  [draggable]="false"
+  position="top"
+  [style]="{ width: '500px', marginTop: '4rem' }" 
+  styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
   @if (editDialogVisible()) {
   <div class="flex flex-col gap-6 mt-4">
     <div class="p-4 rounded-xl bg-purple-500/5 border border-purple-500/10">

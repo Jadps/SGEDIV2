@@ -137,7 +137,12 @@ public class CreateInternalUserEndpoint : Endpoint<CreateInternalUserRequest, In
 
         if (req.Roles.Contains(SystemRoles.Profesor))
         {
-            _db.Profesores.Add(new Profesor { UsuarioId = user.Id });
+            _db.Profesores.Add(new Profesor 
+            { 
+                UsuarioId = user.Id,
+                NumeroEmpleado = req.NumeroEmpleado ?? "",
+                Cubiculo = req.Cubiculo ?? ""
+            });
         }
 
         if (req.Roles.Contains(SystemRoles.AsesorInterno))
@@ -150,7 +155,17 @@ public class CreateInternalUserEndpoint : Endpoint<CreateInternalUserRequest, In
             });
         }
 
-        await _db.SaveChangesAsync(ct);
+        using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        try
+        {
+            await _db.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync(ct);
+            throw;
+        }
 
         var carreraNombre = req.CarreraId.HasValue ? await _db.Carreras.Where(c => c.Id == req.CarreraId.Value).Select(c => c.Nombre).FirstOrDefaultAsync(ct) : null;
         var dto = new InternalUserDto(user.Id, user.Name, user.Email, req.Roles, user.Status, req.CarreraId, carreraNombre, req.NumeroEmpleado, req.Cubiculo);
@@ -193,13 +208,6 @@ public class UpdateInternalUserEndpoint : Endpoint<UpdateInternalUserRequest, In
         foreach (var r in user.Roles.ToList())
             _db.Entry(r).State = EntityState.Detached;
 
-        await _db.UsuariosRoles
-            .Where(r => r.UsuarioId == user.Id)
-            .ExecuteDeleteAsync(ct);
-
-        foreach (var role in req.Roles)
-            _db.UsuariosRoles.Add(new UsuarioRol { UsuarioId = user.Id, Role = role });
-
         if (req.Roles.Contains(SystemRoles.Coordinador) && req.CarreraId.HasValue)
         {
             if (user.Coordinador == null)
@@ -227,7 +235,17 @@ public class UpdateInternalUserEndpoint : Endpoint<UpdateInternalUserRequest, In
         if (req.Roles.Contains(SystemRoles.Profesor))
         {
             if (user.Profesor == null)
-                _db.Profesores.Add(new Profesor { UsuarioId = user.Id });
+                _db.Profesores.Add(new Profesor 
+                { 
+                    UsuarioId = user.Id,
+                    NumeroEmpleado = req.NumeroEmpleado ?? "",
+                    Cubiculo = req.Cubiculo ?? ""
+                });
+            else
+            {
+                user.Profesor.NumeroEmpleado = req.NumeroEmpleado ?? "";
+                user.Profesor.Cubiculo = req.Cubiculo ?? "";
+            }
         }
         else if (user.Profesor != null)
         {
@@ -249,7 +267,24 @@ public class UpdateInternalUserEndpoint : Endpoint<UpdateInternalUserRequest, In
             _db.AsesoresInternos.Remove(user.AsesorInterno);
         }
 
-        await _db.SaveChangesAsync(ct);
+        using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        try
+        {
+            await _db.UsuariosRoles
+                .Where(r => r.UsuarioId == user.Id)
+                .ExecuteDeleteAsync(ct);
+
+            foreach (var role in req.Roles)
+                _db.UsuariosRoles.Add(new UsuarioRol { UsuarioId = user.Id, Role = role });
+
+            await _db.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync(ct);
+            throw;
+        }
 
         var carreraNombre = req.CarreraId.HasValue ? await _db.Carreras.Where(c => c.Id == req.CarreraId.Value).Select(c => c.Nombre).FirstOrDefaultAsync(ct) : null;
         var dto = new InternalUserDto(user.Id, user.Name, user.Email, req.Roles, user.Status, req.CarreraId, carreraNombre, req.NumeroEmpleado, req.Cubiculo);

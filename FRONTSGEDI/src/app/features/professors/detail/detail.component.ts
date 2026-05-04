@@ -19,6 +19,8 @@ export class ProfessorDetailComponent {
   activeTab = signal('info');
 
   onTabChange(event: any) {
-    this.activeTab.set(event);
+    if (this.activeTab() !== event) {
+      this.activeTab.set(event);
+    }
   }
 }

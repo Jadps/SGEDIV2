@@ -100,7 +100,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
             new()
             {
                 Id = "professors",
-                Description = "My Professors",
+                Description = "Mis Profesores",
                 Icon = "pi pi-id-card",
                 Action = "professors",
                 Order = 3,

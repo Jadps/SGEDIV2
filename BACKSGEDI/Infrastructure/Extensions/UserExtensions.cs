@@ -37,7 +37,8 @@ public static class UserExtensions
         return await db.Usuarios
             .Where(u => u.Id == userId)
             .Select(u => u.Coordinador != null ? u.Coordinador.CarreraId :
-                         u.JefeDepartamento != null ? u.JefeDepartamento.CarreraId : (int?)null)
+                         u.JefeDepartamento != null ? u.JefeDepartamento.CarreraId :
+                         u.Alumno != null ? u.Alumno.CarreraId : (int?)null)
             .FirstOrDefaultAsync(ct);
     }
 }

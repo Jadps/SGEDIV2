@@ -1,6 +1,6 @@
 <p-dialog [visible]="visible()" (visibleChange)="!$event && onClose.emit()" [modal]="true" [draggable]="false"
     position="top" [style]="{ width: '900px', maxWidth: '95vw', marginTop: '2rem' }" [contentStyle]="{ padding: '0' }"
-    styleClass="alumno-modal glass-dark border border-white/10 rounded-3xl overflow-hidden"
+    styleClass="crud-modal" maskStyleClass="backdrop-blur-md"
     [header]="loading() ? 'Cargando...' : (alumno()?.name ?? '')">
 
     @if (loading()) {

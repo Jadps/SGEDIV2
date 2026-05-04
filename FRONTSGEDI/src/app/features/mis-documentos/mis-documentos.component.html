@@ -102,14 +102,36 @@
                     }
                 </div>
             </div>
+
+            @if (profile()) {
+            <a routerLink="/professors"
+                class="block card-premium border-l-4 border-l-emerald-600 hover:border-emerald-500 hover:bg-white/5 transition-all cursor-pointer no-underline group">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/20 transition-all">
+                            <i class="pi pi-book text-emerald-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-white">Carga Académica</p>
+                            <p class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Este semestre</p>
+                        </div>
+                    </div>
+                    <i class="pi pi-arrow-right text-zinc-600 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all"></i>
+                </div>
+                <p class="text-xs text-zinc-500 mt-2">Registra y consulta tus materias y profesores asignados.</p>
+            </a>
+            }
         </div>
     </div>
 </div>
 
-<p-dialog [(visible)]="uploadDialogVisible"
-    [header]="'Subir ' + (selectedDocForUpload()?.label || '')"
-    [modal]="true" draggable="false" [style]="{width: '500px'}"
-    styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden">
+<p-dialog [(visible)]="uploadDialogVisible" 
+    [modal]="true" 
+    [draggable]="false"
+    position="top"
+    [header]="'Subir ' + (selectedDocForUpload()?.label || '')" 
+    [style]="{ width: '450px', marginTop: '4rem' }"
+    styleClass="glass-dark border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
     @if (uploadDialogVisible()) {
     <div class="flex flex-col gap-6 mt-4">
         <div class="p-4 rounded-xl bg-blue-500/5 border border-blue-500/10">

@@ -1,7 +1,6 @@
 <p-dialog [visible]="visible()" (visibleChange)="!$event && onClose.emit()" [modal]="true" [draggable]="false"
     position="top" [style]="{ width: '500px', maxWidth: '95vw', marginTop: '4rem' }" [contentStyle]="{ padding: '0' }"
-    appendTo="body"
-    styleClass="carrera-modal glass-dark border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+    appendTo="body" styleClass="crud-modal" maskStyleClass="backdrop-blur-md"
     [header]="loading() ? 'Cargando...' : (carrera()?.nombre || 'Nueva Carrera')">
 
     @if (loading()) {
@@ -16,21 +15,22 @@
             </h3>
             
             <div class="flex flex-col gap-2">
-                <label for="clave" class="text-sm font-medium text-zinc-400">Clave</label>
-                <input pInputText id="clave" [(ngModel)]="carrera()!.clave" class="w-full" placeholder="Ej. ISIC-2010-224" />
+                <label for="clave" class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Clave</label>
+                <input pInputText id="clave" [(ngModel)]="carrera()!.clave" class="crud-input" placeholder="Ej. ISIC-2010-224" />
             </div>
 
             <div class="flex flex-col gap-2">
-                <label for="nombre" class="text-sm font-medium text-zinc-400">Nombre de la Carrera</label>
-                <input pInputText id="nombre" [(ngModel)]="carrera()!.nombre" class="w-full" placeholder="Ej. Ingeniería en Sistemas Computacionales" />
+                <label for="nombre" class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Nombre de la Carrera</label>
+                <input pInputText id="nombre" [(ngModel)]="carrera()!.nombre" class="crud-input" placeholder="Ej. Ingeniería en Sistemas Computacionales" />
             </div>
         </div>
 
-        <div class="flex justify-end gap-3 mt-8">
-            <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="onClose.emit()" />
+        <div class="flex justify-end gap-3 mt-8 p-6 bg-black/20 border-t border-white/5">
+            <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="onClose.emit()" styleClass="!text-zinc-400" />
             <p-button [label]="carreraId() ? 'Actualizar Carrera' : 'Guardar Carrera'" 
                       [icon]="carreraId() ? 'pi pi-save' : 'pi pi-check'" 
-                      (onClick)="save()" />
+                      (onClick)="save()"
+                      styleClass="rounded-xl px-8 shadow-lg shadow-primary/20" />
         </div>
     </div>
     }

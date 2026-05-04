@@ -74,7 +74,7 @@ export const routes: Routes = [
             },
             {
                 path: 'professors',
-                title: 'My Professors | SGEDI',
+                title: 'Mis Profesores | SGEDI',
                 loadComponent: () => import('./features/professors/professor-list.component').then(m => m.ProfessorListComponent),
                 canActivate: [permissionGuard]
             },

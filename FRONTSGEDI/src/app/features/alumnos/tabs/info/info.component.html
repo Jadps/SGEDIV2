@@ -44,8 +44,14 @@
   </div>
 </div>
 
-<p-dialog [visible]="showActivationDialog()" (visibleChange)="showActivationDialog.set($event)" header="Activate Student Account" [modal]="true" [style]="{width: '450px'}"
-  [draggable]="false" [resizable]="false">
+<p-dialog [visible]="showActivationDialog()" (visibleChange)="showActivationDialog.set($event)" 
+  header="Activate Student Account" 
+  [modal]="true" 
+  [draggable]="false" 
+  [resizable]="false"
+  position="top"
+  [style]="{ width: '450px', marginTop: '4rem' }"
+  styleClass="glass-dark border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
   <div class="flex flex-col gap-4 py-4" [formGroup]="activationForm">
     <p class="text-zinc-400 text-sm mb-2">
       To activate the account of <b>{{ student().name }}</b>, please assign the company and advisors.

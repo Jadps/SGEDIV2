@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal, computed, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpContext } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
+import { HttpContext } from '@angular/common/http';
 import { AlumnoService } from '../../core/services/alumno.service';
 import { ExpedienteService } from '../../core/services/expediente.service';
 import { DocumentUploadService } from '../../core/services/document-upload.service';
@@ -20,7 +21,7 @@ import { DocumentoEstadoUtils } from '../../core/utils/documento-estado-utils';
 @Component({
   selector: 'app-mis-documentos',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, StatusBadgeComponent, DialogModule, FileUploaderComponent, TooltipModule],
+  imports: [CommonModule, RouterModule, TableModule, ButtonModule, StatusBadgeComponent, DialogModule, FileUploaderComponent, TooltipModule],
   templateUrl: './mis-documentos.component.html',
   styleUrl: './mis-documentos.component.css'
 })

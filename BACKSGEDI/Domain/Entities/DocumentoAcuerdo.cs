@@ -13,7 +13,8 @@ public class DocumentoAcuerdo
     public Guid? ProfesorId { get; set; }
     public Profesor? Profesor { get; set; }
 
-
+    public Guid? MateriaId { get; set; }
+    public Materia? Materia { get; set; }
 
     public TipoAcuerdo TipoAcuerdo { get; set; }
     public string Semestre { get; set; } = string.Empty;

@@ -1,7 +1,6 @@
 <p-dialog [visible]="visible()" (visibleChange)="!$event && onClose.emit()" [modal]="true" [draggable]="false"
     position="top" [style]="{ width: '600px', maxWidth: '95vw', marginTop: '4rem' }" [contentStyle]="{ padding: '0' }"
-    appendTo="body"
-    styleClass="materia-modal glass-dark border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+    appendTo="body" styleClass="crud-modal" maskStyleClass="backdrop-blur-md"
     [header]="loading() ? 'Cargando...' : (materia()?.nombre || 'Nueva Materia')">
 
     @if (loading()) {
@@ -16,43 +15,44 @@
             </h3>
             
             <div class="flex flex-col gap-2">
-                <label for="carrera" class="text-sm font-medium text-zinc-400">Carrera</label>
+                <label for="carrera" class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Carrera</label>
                 <p-select [options]="carreras()" [(ngModel)]="materia()!.carreraId" optionLabel="nombre" optionValue="id" 
-                    placeholder="Seleccionar Carrera" class="w-full" appendTo="body" />
+                    placeholder="Seleccionar Carrera" styleClass="crud-input !py-1" appendTo="body" />
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="flex flex-col gap-2 min-w-0">
-                    <label for="clave" class="text-sm font-medium text-zinc-400">Clave</label>
-                    <input pInputText id="clave" [(ngModel)]="materia()!.clave" class="w-full" placeholder="Ej. SCD-1011" />
+                    <label for="clave" class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Clave</label>
+                    <input pInputText id="clave" [(ngModel)]="materia()!.clave" class="crud-input" placeholder="Ej. SCD-1011" />
                 </div>
 
                 <div class="flex flex-col gap-2 min-w-0">
-                    <label for="nombre" class="text-sm font-medium text-zinc-400">Nombre de la Materia</label>
-                    <input pInputText id="nombre" [(ngModel)]="materia()!.nombre" class="w-full" placeholder="Ej. Estructura de Datos" />
+                    <label for="nombre" class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Nombre de la Materia</label>
+                    <input pInputText id="nombre" [(ngModel)]="materia()!.nombre" class="crud-input" placeholder="Ej. Estructura de Datos" />
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="flex flex-col gap-2 min-w-0">
-                    <label for="creditos" class="text-sm font-medium text-zinc-400">Créditos</label>
+                    <label for="creditos" class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Créditos</label>
                     <p-inputNumber id="creditos" [(ngModel)]="materia()!.creditos" [min]="1" [showButtons]="true"
-                        styleClass="w-full" inputStyleClass="w-full" />
+                        styleClass="crud-input !py-0" inputStyleClass="!bg-transparent !border-0 !p-0" />
                 </div>
 
                 <div class="flex flex-col gap-2 min-w-0">
-                    <label for="semestre" class="text-sm font-medium text-zinc-400">Semestre</label>
+                    <label for="semestre" class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Semestre</label>
                     <p-inputNumber id="semestre" [(ngModel)]="materia()!.semestre" [min]="1" [max]="12" [showButtons]="true"
-                        styleClass="w-full" inputStyleClass="w-full" />
+                        styleClass="crud-input !py-0" inputStyleClass="!bg-transparent !border-0 !p-0" />
                 </div>
             </div>
         </div>
 
-        <div class="flex justify-end gap-3 mt-8">
-            <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="onClose.emit()" />
+        <div class="flex justify-end gap-3 mt-8 p-6 bg-black/20 border-t border-white/5">
+            <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="onClose.emit()" styleClass="!text-zinc-400" />
             <p-button [label]="materiaId() ? 'Actualizar Materia' : 'Guardar Materia'" 
                       [icon]="materiaId() ? 'pi pi-save' : 'pi pi-check'" 
-                      (onClick)="save()" />
+                      (onClick)="save()"
+                      styleClass="rounded-xl px-8 shadow-lg shadow-primary/20" />
         </div>
     </div>
     }

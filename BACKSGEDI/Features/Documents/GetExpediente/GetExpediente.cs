@@ -96,13 +96,14 @@ public class GetExpediente : Endpoint<GetExpedienteRequest, List<ExpedienteItemD
         }
 
         var agreements = await _db.DocumentosAcuerdos
+            .Include(d => d.Materia)
             .AsNoTracking()
             .Where(d => d.AlumnoId == alumnoId && d.Semestre == semester && d.EsVersionActual)
             .Select(d => new ExpedienteItemDto
             {
                 DocumentoId = d.Id,
                 TipoId = (int)d.TipoAcuerdo,
-                Label = d.TipoAcuerdo.ToString().Replace("Anexo", "Anexo "),
+                Label = d.MateriaId != null ? $"{d.TipoAcuerdo.ToString().Replace("Anexo", "Anexo ")} - {d.Materia!.Nombre}" : d.TipoAcuerdo.ToString().Replace("Anexo", "Anexo "),
                 Semestre = d.Semestre,
                 Estado = !string.IsNullOrEmpty(d.RutaArchivo) ? (int)d.Estado : -1,
                 Version = d.Version,

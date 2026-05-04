@@ -1,15 +1,15 @@
 <div class="p-6 max-w-6xl mx-auto space-y-6">
     <div class="flex justify-between items-center bg-white/5 p-6 rounded-3xl border border-white/10 backdrop-blur-md">
         <div>
-            <h1 class="text-2xl font-black text-white mb-1 tracking-tight">Academic Load & Professors</h1>
-            <p class="text-zinc-400 text-sm">Manage your subjects and assigned professors.</p>
+            <h1 class="text-2xl font-black text-white mb-1 tracking-tight">Carga Académica y Profesores</h1>
+            <p class="text-zinc-400 text-sm">Administra las materias y profesores asignados para este semestre.</p>
         </div>
         <div class="flex gap-3">
             @if (isEditing()) {
-                <p-button label="Cancel" severity="secondary" [outlined]="true" (click)="toggleEdit()" />
-                <p-button label="Save Changes" icon="pi pi-check" (click)="save()" [loading]="isSaving()" [disabled]="loadForm.invalid" />
+                <p-button label="Cancelar" severity="secondary" [outlined]="true" (click)="toggleEdit()" />
+                <p-button label="Guardar Cambios" icon="pi pi-check" (click)="save()" [loading]="isSaving()" [disabled]="loadForm.invalid || totalCredits > 36" />
             } @else {
-                <p-button label="Edit Load" icon="pi pi-pencil" [outlined]="true" (click)="toggleEdit()" />
+                <p-button label="Editar Carga" icon="pi pi-pencil" [outlined]="true" (click)="toggleEdit()" />
             }
         </div>
     </div>
@@ -23,25 +23,36 @@
             @if (isEditing()) {
                 <div class="col-span-full space-y-4">
                     <form [formGroup]="loadForm">
+                        <div class="flex justify-between items-center mb-4 px-2">
+                            <div class="flex items-center gap-4">
+                                <div class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border"
+                                    [ngClass]="totalCredits > 36 ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'">
+                                    <i class="pi pi-bolt mr-1"></i> Créditos: {{ totalCredits }} / 36
+                                </div>
+                                <div class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border bg-blue-500/10 border-blue-500/20 text-blue-400">
+                                    <i class="pi pi-book mr-1"></i> Materias: {{ items.length }} / 8
+                                </div>
+                            </div>
+                        </div>
                         <div class="bg-zinc-900/50 rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
                             <p-table [value]="items.controls" styleClass="p-datatable-sm">
                                 <ng-template #header>
                                     <tr>
-                                        <th class="p-4 text-xs font-bold uppercase tracking-widest text-zinc-500">Subject</th>
-                                        <th class="p-4 text-xs font-bold uppercase tracking-widest text-zinc-500">Professor</th>
+                                        <th class="p-4 text-xs font-bold uppercase tracking-widest text-zinc-500">Materia</th>
+                                        <th class="p-4 text-xs font-bold uppercase tracking-widest text-zinc-500">Profesor</th>
                                         <th class="w-16"></th>
                                     </tr>
                                 </ng-template>
                                 <ng-template #body let-control let-i="rowIndex">
                                     <tr [formGroup]="control">
                                         <td class="p-4">
-                                            <p-select [options]="subjectsResource.value() || []" formControlName="materiaId" 
-                                                optionLabel="nombre" optionValue="id" placeholder="Select Subject" 
+                                            <p-select [options]="getAvailableSubjects(i)" formControlName="materiaId" 
+                                                optionLabel="nombre" optionValue="id" placeholder="Seleccionar Materia" 
                                                 styleClass="w-full" appendTo="body" filter="true" [loading]="subjectsResource.isLoading()" />
                                         </td>
                                         <td class="p-4">
                                             <p-select [options]="professorsResource.value() || []" formControlName="profesorId" 
-                                                optionLabel="name" optionValue="id" placeholder="Select Professor" 
+                                                optionLabel="name" optionValue="profileId" placeholder="Seleccionar Profesor" 
                                                 styleClass="w-full" appendTo="body" filter="true" [loading]="professorsResource.isLoading()" />
                                         </td>
                                         <td class="p-4 text-center">
@@ -51,7 +62,7 @@
                                 </ng-template>
                             </p-table>
                             <div class="p-4 border-t border-white/5 flex justify-center">
-                                <p-button label="Add Subject" icon="pi pi-plus" [text]="true" size="small" (click)="addRow()" />
+                                <p-button label="Agregar Materia" icon="pi pi-plus" [text]="true" size="small" (click)="addRow()" [disabled]="!canAddRow" />
                             </div>
                         </div>
                     </form>
@@ -85,9 +96,9 @@
                         <div class="w-20 h-20 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5 shadow-inner">
                             <i class="pi pi-folder-open text-3xl text-zinc-700"></i>
                         </div>
-                        <h3 class="text-white font-bold text-xl">No Academic Load Found</h3>
-                        <p class="text-zinc-500 max-w-xs mx-auto">You haven't registered any subjects for this semester yet.</p>
-                        <p-button label="Configure Load" icon="pi pi-cog" (click)="isEditing.set(true)" styleClass="mt-4" />
+                        <h3 class="text-white font-bold text-xl">Sin Carga Académica Registrada</h3>
+                        <p class="text-zinc-500 max-w-xs mx-auto">Aún no has registrado materias para este semestre.</p>
+                        <p-button label="Configurar Carga" icon="pi pi-cog" (click)="isEditing.set(true)" styleClass="mt-4" />
                     </div>
                 }
             }

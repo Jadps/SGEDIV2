@@ -41,23 +41,31 @@
   - Custom audit middleware
 
 ### Frontend (Angular 21)
-- **State Management:** Angular Signals
-- **UI Library:** PrimeNG 21 with Aura Theme
+- **State Management:** Angular Signals and `rxResource` for high-performance reactivity
+- **UI Library:** PrimeNG 21 with Aura Theme (Glassmorphism aesthetic)
 - **Styling:** Tailwind CSS 4
 - **Patterns:**
+  - Siloed Service Architecture (Decomposed domain-specific services)
   - Interface-driven models
-  - Reactive Forms
+  - Reactive Forms with real-time validation
   - Custom interceptors for JWT rotation
 
 ---
 
 ## Architecture
 
-### Vertical Slice Architecture
+### Vertical Slice Architecture (VSA)
 SGEDI v2 is organized by feature instead of by technical layer. Each slice contains its own endpoints, business logic, validation, and data access. This reduces coupling and makes the system easier to maintain and extend.
 
+### Service Decomposition (Frontend)
+To ensure scalability, the frontend utilizes a siloed service pattern where responsibilities are split into domain-specific providers:
+- **ExpedienteService:** Lifecycle of the student file and deadlines.
+- **DocumentUploadService:** Secure, role-based file ingestion.
+- **CargaAcademicaService:** Management of subjects and academic load.
+- **CatalogService:** Centralized source for typed system catalogs.
+
 ### Security and Role Model
-The platform uses a role-based permission matrix with career-scoped access rules. Coordinators and department heads are limited to their assigned academic areas, while administrators have global access.
+The platform uses a role-based permission matrix with career-scoped access rules. Coordinators and department heads are limited to their assigned academic areas, while administrators have global access. All entities implement `IHasStatus` for standardized state management (Activo, SinActivar, Borrado).
 
 **Supported roles:**
 - Admin
@@ -69,27 +77,28 @@ The platform uses a role-based permission matrix with career-scoped access rules
 - Jefe de Departamento
 
 ### Document Security Model
-The system manages three document silos:
+The system manages three document silos with jurisdictional enforcement:
 
-- **Templates:** Official Word/PDF templates managed by administrators
-- **Student Files:** Mandatory academic documents such as schedule and kardex
-- **Annexes I–VIII:** Role-specific documents governed by deadlines and upload permissions
+- **Templates:** Official Word/PDF templates managed by administrators.
+- **Student Files:** Mandatory academic documents (Schedule, Kardex, etc.).
+- **Annexes I–VIII:** Role-specific documents governed by deadlines and strict upload permissions.
 
 ---
 
 ## Features
 
 ### Completed
-- Multi-role authentication, including student registration
-- Siloed file management with validation rules
-- File restrictions for PDF and Word documents with a 5 MB limit
-- Context-aware security filters based on career and student assignment
-- Automatic semester helper for academic period calculation
-- Pagination and soft delete support
-- Deadline management for annex uploads with grace-period logic
-- Academic management: subjects and career CRUD/seeding
-- Full administration for non-student users
-- Advisor assignment workflow
+- **Multi-role Authentication:** Secure login and registration with JWT rotation.
+- **Expediente Management:** Specialized tracking of student documentation and status.
+- **Academic Load (Carga Académica):**
+    - Subject and professor assignment module.
+    - Business Rule Enforcement: Max 8 subjects and 36 total credits per semester.
+    - Duplicate prevention logic (Backend & Frontend).
+    - Automatic placeholder generation for Anexos III and VII.
+- **Siloed File Management:** Role-specific secure upload endpoints with 5MB limits.
+- **Jurisdictional Filters:** Automatic career-scoped data filtering for all administrative roles.
+- **Status Migration:** Unified entity lifecycle management via `IHasStatus`.
+- **Localization:** Full system and UI translation to Spanish.
 
 ### Planned
 - Digital agreements with versioning and rejection handling

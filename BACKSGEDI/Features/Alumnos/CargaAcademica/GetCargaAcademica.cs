@@ -12,7 +12,7 @@ namespace BACKSGEDI.Features.Alumnos.CargaAcademica;
 public record CargaAcademicaDto(
     Guid Id, 
     Guid MateriaId, string MateriaNombre, string MateriaClave, int MateriaCreditos,
-    Guid ProfesorId, string ProfesorNombre, string ProfesorEmail,
+    Guid ProfesorId, string ProfesorNombre, string ProfesorEmail, string? ProfesorNumeroEmpleado, string? cubiculoProfesor,
     string Semestre);
 
 public class GetCargaAcademica : EndpointWithoutRequest<List<CargaAcademicaDto>>
@@ -68,6 +68,8 @@ public class GetCargaAcademica : EndpointWithoutRequest<List<CargaAcademicaDto>>
                 ca.ProfesorId,
                 ca.Profesor!.Usuario!.Name,
                 ca.Profesor!.Usuario!.Email,
+                ca.Profesor!.NumeroEmpleado,
+                ca.Profesor!.Cubiculo,
                 ca.Semestre
             ))
             .ToListAsync(ct);
