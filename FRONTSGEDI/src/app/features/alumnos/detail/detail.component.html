@@ -16,13 +16,10 @@
             <p-tab value="docs">
                 <i class="pi pi-file mr-2"></i>Documentos
             </p-tab>
-            <p-tab value="academic">
-                <i class="pi pi-book mr-2"></i>Académico
-            </p-tab>
         </p-tablist>
         <p-tabpanels>
             <p-tabpanel value="info">
-                <app-alumno-info-tab [alumno]="alumno()!" (statusChanged)="statusChanged.emit($event)" />
+                <app-alumno-info-tab [student]="alumno()!" (statusChanged)="statusChanged.emit($event)" />
             </p-tabpanel>
             <p-tabpanel value="docs">
                 @defer (when activeTab() === 'docs'; prefetch on idle) {
@@ -34,15 +31,6 @@
                 } @loading (after 100ms; minimum 500ms) {
                 <div class="flex items-center justify-center py-20">
                     <p-progressSpinner strokeWidth="3" styleClass="w-10 h-10" />
-                </div>
-                }
-            </p-tabpanel>
-            <p-tabpanel value="academic">
-                @defer (when activeTab() === 'academic'; prefetch on idle) {
-                <div class="p-6 text-zinc-500 text-sm">Próximamente</div>
-                } @placeholder {
-                <div class="h-32 flex items-center justify-center">
-                    <p class="text-zinc-500">Cargando sección...</p>
                 </div>
                 }
             </p-tabpanel>

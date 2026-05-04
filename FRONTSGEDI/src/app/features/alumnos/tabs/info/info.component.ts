@@ -1,56 +1,128 @@
 import { Component, input, signal, inject, computed, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { DialogModule } from 'primeng/dialog';
+import { SelectModule } from 'primeng/select';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { AlumnoDetailDto } from '../../../../core/models/alumno-detail.dto';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
 import { AlumnoService } from '../../../../core/services/alumno.service';
+import { CatalogService } from '../../../../core/services/catalog.service';
+
 import { MessageService } from 'primeng/api';
 import { StatusUtils } from '../../../../core/utils/status-utils';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { of } from 'rxjs';
+import { AsesorInternoCatalogDto, AsesorExternoCatalogDto } from '../../../../core/services/catalog.service';
 
 @Component({
   selector: 'app-alumno-info-tab',
   standalone: true,
-  imports: [CommonModule, TagModule, ButtonModule, StatusBadgeComponent],
+  imports: [
+    CommonModule,
+    TagModule,
+    ButtonModule,
+    StatusBadgeComponent,
+    DialogModule,
+    SelectModule,
+    FormsModule,
+    ReactiveFormsModule
+  ],
   templateUrl: './info.component.html',
 })
 export class AlumnoInfoTabComponent {
-  private readonly alumnoService = inject(AlumnoService);
+  private readonly studentService = inject(AlumnoService);
+  private readonly catalogService = inject(CatalogService);
   private readonly toast = inject(MessageService);
+  private readonly fb = inject(FormBuilder);
 
-  alumno = input.required<AlumnoDetailDto>();
+  student = input.required<AlumnoDetailDto>();
   statusChanged = output<number>();
 
   status = signal<number | null>(null);
-  toggling = signal(false);
+  isToggling = signal(false);
+  isActivating = signal(false);
+  showActivationDialog = signal(false);
 
-  currentStatus = computed(() => this.status() ?? this.alumno().status);
+  companiesResource = rxResource<any[], boolean>({
+    params: () => this.showActivationDialog(),
+    stream: ({ params: show }) => show ? this.catalogService.getEmpresas() : of([])
+  });
 
-  currentStatusText = computed(() =>
-    StatusUtils.getText(this.currentStatus())
-  );
+  internalAdvisorsResource = rxResource<AsesorInternoCatalogDto[], boolean>({
+    params: () => this.showActivationDialog(),
+    stream: ({ params: show }) => show ? this.catalogService.getAsesoresInternos() : of([])
+  });
 
-  currentStatusSeverity = computed(() =>
-    StatusUtils.getSeverity(this.currentStatus(), this.alumno().isMyCareer)
-  );
+  activationForm = this.fb.group({
+    companyId: ['', Validators.required],
+    internalAdvisorId: ['', Validators.required],
+    externalAdvisorId: ['', Validators.required]
+  });
+
+  selectedCompanyId = toSignal(this.activationForm.get('companyId')!.valueChanges);
+
+  externalAdvisorsResource = rxResource<AsesorExternoCatalogDto[], string | null | undefined>({
+    params: () => this.selectedCompanyId(),
+    stream: ({ params: companyId }) => companyId ? this.catalogService.getAsesoresExternos(companyId) : of([])
+  });
+
+  currentStatus = computed(() => this.status() ?? this.student().status);
+  currentStatusText = computed(() => StatusUtils.getText(this.currentStatus()));
+  currentStatusSeverity = computed(() => StatusUtils.getSeverity(this.currentStatus(), this.student().isMyCareer));
 
   toggle() {
-    this.toggling.set(true);
-    this.alumnoService.toggleStatus(this.alumno().id).subscribe({
-      next: (res) => {
-        this.status.set(res.status);
-        this.toggling.set(false);
-        this.statusChanged.emit(res.status);
-        const isActive = res.status === 2;
+    if (this.currentStatus() !== 2) {
+      this.showActivationDialog.set(true);
+      return;
+    }
+
+    this.isToggling.set(true);
+    this.studentService.suspendStudent(this.student().id).subscribe({
+      next: () => {
+        this.status.set(1);
+        this.isToggling.set(false);
+        this.statusChanged.emit(1);
         this.toast.add({
-          severity: isActive ? 'success' : 'warn',
-          summary: isActive ? 'Cuenta activada' : 'Cuenta desactivada',
-          detail: `La cuenta de ${this.alumno().name} fue ${isActive ? 'activada' : 'desactivada'}.`
+          severity: 'warn',
+          summary: 'Cuenta suspendida',
+          detail: `La cuenta de ${this.student().name} fue suspendida.`
         });
       },
       error: () => {
-        this.toggling.set(false);
-        this.toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cambiar el estado.' });
+        this.isToggling.set(false);
+        this.toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo suspender la cuenta.' });
+      }
+    });
+  }
+
+  confirmActivation() {
+    if (this.activationForm.invalid) return;
+
+    this.isActivating.set(true);
+    const val = this.activationForm.value;
+
+    this.studentService.activate({
+      alumnoId: this.student().id,
+      empresaId: val.companyId!,
+      asesorInternoId: val.internalAdvisorId!,
+      asesorExternoId: val.externalAdvisorId!
+    }).subscribe({
+      next: () => {
+        this.status.set(2);
+        this.isActivating.set(false);
+        this.showActivationDialog.set(false);
+        this.statusChanged.emit(2);
+        this.toast.add({
+          severity: 'success',
+          summary: 'Account Activated',
+          detail: `The account of ${this.student().name} was successfully activated.`
+        });
+      },
+      error: () => {
+        this.isActivating.set(false);
+        this.toast.add({ severity: 'error', summary: 'Error', detail: 'Could not activate account.' });
       }
     });
   }

@@ -27,6 +27,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<AsesorExterno> AsesoresExternos { get; set; } = null!;
     public DbSet<Empresa> Empresas { get; set; } = null!;
     public DbSet<Materia> Materias { get; set; } = null!;
+    public DbSet<CargaAcademica> CargasAcademicas { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -39,12 +40,29 @@ public class ApplicationDbContext : DbContext
             .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Alumno>()
-            .HasOne(a => a.Usuario)
-            .WithOne(u => u.Alumno)
-            .HasForeignKey<Alumno>(a => a.UsuarioId)
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Alumno>(entity =>
+        {
+            entity.HasOne(a => a.Usuario)
+                .WithOne(u => u.Alumno)
+                .HasForeignKey<Alumno>(a => a.UsuarioId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(a => a.Empresa)
+                .WithMany()
+                .HasForeignKey(a => a.EmpresaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(a => a.AsesorInterno)
+                .WithMany()
+                .HasForeignKey(a => a.AsesorInternoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(a => a.AsesorExterno)
+                .WithMany()
+                .HasForeignKey(a => a.AsesorExternoId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
 
         modelBuilder.Entity<Coordinador>()
             .HasOne(c => c.Usuario)
@@ -105,6 +123,24 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(m => m.CarreraId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<CargaAcademica>(entity =>
+        {
+            entity.HasOne(ca => ca.Alumno)
+                .WithMany()
+                .HasForeignKey(ca => ca.AlumnoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(ca => ca.Materia)
+                .WithMany()
+                .HasForeignKey(ca => ca.MateriaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(ca => ca.Profesor)
+                .WithMany()
+                .HasForeignKey(ca => ca.ProfesorId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
         modelBuilder.Entity<DocumentoAlumno>()
             .HasOne(da => da.Alumno)
             .WithMany(a => a.Documentos)
@@ -125,15 +161,6 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.ProfesorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(d => d.AsesorInterno)
-                .WithMany()
-                .HasForeignKey(d => d.AsesorInternoId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasOne(d => d.AsesorExterno)
-                .WithMany()
-                .HasForeignKey(d => d.AsesorExternoId)
-                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Usuario>().HasIndex(u => u.Email).IsUnique();

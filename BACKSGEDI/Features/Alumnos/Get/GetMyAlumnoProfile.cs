@@ -9,10 +9,11 @@ namespace BACKSGEDI.Features.Alumnos.Get;
 
 public record MyAlumnoProfileDto
 {
-    public Guid Id { get; set; }
-    public string Matricula { get; set; } = string.Empty;
-    public string Carrera { get; set; } = string.Empty;
-    public string NombreCompleto { get; set; } = string.Empty;
+    public Guid Id { get; init; }
+    public string Matricula { get; init; } = string.Empty;
+    public string Carrera { get; init; } = string.Empty;
+    public int CarreraId { get; init; }
+    public string NombreCompleto { get; init; } = string.Empty;
 }
 
 public class GetMyAlumnoProfile : EndpointWithoutRequest<MyAlumnoProfileDto>
@@ -41,6 +42,7 @@ public class GetMyAlumnoProfile : EndpointWithoutRequest<MyAlumnoProfileDto>
                 Id = a.Id,
                 Matricula = a.Matricula,
                 Carrera = a.Carrera.Nombre,
+                CarreraId = a.CarreraId,
                 NombreCompleto = a.Usuario.Name
             })
             .FirstOrDefaultAsync(ct);

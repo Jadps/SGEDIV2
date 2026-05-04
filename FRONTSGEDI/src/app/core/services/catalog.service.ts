@@ -74,4 +74,50 @@ export class CatalogService {
   deleteMateria(id: string): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}${API_ENDPOINTS.CATALOGS.MATERIAS}/${id}`);
   }
+
+  getAsesoresInternos(): Observable<AsesorInternoCatalogDto[]> {
+    return this.http.get<AsesorInternoCatalogDto[]>(`${environment.apiUrl}${API_ENDPOINTS.CATALOGS.ASESORES_INTERNOS}`);
+  }
+
+  getAsesoresExternos(empresaId?: string): Observable<AsesorExternoCatalogDto[]> {
+    const url = `${environment.apiUrl}${API_ENDPOINTS.CATALOGS.ASESORES_EXTERNOS}`;
+    return empresaId
+      ? this.http.get<AsesorExternoCatalogDto[]>(url, { params: { empresaId } })
+      : this.http.get<AsesorExternoCatalogDto[]>(url);
+  }
+
+  getProfesores(carreraId?: number): Observable<ProfesorCatalogDto[]> {
+    const url = `${environment.apiUrl}${API_ENDPOINTS.CATALOGS.PROFESORES}`;
+    return carreraId
+      ? this.http.get<ProfesorCatalogDto[]>(url, { params: { carreraId: carreraId.toString() } })
+      : this.http.get<ProfesorCatalogDto[]>(url);
+  }
+}
+
+export interface AsesorInternoCatalogDto {
+  profileId: string;
+  usuarioId: string;
+  name: string;
+  email: string;
+  numeroEmpleado?: string;
+  cubiculo?: string;
+}
+
+export interface AsesorExternoCatalogDto {
+  profileId: string;
+  usuarioId: string;
+  name: string;
+  email: string;
+  empresaNombre: string;
+  puesto: string;
+}
+
+export interface ProfesorCatalogDto {
+  profileId: string;
+  usuarioId: string;
+  name: string;
+  email: string;
+  carreraId?: number;
+  carreraNombre?: string;
+  numeroEmpleado?: string;
 }

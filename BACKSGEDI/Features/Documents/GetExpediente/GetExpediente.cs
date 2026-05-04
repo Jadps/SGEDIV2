@@ -16,13 +16,12 @@ public record ExpedienteItemDto
     public string Label { get; init; } = string.Empty;
     public string? Semestre { get; init; }
     public int Estado { get; init; }
-    public string EstadoText { get; init; } = string.Empty;
-    public string EstadoSeverity { get; init; } = string.Empty;
     public int Version { get; init; }
     public DateTime? FechaLimite { get; init; }
     public bool PuedeSubir { get; init; }
     public bool EsAcuerdo { get; init; }
     public FileDetailsDto? Archivo { get; init; }
+    public Guid? ProfesorId { get; init; }
 }
 
 public record FileDetailsDto
@@ -33,7 +32,8 @@ public record FileDetailsDto
 
 public record GetExpedienteRequest
 {
-    public Guid AlumnoId { get; init; }
+    [BindFrom("alumnoId")]
+    public string AlumnoIdRaw { get; init; } = string.Empty;
     public string? Semestre { get; init; }
 }
 
@@ -51,109 +51,138 @@ public class GetExpediente : Endpoint<GetExpedienteRequest, List<ExpedienteItemD
     public override void Configure()
     {
         Get("/api/alumnos/{alumnoId}/expediente");
-        Roles(SystemRoles.Alumno, SystemRoles.Coordinador, SystemRoles.Admin);
+        Roles(SystemRoles.Alumno, SystemRoles.Coordinador, SystemRoles.Admin,
+              SystemRoles.Profesor, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno);
     }
 
     public override async Task HandleAsync(GetExpedienteRequest req, CancellationToken ct)
     {
         var semester = req.Semestre ?? SemestreHelper.GetSemestreActual();
-        var roles = User.GetRoles();
+        var roles    = User.GetRoles();
+        var userId   = User.GetUserId();
 
-        var alumno = await _db.Alumnos
-            .AsNoTracking()
-            .FirstOrDefaultAsync(a => a.Id == req.AlumnoId, ct);
-
-        if (alumno == null)
+        Guid alumnoId;
+        if (req.AlumnoIdRaw.Equals("me", StringComparison.OrdinalIgnoreCase))
         {
-            await Result<List<ExpedienteItemDto>>.Failure(Error.NotFound("Alumno.NotFound", "Perfil de alumno no encontrado."))
-                .ToResult().ExecuteAsync(HttpContext);
+            var myAlumno = await _db.Alumnos
+                .AsNoTracking()
+                .Where(a => a.UsuarioId == userId)
+                .Select(a => (Guid?)a.Id)
+                .FirstOrDefaultAsync(ct);
+
+            if (myAlumno is null)
+            {
+                await Result.Failure(Error.NotFound("Alumno.NotFound", "Perfil de alumno no encontrado.")).ToResult().ExecuteAsync(HttpContext);
+                return;
+            }
+            alumnoId = myAlumno.Value;
+        }
+        else if (!Guid.TryParse(req.AlumnoIdRaw, out alumnoId))
+        {
+            await Result.Failure(Error.Validation("Alumno.InvalidId", "Identificador de alumno inválido.")).ToResult().ExecuteAsync(HttpContext);
             return;
         }
 
-        var docsAcuerdos = await _db.DocumentosAcuerdos
+        var alumno = await _db.Alumnos
             .AsNoTracking()
-            .Where(d => d.AlumnoId == req.AlumnoId && d.Semestre == semester && d.EsVersionActual)
+            .Where(a => a.Id == alumnoId)
+            .Select(a => new { a.CarreraId })
+            .FirstOrDefaultAsync(ct);
+
+        if (alumno == null)
+        {
+            await Result.Failure(Error.NotFound("Alumno.NotFound", "Perfil de alumno no encontrado.")).ToResult().ExecuteAsync(HttpContext);
+            return;
+        }
+
+        var agreements = await _db.DocumentosAcuerdos
+            .AsNoTracking()
+            .Where(d => d.AlumnoId == alumnoId && d.Semestre == semester && d.EsVersionActual)
+            .Select(d => new ExpedienteItemDto
+            {
+                DocumentoId = d.Id,
+                TipoId = (int)d.TipoAcuerdo,
+                Label = d.TipoAcuerdo.ToString().Replace("Anexo", "Anexo "),
+                Semestre = d.Semestre,
+                Estado = !string.IsNullOrEmpty(d.RutaArchivo) ? (int)d.Estado : -1,
+                Version = d.Version,
+                FechaLimite = d.FechaLimite,
+                PuedeSubir = false,
+                EsAcuerdo = true,
+                ProfesorId = d.ProfesorId,
+                Archivo = !string.IsNullOrEmpty(d.RutaArchivo) ? new FileDetailsDto { Id = d.Id, FechaSubida = d.FechaSubida ?? DateTime.MinValue } : null
+            })
             .ToListAsync(ct);
 
-        var docsAlumnos = await _db.DocumentosAlumnos
+        var personalDocs = await _db.DocumentosAlumnos
             .AsNoTracking()
-            .Where(d => d.AlumnoId == req.AlumnoId && d.Semestre == semester && d.EsVersionActual)
+            .Where(d => d.AlumnoId == alumnoId && d.Semestre == semester && d.EsVersionActual)
+            .Select(d => new ExpedienteItemDto
+            {
+                DocumentoId = d.Id,
+                TipoId = (int)d.TipoDocumento,
+                Label = d.TipoDocumento.ToString(),
+                Semestre = d.Semestre,
+                Estado = (int)d.Estado,
+                Version = d.Version,
+                EsAcuerdo = false,
+                Archivo = new FileDetailsDto { Id = d.Id, FechaSubida = d.FechaSubida }
+            })
             .ToListAsync(ct);
 
         var resultList = new List<ExpedienteItemDto>();
-
-        var fechasLimitesCarrera = await _db.ConfiguracionesFechasLimites
+        var configs = await _db.ConfiguracionesFechasLimites
             .AsNoTracking()
             .Where(f => f.CarreraId == alumno.CarreraId && f.Semestre == semester)
             .ToListAsync(ct);
 
         foreach (TipoAcuerdo tipo in Enum.GetValues(typeof(TipoAcuerdo)))
         {
-            var doc = docsAcuerdos.FirstOrDefault(d => d.TipoAcuerdo == tipo);
-            var config = fechasLimitesCarrera.FirstOrDefault(f => f.TipoAcuerdo == tipo);
-            var defaultFecha = _fechasLimiteService.CalculateDefault(tipo, semester);
-
-            var fechaLimite = (doc != null) 
-                ? doc.FechaLimite 
-                : (config != null ? config.FechaLimite : defaultFecha);
-
-            resultList.Add(new ExpedienteItemDto
+            var matched = agreements.Where(a => a.TipoId == (int)tipo).ToList();
+            if (!matched.Any())
             {
-                DocumentoId = doc?.Id,
-                TipoId = (int)tipo,
-                Label = FormatLabel(tipo),
-                Semestre = doc?.Semestre ?? semester,
-                Estado = (doc != null && !string.IsNullOrEmpty(doc.RutaArchivo)) ? (int)doc.Estado : -1,
-                EstadoText = GetEstadoText((doc != null && !string.IsNullOrEmpty(doc.RutaArchivo)) ? doc.Estado : null),
-                EstadoSeverity = GetEstadoSeverity((doc != null && !string.IsNullOrEmpty(doc.RutaArchivo)) ? doc.Estado : null),
-                Version = doc?.Version ?? 0,
-                FechaLimite = fechaLimite,
-                PuedeSubir = DocumentoPermissions.CanUpload(tipo, roles),
-                EsAcuerdo = true,
-                Archivo = (doc != null && !string.IsNullOrEmpty(doc.RutaArchivo)) ? new FileDetailsDto { Id = doc.Id, FechaSubida = doc.FechaSubida ?? DateTime.MinValue } : null
-            });
+                var config = configs.FirstOrDefault(f => f.TipoAcuerdo == tipo);
+                resultList.Add(new ExpedienteItemDto
+                {
+                    TipoId = (int)tipo,
+                    Label = tipo.ToString().Replace("Anexo", "Anexo "),
+                    Semestre = semester,
+                    Estado = -1,
+                    FechaLimite = config?.FechaLimite ?? _fechasLimiteService.CalculateDefault(tipo, semester),
+                    PuedeSubir = DocumentoPermissions.CanUpload(tipo, roles),
+                    EsAcuerdo = true
+                });
+            }
+            else
+            {
+                foreach (var doc in matched)
+                {
+                    resultList.Add(doc with { PuedeSubir = DocumentoPermissions.CanUpload(tipo, roles) });
+                }
+            }
         }
 
         foreach (TipoDocumentoAlumno tipo in Enum.GetValues(typeof(TipoDocumentoAlumno)))
         {
-            var doc = docsAlumnos.FirstOrDefault(d => d.TipoDocumento == tipo);
-
-            resultList.Add(new ExpedienteItemDto
+            var doc = personalDocs.FirstOrDefault(d => d.TipoId == (int)tipo);
+            if (doc == null)
             {
-                DocumentoId = doc?.Id,
-                TipoId = (int)tipo,
-                Label = FormatLabel(tipo),
-                Semestre = doc?.Semestre ?? semester,
-                Estado = doc != null ? (int)doc.Estado : -1,
-                EstadoText = GetEstadoText(doc?.Estado),
-                EstadoSeverity = GetEstadoSeverity(doc?.Estado),
-                Version = doc?.Version ?? 0,
-                FechaLimite = null,
-                PuedeSubir = DocumentoPermissions.CanUpload(tipo, roles),
-                EsAcuerdo = false,
-                Archivo = doc != null ? new FileDetailsDto { Id = doc.Id, FechaSubida = doc.FechaSubida } : null
-            });
+                resultList.Add(new ExpedienteItemDto
+                {
+                    TipoId = (int)tipo,
+                    Label = tipo.ToString(),
+                    Semestre = semester,
+                    Estado = -1,
+                    PuedeSubir = DocumentoPermissions.CanUpload(tipo, roles),
+                    EsAcuerdo = false
+                });
+            }
+            else
+            {
+                resultList.Add(doc with { PuedeSubir = DocumentoPermissions.CanUpload(tipo, roles) });
+            }
         }
 
         await Result<List<ExpedienteItemDto>>.Success(resultList).ToResult().ExecuteAsync(HttpContext);
     }
-
-    private string FormatLabel(TipoAcuerdo tipo) => tipo.ToString().Replace("Anexo", "Anexo ");
-    private string FormatLabel(TipoDocumentoAlumno tipo) => tipo.ToString();
-
-    private string GetEstadoText(EstadoDocumento? estado) => estado switch
-    {
-        EstadoDocumento.Aprobado => "Aprobado",
-        EstadoDocumento.Rechazado => "Rechazado",
-        EstadoDocumento.PendienteRevision => "Pendiente",
-        _ => "No subido"
-    };
-
-    private string GetEstadoSeverity(EstadoDocumento? estado) => estado switch
-    {
-        EstadoDocumento.Aprobado => "success",
-        EstadoDocumento.Rechazado => "danger",
-        EstadoDocumento.PendienteRevision => "warning",
-        _ => "secondary"
-    };
 }

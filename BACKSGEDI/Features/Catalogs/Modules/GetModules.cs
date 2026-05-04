@@ -99,11 +99,21 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
             },
             new()
             {
+                Id = "professors",
+                Description = "My Professors",
+                Icon = "pi pi-id-card",
+                Action = "professors",
+                Order = 3,
+                ModuleTypeId = 1,
+                AllowedRoles = [SystemRoles.Alumno]
+            },
+            new()
+            {
                 Id = "anexos",
                 Description = "Plantillas de Anexos",
                 Icon = "pi pi-file-word",
                 Action = "anexos",
-                Order = 3,
+                Order = 4,
                 ModuleTypeId = 1,
                 AllowedRoles = [SystemRoles.Coordinador, SystemRoles.Admin]
             },
@@ -113,7 +123,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                 Description = "Configuración Fechas Límite",
                 Icon = "pi pi-calendar-clock",
                 Action = "fechas-limite",
-                Order = 4,
+                Order = 5,
                 ModuleTypeId = 1,
                 AllowedRoles = [SystemRoles.Coordinador, SystemRoles.Admin]
             },
@@ -123,7 +133,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                 Description = "Catálogos",
                 Icon = "pi pi-folder-open",
                 Action = null,
-                Order = 5,
+                Order = 6,
                 ModuleTypeId = 1,
                 AllowedRoles = [SystemRoles.Admin, SystemRoles.Coordinador],
                 SubModules =
@@ -166,7 +176,7 @@ public class GetModulesEndpoint : EndpointWithoutRequest<List<ModuleDto>>
                 Description = "Usuarios",
                 Icon = "pi pi-user-edit",
                 Action = null,
-                Order = 6,
+                Order = 7,
                 ModuleTypeId = 1,
                 AllowedRoles = [SystemRoles.Admin],
                 SubModules =

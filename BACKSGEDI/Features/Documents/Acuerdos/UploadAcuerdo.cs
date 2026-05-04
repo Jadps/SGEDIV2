@@ -8,7 +8,7 @@ using BACKSGEDI.Infrastructure.Extensions;
 using BACKSGEDI.Infrastructure.Services;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
+
 
 namespace BACKSGEDI.Features.Documents.Acuerdos;
 
@@ -43,8 +43,7 @@ public class UploadAcuerdo : Endpoint<UploadAcuerdoRequest>
     public override void Configure()
     {
         Post("/api/acuerdos/{acuerdoId}/upload");
-        Roles(SystemRoles.Alumno, SystemRoles.Profesor, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno, 
-              SystemRoles.Admin, SystemRoles.Coordinador);
+        Roles(SystemRoles.Admin, SystemRoles.Coordinador);
         AllowFileUploads();
     }
 
@@ -80,8 +79,7 @@ public class UploadAcuerdo : Endpoint<UploadAcuerdoRequest>
             {
                 AlumnoId = acuerdo.AlumnoId,
                 ProfesorId = acuerdo.ProfesorId,
-                AsesorInternoId = acuerdo.AsesorInternoId,
-                AsesorExternoId = acuerdo.AsesorExternoId,
+
                 TipoAcuerdo = acuerdo.TipoAcuerdo,
                 Semestre = acuerdo.Semestre,
                 FechaLimite = acuerdo.FechaLimite,

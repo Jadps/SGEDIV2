@@ -6,8 +6,6 @@ export interface AlumnoDetailDto {
     carrera: string;
     semestre: string;
     status: number;
-    statusText: string;
-    statusSeverity: string;
     createdAt: string;
 
     isMyCareer: boolean;

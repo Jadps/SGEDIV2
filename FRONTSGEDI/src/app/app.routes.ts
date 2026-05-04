@@ -72,6 +72,12 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/usuarios/internos/internos.component').then(m => m.InternosComponent),
                 canActivate: [permissionGuard]
             },
+            {
+                path: 'professors',
+                title: 'My Professors | SGEDI',
+                loadComponent: () => import('./features/professors/professor-list.component').then(m => m.ProfessorListComponent),
+                canActivate: [permissionGuard]
+            },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
     },

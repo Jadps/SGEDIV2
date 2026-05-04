@@ -87,11 +87,11 @@ The system manages three document silos:
 - Automatic semester helper for academic period calculation
 - Pagination and soft delete support
 - Deadline management for annex uploads with grace-period logic
-
-### Planned
 - Academic management: subjects and career CRUD/seeding
 - Full administration for non-student users
 - Advisor assignment workflow
+
+### Planned
 - Digital agreements with versioning and rejection handling
 - PDF generation with embedded signatures
 - Rubric-based evaluation system for advisors and teachers

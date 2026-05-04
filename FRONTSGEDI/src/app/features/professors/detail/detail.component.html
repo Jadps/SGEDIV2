@@ -1,0 +1,28 @@
+<p-dialog [visible]="visible()" (visibleChange)="!$event && onClose.emit()" [modal]="true" [draggable]="false"
+    [header]="data()?.materiaNombre" [style]="{ width: '700px' }" styleClass="glass-dark border border-white/10 rounded-3xl overflow-hidden"
+    [contentStyle]="{ padding: '0' }">
+    
+    <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)">
+        <p-tablist>
+            <p-tab value="info">
+                <i class="pi pi-info-circle mr-2"></i>Details
+            </p-tab>
+            <p-tab value="contracts">
+                <i class="pi pi-file-pdf mr-2"></i>Contracts
+            </p-tab>
+        </p-tablist>
+
+        <p-tabpanels>
+            <p-tabpanel value="info">
+                @if (activeTab() === 'info') {
+                    <app-professor-info-tab [data]="data()" />
+                }
+            </p-tabpanel>
+            <p-tabpanel value="contracts">
+                @if (activeTab() === 'contracts') {
+                    <app-professor-contracts-tab [data]="data()" />
+                }
+            </p-tabpanel>
+        </p-tabpanels>
+    </p-tabs>
+</p-dialog>

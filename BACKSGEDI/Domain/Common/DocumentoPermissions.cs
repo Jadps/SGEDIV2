@@ -23,10 +23,21 @@ public static class DocumentoPermissions
         { TipoDocumentoAlumno.Kardex, new[] { SystemRoles.Alumno, SystemRoles.Admin, SystemRoles.Coordinador } }
     };
 
+    private static readonly HashSet<TipoAcuerdo> MultiInstanceAcuerdos = new()
+    {
+        TipoAcuerdo.AnexoIII,
+        TipoAcuerdo.AnexoVII
+    };
+
     public static bool CanUpload(TipoAcuerdo tipo, IEnumerable<string> roles)
     {
         if (!UploadPermissions.TryGetValue(tipo, out var allowedRoles)) return false;
         return roles.Any(r => allowedRoles.Contains(r));
+    }
+
+    public static bool IsMultiInstance(TipoAcuerdo tipo)
+    {
+        return MultiInstanceAcuerdos.Contains(tipo);
     }
 
     public static bool CanUpload(TipoDocumentoAlumno tipo, IEnumerable<string> roles)

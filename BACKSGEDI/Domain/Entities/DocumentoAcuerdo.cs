@@ -11,13 +11,9 @@ public class DocumentoAcuerdo
     public Alumno? Alumno { get; set; }
 
     public Guid? ProfesorId { get; set; }
-    public Usuario? Profesor { get; set; }
+    public Profesor? Profesor { get; set; }
 
-    public Guid? AsesorInternoId { get; set; }
-    public Usuario? AsesorInterno { get; set; }
 
-    public Guid? AsesorExternoId { get; set; }
-    public Usuario? AsesorExterno { get; set; }
 
     public TipoAcuerdo TipoAcuerdo { get; set; }
     public string Semestre { get; set; } = string.Empty;

@@ -7,7 +7,7 @@ using BACKSGEDI.Domain.Entities;
 using BACKSGEDI.Domain.Enums;
 using BACKSGEDI.Infrastructure.Extensions;
 
-namespace BACKSGEDI.Features.Documents.Acuerdos;
+namespace BACKSGEDI.Features.Documents.Prorroga;
 
 public record ExtendDeadlineRequest
 {

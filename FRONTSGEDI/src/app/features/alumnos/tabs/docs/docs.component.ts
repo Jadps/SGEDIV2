@@ -3,7 +3,8 @@ import { Component, inject, input, signal, computed, model, effect, untracked } 
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { AlumnoService } from '../../../../core/services/alumno.service';
+import { ExpedienteService } from '../../../../core/services/expediente.service';
+import { DocumentUploadService } from '../../../../core/services/document-upload.service';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
 import { DialogModule } from 'primeng/dialog';
 import { TextareaModule } from 'primeng/textarea';
@@ -12,6 +13,7 @@ import { MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { FileUploaderComponent } from '../../../../shared/components/file-uploader/file-uploader.component';
 import { DocumentActionsService } from '../../../../core/services/document-actions.service';
+import { DocumentoEstadoUtils } from '../../../../core/utils/documento-estado-utils';
 
 @Component({
   selector: 'app-alumno-docs-tab',
@@ -22,7 +24,8 @@ import { DocumentActionsService } from '../../../../core/services/document-actio
 })
 export class AlumnoDocsTabComponent {
 
-  private readonly alumnoService = inject(AlumnoService);
+  private readonly expedienteService = inject(ExpedienteService);
+  private readonly uploadService = inject(DocumentUploadService);
   private readonly messageService = inject(MessageService);
   readonly docActions = inject(DocumentActionsService);
 
@@ -69,7 +72,7 @@ export class AlumnoDocsTabComponent {
 
   loadSemestres() {
     if (!this.canReview()) return;
-    this.alumnoService.getSemestres(this.alumnoId()).subscribe(data => {
+    this.expedienteService.getSemestres(this.alumnoId()).subscribe(data => {
       this.availableSemestres.set(data);
     });
   }
@@ -81,9 +84,9 @@ export class AlumnoDocsTabComponent {
   loadDocs() {
     this.loading.set(true);
     const semestre = this.selectedSemestre();
-    this.alumnoService.getExpediente(this.alumnoId(), semestre || undefined).subscribe({
+    this.expedienteService.getExpediente(this.alumnoId(), semestre || undefined).subscribe({
       next: (data) => {
-        this.documents.set(data);
+        this.documents.set(DocumentoEstadoUtils.mapExpediente(data));
         this.loading.set(false);
       },
       error: () => this.loading.set(false)
@@ -91,7 +94,7 @@ export class AlumnoDocsTabComponent {
   }
 
   loadTemplates() {
-    this.alumnoService.getTemplates().subscribe(data => this.templates.set(data));
+    this.uploadService.getTemplates().subscribe(data => this.templates.set(data));
   }
 
   openProrroga(doc: any) {
@@ -108,7 +111,7 @@ export class AlumnoDocsTabComponent {
     const doc = this.selectedDocForProrroga();
     if (!doc || !this.selectedFechaLimite()) return;
 
-    this.alumnoService.extendDeadline({
+    this.expedienteService.extendDeadline({
       acuerdoId: doc.documentoId,
       alumnoId: this.alumnoId(),
       tipoAcuerdo: doc.tipoId,
@@ -130,7 +133,7 @@ export class AlumnoDocsTabComponent {
 
   review(doc: any, aprobado: boolean) {
     if (aprobado) {
-      this.alumnoService.reviewDocument(this.alumnoId(), doc.archivo.id, aprobado, undefined).subscribe(() => this.loadDocs());
+      this.expedienteService.reviewDocument(this.alumnoId(), doc.archivo.id, aprobado, undefined).subscribe(() => this.loadDocs());
     } else {
       this.docToReview.set(doc);
       this.motivoRechazo.set('');
@@ -143,7 +146,7 @@ export class AlumnoDocsTabComponent {
     const motivo = this.motivoRechazo();
     if (!doc || !motivo) return;
 
-    this.alumnoService.reviewDocument(this.alumnoId(), doc.archivo.id, false, motivo).subscribe(() => {
+    this.expedienteService.reviewDocument(this.alumnoId(), doc.archivo.id, false, motivo).subscribe(() => {
       this.rejectDialogVisible.set(false);
       this.loadDocs();
     });
@@ -170,8 +173,8 @@ export class AlumnoDocsTabComponent {
 
     this.isUploadingAdmin.set(true);
     const upload$ = doc.esAcuerdo
-      ? this.alumnoService.uploadAdministrativeAcuerdo(doc.archivo?.id, file)
-      : this.alumnoService.uploadAdministrativePersonalDoc(this.alumnoId(), doc.tipoId, file);
+      ? this.uploadService.uploadAdministrativeAcuerdo(doc.archivo?.id, file)
+      : this.uploadService.uploadAdministrativePersonalDoc(this.alumnoId(), doc.tipoId, file);
 
     upload$.subscribe({
       next: () => {

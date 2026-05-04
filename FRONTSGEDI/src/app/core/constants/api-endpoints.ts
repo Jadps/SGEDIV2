@@ -9,10 +9,19 @@ export const API_ENDPOINTS = {
     ME: '/users/me'
   },
   STUDENTS: {
+    ME: '/alumnos/me',
     LIST: '/alumnos',
     DETAIL: '/alumnos/{id}',
+    ACTIVATE: '/alumnos/{id}/activate',
+    SUSPEND: '/alumnos/{id}/suspend',
+    CARGA_ACADEMICA: '/alumnos/{id}/carga-academica',
     DOCUMENTS: '/alumnos/{id}/documentos',
-    EXPEDIENTE: '/alumnos/{id}/expediente'
+    EXPEDIENTE: '/alumnos/{id}/expediente',
+    SEMESTRES: '/alumnos/{id}/semestres',
+    MY_DEADLINES: '/alumnos/me/fechas-limite'
+  },
+  DOCUMENTS: {
+    DOWNLOAD: '/documentos/{id}/download'
   },
   PLANTILLAS: {
     BASE: '/plantillas',
@@ -20,14 +29,23 @@ export const API_ENDPOINTS = {
   },
   ACUERDOS: {
     BASE: '/acuerdos',
-    UPLOAD: '/acuerdos/{id}/upload'
+    UPLOAD: '/acuerdos/{id}/upload',
+    UPLOAD_STUDENT: '/alumnos/me/documentos/acuerdos',
+    UPLOAD_PROFESOR: '/profesor/documentos/acuerdos',
+    UPLOAD_ASESOR_INTERNO: '/asesor-interno/documentos/acuerdos',
+    UPLOAD_ASESOR_EXTERNO: '/asesor-externo/documentos/acuerdos',
+    UPLOAD_COORDINADOR: '/coordinador/documentos/acuerdos',
+    PRORROGA: '/acuerdos/prorroga'
   },
   CATALOGS: {
     MODULES: '/catalogs/modules',
     ROLES: '/catalogs/roles',
     CARRERAS: '/catalogs/carreras',
     EMPRESAS: '/catalogs/empresas',
-    MATERIAS: '/catalogs/materias'
+    MATERIAS: '/catalogs/materias',
+    ASESORES_INTERNOS: '/catalogs/asesores-internos',
+    ASESORES_EXTERNOS: '/catalogs/asesores-externos',
+    PROFESORES: '/catalogs/profesores'
   },
   USER_MANAGEMENT: {
     INTERNAL: '/users/internal',

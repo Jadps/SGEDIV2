@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpContext } from '@angular/common/http';
-import { AlumnoService } from './alumno.service';
+import { DocumentUploadService } from './document-upload.service';
 import { MessageService } from 'primeng/api';
 import { SKIP_ERROR_NOTIFICATION } from '../constants/http-context';
 
@@ -9,12 +9,12 @@ import { SKIP_ERROR_NOTIFICATION } from '../constants/http-context';
   providedIn: 'root'
 })
 export class DocumentActionsService {
-  private readonly alumnoService = inject(AlumnoService);
+  private readonly uploadService = inject(DocumentUploadService);
   private readonly messageService = inject(MessageService);
 
   viewDocument(id: string) {
     const context = new HttpContext().set(SKIP_ERROR_NOTIFICATION, true);
-    this.alumnoService.downloadDocument(id, context).subscribe({
+    this.uploadService.downloadDocument(id, context).subscribe({
 
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -30,7 +30,7 @@ export class DocumentActionsService {
 
   downloadTemplate(id: number) {
     const context = new HttpContext().set(SKIP_ERROR_NOTIFICATION, true);
-    this.alumnoService.downloadTemplate(id, context).subscribe({
+    this.uploadService.downloadTemplate(id, context).subscribe({
 
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);

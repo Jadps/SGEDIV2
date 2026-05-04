@@ -28,7 +28,7 @@ import { StatusUtils } from '../../../core/utils/status-utils';
 export class AlumnoListComponent implements OnInit {
   private readonly alumnoService = inject(AlumnoService);
 
-  alumnos = signal<AlumnoDto[]>([]);
+  alumnos = signal<(AlumnoDto & { statusText: string; statusSeverity: string })[]>([]);
   totalRecords = signal<number>(0);
   loading = signal<boolean>(false);
   searchTerm = signal<string>('');
@@ -52,7 +52,11 @@ export class AlumnoListComponent implements OnInit {
     this.loading.set(true);
     this.alumnoService.getAlumnos(page, pageSize, this.searchTerm()).subscribe({
       next: (response) => {
-        this.alumnos.set(response.items);
+        this.alumnos.set(response.items.map(a => ({
+          ...a,
+          statusText: StatusUtils.getText(a.status),
+          statusSeverity: StatusUtils.getSeverity(a.status)
+        })));
         this.totalRecords.set(response.totalCount);
         this.loading.set(false);
       },

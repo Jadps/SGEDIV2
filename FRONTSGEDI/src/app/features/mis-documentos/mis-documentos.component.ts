@@ -2,6 +2,8 @@ import { Component, inject, OnInit, signal, computed, model } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { AlumnoService } from '../../core/services/alumno.service';
+import { ExpedienteService } from '../../core/services/expediente.service';
+import { DocumentUploadService } from '../../core/services/document-upload.service';
 
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { TableModule } from 'primeng/table';
@@ -12,6 +14,7 @@ import { FileUploaderComponent } from '../../shared/components/file-uploader/fil
 import { TooltipModule } from 'primeng/tooltip';
 import { DocumentActionsService } from '../../core/services/document-actions.service';
 import { SKIP_ERROR_NOTIFICATION } from '../../core/constants/http-context';
+import { DocumentoEstadoUtils } from '../../core/utils/documento-estado-utils';
 
 
 @Component({
@@ -23,6 +26,8 @@ import { SKIP_ERROR_NOTIFICATION } from '../../core/constants/http-context';
 })
 export class MisDocumentosComponent implements OnInit {
   private readonly alumnoService = inject(AlumnoService);
+  private readonly expedienteService = inject(ExpedienteService);
+  private readonly uploadService = inject(DocumentUploadService);
   private readonly messageService = inject(MessageService);
   readonly docActions = inject(DocumentActionsService);
 
@@ -56,9 +61,9 @@ export class MisDocumentosComponent implements OnInit {
     const alumnoId = this.profile()?.id;
     if (!alumnoId) return;
 
-    this.alumnoService.getExpediente(alumnoId).subscribe({
+    this.expedienteService.getExpediente(alumnoId).subscribe({
       next: (data) => {
-        this.expediente.set(data);
+        this.expediente.set(DocumentoEstadoUtils.mapExpediente(data));
         this.loading.set(false);
       },
       error: () => this.loading.set(false)
@@ -66,7 +71,7 @@ export class MisDocumentosComponent implements OnInit {
   }
 
   loadTemplates() {
-    this.alumnoService.getTemplates().subscribe(data => this.templates.set(data));
+    this.uploadService.getTemplates().subscribe(data => this.templates.set(data));
   }
 
   openUpload(doc: any) {
@@ -85,8 +90,8 @@ export class MisDocumentosComponent implements OnInit {
     const context = new HttpContext().set(SKIP_ERROR_NOTIFICATION, true);
 
     const upload$ = doc.esAcuerdo
-      ? this.alumnoService.uploadStudentAcuerdo(doc.tipoId, file, context)
-      : this.alumnoService.uploadAdministrativePersonalDoc(alumnoId, doc.tipoId, file, context);
+      ? this.uploadService.uploadStudentAcuerdo(doc.tipoId, file, context)
+      : this.uploadService.uploadAdministrativePersonalDoc(alumnoId, doc.tipoId, file, context);
 
 
     upload$.subscribe({

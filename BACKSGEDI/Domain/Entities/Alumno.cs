@@ -12,6 +12,16 @@ public class Alumno : IHasStatus
     public int CarreraId { get; set; }
     public CatCarrera? Carrera { get; set; }
     public int SemestreId { get; set; }
+
+    public Guid? EmpresaId { get; set; }
+    public Empresa? Empresa { get; set; }
+
+    public Guid? AsesorInternoId { get; set; }
+    public AsesorInterno? AsesorInterno { get; set; }
+
+    public Guid? AsesorExternoId { get; set; }
+    public AsesorExterno? AsesorExterno { get; set; }
+
     public int Status { get; set; } = (int)EntityStatus.Activo;
     public virtual ICollection<DocumentoAlumno> Documentos { get; set; } = new List<DocumentoAlumno>();
 }

@@ -14,8 +14,7 @@ public record CreateAcuerdoRequest
     public Guid AlumnoId { get; set; }
     public TipoAcuerdo TipoAcuerdo { get; set; }
     public Guid? ProfesorId { get; set; }
-    public Guid? AsesorInternoId { get; set; }
-    public Guid? AsesorExternoId { get; set; }
+
     public DateTime? FechaLimiteManual { get; set; }
 }
 
@@ -62,7 +61,8 @@ public class CreateAcuerdo : Endpoint<CreateAcuerdoRequest>
             .AnyAsync(a => a.AlumnoId == req.AlumnoId 
                && a.TipoAcuerdo == req.TipoAcuerdo 
                && a.Semestre == semestreActual
-               && a.EsVersionActual, ct);
+               && a.EsVersionActual
+               && ((req.TipoAcuerdo != TipoAcuerdo.AnexoIII && req.TipoAcuerdo != TipoAcuerdo.AnexoVII) || a.ProfesorId == req.ProfesorId), ct);
 
         if (acuerdoExiste)
         {
@@ -76,8 +76,7 @@ public class CreateAcuerdo : Endpoint<CreateAcuerdoRequest>
             AlumnoId = req.AlumnoId,
             TipoAcuerdo = req.TipoAcuerdo,
             ProfesorId = req.ProfesorId,
-            AsesorInternoId = req.AsesorInternoId,
-            AsesorExternoId = req.AsesorExternoId,
+
             Semestre = semestreActual,
             FechaLimite = req.FechaLimiteManual ?? await _fechasLimiteService.GetFechaLimiteAsync(req.TipoAcuerdo, alumno.CarreraId, semestreActual, ct),
             Estado = EstadoDocumento.PendienteRevision,
