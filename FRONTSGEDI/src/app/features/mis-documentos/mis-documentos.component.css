@@ -1,5 +1,0 @@
-@reference "../../../styles.css";
-
-.card-premium {
-    @apply glass rounded-3xl p-6 shadow-xl shadow-black/[0.02] dark:shadow-white/[0.02] ring-1 ring-black/5 dark:ring-white/5;
-}

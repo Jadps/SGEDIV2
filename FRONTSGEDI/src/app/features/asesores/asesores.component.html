@@ -1,0 +1,191 @@
+<div class="p-8 flex flex-col gap-8 max-w-7xl mx-auto">
+  <div class="flex flex-col gap-1">
+    <h1 class="text-3xl font-black tracking-tight text-white">Mis Asesores y Evaluaciones</h1>
+    <p class="text-zinc-500 text-sm">Consulta quiénes son tus asesores asignados y revisa tus calificaciones de
+      desempeño.</p>
+  </div>
+
+  @if (isLoading()) {
+  <div class="flex items-center justify-center py-20">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+  </div>
+  } @else if (student()) {
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div
+      class="glass-dark border border-white/10 rounded-[2.5rem] p-8 flex flex-col gap-8 relative overflow-hidden group">
+      <div
+        class="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 blur-3xl -mr-32 -mt-32 group-hover:bg-blue-500/10 transition-all duration-700">
+      </div>
+
+      <div class="flex items-center gap-6">
+        <div
+          class="w-16 h-16 rounded-3xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shadow-inner">
+          <i class="pi pi-user text-2xl"></i>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-[11px] text-zinc-500 uppercase tracking-[0.2em] font-black">Asesor Interno</span>
+          <h4 class="text-white font-black text-2xl leading-tight">{{ student()?.asesorInternoNombre || 'No asignado' }}
+          </h4>
+        </div>
+      </div>
+
+      <div class="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+      <div class="flex flex-col gap-6">
+        <div class="flex justify-between items-center">
+          <span class="text-sm text-zinc-400 font-bold uppercase tracking-wider">Último Resultado</span>
+          @if (lastInternalEval()) {
+          <span class="px-3 py-1 rounded-full bg-white/5 text-[11px] text-zinc-400 font-black border border-white/10">
+            {{ lastInternalEval()?.semestre }}
+          </span>
+          }
+        </div>
+
+        @if (lastInternalEval(); as eval) {
+        <div class="flex items-center gap-6 bg-black/40 p-6 rounded-[2rem] border border-white/5 shadow-2xl">
+          <div
+            [class]="eval.calificacion >= 70 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20'"
+            class="w-20 h-20 rounded-[1.5rem] border-2 flex items-center justify-center text-4xl font-black italic shadow-lg">
+            {{ eval.calificacion }}
+          </div>
+          <div class="flex flex-col gap-2 flex-1">
+            <p class="text-zinc-200 text-sm font-medium italic leading-relaxed">"{{ eval.observaciones }}"</p>
+            <div class="flex items-center gap-2 text-zinc-500 text-[11px] font-bold uppercase">
+              <i class="pi pi-calendar text-[10px]"></i>
+              {{ eval.fechaEvaluacion | date:'dd MMMM, yyyy' }}
+            </div>
+          </div>
+        </div>
+        } @else {
+        <div class="py-12 flex flex-col items-center gap-4 opacity-20 group-hover:opacity-40 transition-opacity">
+          <i class="pi pi-info-circle text-4xl"></i>
+          <span class="text-sm font-bold uppercase tracking-widest">Sin evaluaciones</span>
+        </div>
+        }
+      </div>
+    </div>
+    <div
+      class="glass-dark border border-white/10 rounded-[2.5rem] p-8 flex flex-col gap-8 relative overflow-hidden group">
+      <div
+        class="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 blur-3xl -mr-32 -mt-32 group-hover:bg-purple-500/10 transition-all duration-700">
+      </div>
+
+      <div class="flex items-center gap-6">
+        <div
+          class="w-16 h-16 rounded-3xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shadow-inner">
+          <i class="pi pi-building text-2xl"></i>
+        </div>
+        <div class="flex flex-col">
+          <div class="flex items-center gap-3">
+            <span class="text-[11px] text-zinc-500 uppercase tracking-[0.2em] font-black">Asesor Externo</span>
+            @if (student()?.empresaNombre) {
+            <span
+              class="px-2 py-0.5 rounded-lg bg-purple-500/10 text-[10px] text-purple-400 font-black border border-purple-500/20 uppercase tracking-tighter">
+              {{ student()?.empresaNombre }}
+            </span>
+            }
+          </div>
+          <h4 class="text-white font-black text-2xl leading-tight">{{ student()?.asesorExternoNombre || 'No asignado' }}
+          </h4>
+        </div>
+      </div>
+
+      <div class="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+      <div class="flex flex-col gap-6">
+        <div class="flex justify-between items-center">
+          <span class="text-sm text-zinc-400 font-bold uppercase tracking-wider">Último Resultado</span>
+          @if (lastExternalEval()) {
+          <span class="px-3 py-1 rounded-full bg-white/5 text-[11px] text-zinc-400 font-black border border-white/10">
+            {{ lastExternalEval()?.semestre }}
+          </span>
+          }
+        </div>
+
+        @if (lastExternalEval(); as eval) {
+        <div class="flex items-center gap-6 bg-black/40 p-6 rounded-[2rem] border border-white/5 shadow-2xl">
+          <div
+            [class]="eval.calificacion >= 70 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20'"
+            class="w-20 h-20 rounded-[1.5rem] border-2 flex items-center justify-center text-4xl font-black italic shadow-lg">
+            {{ eval.calificacion }}
+          </div>
+          <div class="flex flex-col gap-2 flex-1">
+            <p class="text-zinc-200 text-sm font-medium italic leading-relaxed">"{{ eval.observaciones }}"</p>
+            <div class="flex items-center gap-2 text-zinc-500 text-[11px] font-bold uppercase">
+              <i class="pi pi-calendar text-[10px]"></i>
+              {{ eval.fechaEvaluacion | date:'dd MMMM, yyyy' }}
+            </div>
+          </div>
+        </div>
+        } @else {
+        <div class="py-12 flex flex-col items-center gap-4 opacity-20 group-hover:opacity-40 transition-opacity">
+          <i class="pi pi-info-circle text-4xl"></i>
+          <span class="text-sm font-bold uppercase tracking-widest">Sin evaluaciones</span>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-6">
+    <div class="flex items-center gap-4">
+      <h3 class="text-xl font-bold text-white">Historial de Evaluaciones</h3>
+      <div class="h-px flex-1 bg-white/5"></div>
+    </div>
+
+    <div class="glass-dark border border-white/10 rounded-[2rem] overflow-hidden">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-white/[0.02] border-b border-white/10">
+            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-zinc-500">Periodo</th>
+            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-zinc-500">Evaluador</th>
+            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-zinc-500 text-center">
+              Calificación</th>
+            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-zinc-500">Observaciones</th>
+            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-zinc-500 text-right">Fecha</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/5">
+          @for (eval of evaluacionesResource.value(); track eval.id) {
+          <tr class="hover:bg-white/[0.02] transition-colors group">
+            <td class="px-6 py-4">
+              <span class="text-xs font-bold text-zinc-300">{{ eval.semestre }}</span>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex flex-col">
+                <span class="text-sm font-bold text-white">{{ eval.evaluadorNombre }}</span>
+                <span class="text-[10px] text-zinc-500 uppercase font-black">{{ eval.evaluadorRol }}</span>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex justify-center">
+                <div
+                  [class]="eval.calificacion >= 70 ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' : 'text-red-400 bg-red-400/10 border-red-400/20'"
+                  class="px-4 py-1 rounded-xl border font-black text-lg italic">
+                  {{ eval.calificacion }}
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <p class="text-xs text-zinc-400 italic max-w-md line-clamp-2">"{{ eval.observaciones }}"</p>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <span class="text-[11px] text-zinc-500 font-bold">{{ eval.fechaEvaluacion | date:'dd/MM/yyyy' }}</span>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="5" class="px-6 py-12 text-center">
+              <div class="flex flex-col items-center gap-2 opacity-30 italic">
+                <i class="pi pi-inbox text-3xl"></i>
+                <span class="text-sm">No se han registrado evaluaciones todavía.</span>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  }
+</div>

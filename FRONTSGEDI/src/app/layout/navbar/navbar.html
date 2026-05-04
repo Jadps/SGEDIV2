@@ -1,14 +1,17 @@
 <nav
-    class="sticky top-0 z-50 glass-dark px-8 py-4 flex justify-between items-center border-b border-white/5 shadow-2xl">
+    class="sticky top-0 z-50 glass-dark px-4 lg:px-8 py-4 flex justify-between items-center border-b border-white/5 shadow-2xl">
 
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2 md:gap-4">
+        <p-button icon="pi pi-bars" [text]="true" severity="secondary" class="lg:hidden"
+            (onClick)="layoutService.toggleSidebar()" />
+
         <img ngSrc="favicon.ico" alt="Logo SGEDI" width="50" height="50" priority class="object-contain" />
 
         <div class="flex flex-col">
             <span class="font-bold text-lg tracking-tight text-zinc-900 dark:text-white leading-none">
                 SGEDI <span class="text-blue-600 dark:text-blue-500">v2</span>
             </span>
-            <span class="text-[9px] font-bold text-zinc-500 dark:text-zinc-500 uppercase tracking-widest mt-1"><span
+            <span class="text-[9px] font-bold text-zinc-500 dark:text-zinc-500 uppercase tracking-widest mt-1 hidden md:block"><span
                     class="text-blue-600 dark:text-blue-500">S</span>istema de <span
                     class="text-blue-600 dark:text-blue-500">G</span>estión de <span
                     class="text-blue-600 dark:text-blue-500">E</span>ducación <span
@@ -21,8 +24,8 @@
         @if (authService.currentUser(); as user) {
 
         <div class="flex items-center gap-4 pl-2">
-            <div class="user-profile-badge group">
-                <div class="text-right hidden sm:block">
+            <div class="user-profile-badge group hidden sm:flex">
+                <div class="text-right hidden lg:block">
                     <p class="text-[13px] font-bold text-zinc-900 dark:text-zinc-100 leading-none mb-1.5">{{
                         user.fullName }}</p>
                     <div class="flex items-center justify-end gap-1.5">

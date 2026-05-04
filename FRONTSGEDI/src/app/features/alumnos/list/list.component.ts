@@ -22,8 +22,7 @@ import { StatusUtils } from '../../../core/utils/status-utils';
     IconFieldModule, InputIconModule, ButtonModule, TagModule,
     AlumnoDetailModalComponent, StatusBadgeComponent
   ],
-  templateUrl: './list.component.html',
-  styleUrl: './list.component.css'
+  templateUrl: './list.component.html'
 })
 export class AlumnoListComponent implements OnInit {
   private readonly alumnoService = inject(AlumnoService);

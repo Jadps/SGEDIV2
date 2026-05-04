@@ -4,6 +4,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { NgOptimizedImage } from '@angular/common';
+import { LayoutService } from '../../core/services/layout.service';
+
 @Component({
   selector: 'app-navbar',
   standalone: true,
@@ -13,6 +15,7 @@ import { NgOptimizedImage } from '@angular/common';
 })
 export class Navbar {
   public authService = inject(AuthService);
+  public layoutService = inject(LayoutService);
   private router = inject(Router);
 
   logout() {

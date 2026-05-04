@@ -6,6 +6,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { MenuService } from '../../core/services/menu.service';
 import { ModuleDto } from '../../core/models/module.dto';
 
+import { LayoutService } from '../../core/services/layout.service';
+
 export interface SidebarModule extends ModuleDto {
   expanded?: boolean;
 }
@@ -19,6 +21,7 @@ export interface SidebarModule extends ModuleDto {
 })
 export class Sidebar {
   public authService = inject(AuthService);
+  public layoutService = inject(LayoutService);
   private menuService = inject(MenuService);
   private router = inject(Router);
 

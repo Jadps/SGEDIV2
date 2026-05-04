@@ -97,14 +97,13 @@ The system manages three document silos with jurisdictional enforcement:
     - Automatic placeholder generation for Anexos III and VII.
 - **Siloed File Management:** Role-specific secure upload endpoints with 5MB limits.
 - **Jurisdictional Filters:** Automatic career-scoped data filtering for all administrative roles.
-- **Status Migration:** Unified entity lifecycle management via `IHasStatus`.
-- **Localization:** Full system and UI translation to Spanish.
+- **Status Management:** Unified entity lifecycle management via `IHasStatus`.
+- **Evaluation Management:** Rubric-based evaluation management for advisors.
+- **Digital agreements:** Digital agreements with versioning and rejection handling
 
 ### Planned
-- Digital agreements with versioning and rejection handling
-- PDF generation with embedded signatures
-- Rubric-based evaluation system for advisors and teachers
 
+- PDF generation with embedded signatures
 ---
 
 ## Local Development

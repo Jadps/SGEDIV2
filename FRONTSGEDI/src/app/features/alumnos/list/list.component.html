@@ -19,7 +19,7 @@
         <p-table [value]="alumnos()" [lazy]="true" (onLazyLoad)="onLazyLoad($event)" [rows]="10"
             [totalRecords]="totalRecords()" [loading]="loading()" [paginator]="true" [showCurrentPageReport]="true"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} alumnos"
-            [rowsPerPageOptions]="[5, 10, 20]" styleClass="p-datatable-sm custom-table">
+            [rowsPerPageOptions]="[5, 10, 20]" styleClass="p-datatable-sm glass-table">
 
             <ng-template pTemplate="header">
                 <tr class="!bg-transparent border-b border-white/5">

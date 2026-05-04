@@ -22,8 +22,7 @@ import { DocumentoEstadoUtils } from '../../core/utils/documento-estado-utils';
   selector: 'app-mis-documentos',
   standalone: true,
   imports: [CommonModule, RouterModule, TableModule, ButtonModule, StatusBadgeComponent, DialogModule, FileUploaderComponent, TooltipModule],
-  templateUrl: './mis-documentos.component.html',
-  styleUrl: './mis-documentos.component.css'
+  templateUrl: './mis-documentos.component.html'
 })
 export class MisDocumentosComponent implements OnInit {
   private readonly alumnoService = inject(AlumnoService);

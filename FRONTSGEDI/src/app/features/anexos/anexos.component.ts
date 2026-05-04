@@ -23,8 +23,7 @@ import { FileUploaderComponent } from '../../shared/components/file-uploader/fil
     TooltipModule,
     FileUploaderComponent
   ],
-  templateUrl: './anexos.component.html',
-  styleUrl: './anexos.component.css'
+  templateUrl: './anexos.component.html'
 })
 export class AnexosComponent implements OnInit {
   private readonly plantillaService = inject(PlantillaService);

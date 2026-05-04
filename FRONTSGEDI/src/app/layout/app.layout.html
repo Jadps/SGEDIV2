@@ -1,11 +1,17 @@
 <div
-    class="flex flex-col min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 transition-colors duration-300">
+    class="flex flex-col h-screen overflow-hidden bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 transition-colors duration-300">
     <app-navbar></app-navbar>
 
-    <div class="flex flex-1 overflow-hidden">
-        <app-sidebar></app-sidebar>
+    <div class="flex flex-1 overflow-hidden relative">
+        <div *ngIf="layoutService.sidebarOpen()" (click)="layoutService.closeSidebar()"
+            class="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-30 transition-opacity animate-in fade-in duration-300">
+        </div>
 
-        <main class="flex-1 p-6 overflow-y-auto animate-fade-in-up">
+        <app-sidebar [class.-translate-x-full]="!layoutService.sidebarOpen()"
+            class="fixed lg:static inset-y-0 left-0 z-40 lg:translate-x-0 transform transition-transform duration-300">
+        </app-sidebar>
+
+        <main class="flex-1 p-4 md:p-6 overflow-y-auto animate-fade-in-up">
             <router-outlet></router-outlet>
         </main>
     </div>

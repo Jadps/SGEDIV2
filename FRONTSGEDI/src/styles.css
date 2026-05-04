@@ -20,7 +20,7 @@
 }
 
 @utility glass-dark {
-  @apply bg-white/40 dark:bg-black/40 backdrop-blur-xl border border-zinc-200/20 dark:border-white/5;
+  @apply bg-white/40 dark:bg-zinc-900/50 backdrop-blur-xl border border-zinc-200/20 dark:border-white/10;
 }
 
 @utility hover-lift {
@@ -35,12 +35,80 @@
   @apply glass rounded-3xl p-6 shadow-xl shadow-black/[0.02] dark:shadow-white/[0.02] ring-1 ring-black/5 dark:ring-white/5;
 }
 
+@utility glass-pane {
+  @apply bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl shadow-black/50;
+}
+
 @utility crud-modal {
-  @apply glass-dark border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl shadow-black/50;
+  @apply !bg-transparent !border-0 !shadow-none;
 }
 
 @utility crud-input {
-  @apply !bg-zinc-900/50 !border-white/10 focus:!border-primary/50 !rounded-xl !py-3 px-4 transition-all duration-200;
+  @apply !bg-zinc-950/40 !border-white/5 focus:!border-primary/50 !rounded-xl !py-3 px-4 transition-all duration-200;
+}
+
+@utility glass-table {
+  & .p-datatable-thead>tr>th {
+    @apply !bg-white/[0.02] !text-zinc-400 !border-b !border-white/5 !text-[11px] !font-semibold !uppercase !tracking-wider !p-4;
+  }
+
+  & .p-datatable-tbody>tr {
+    @apply !bg-transparent !border-b !border-white/[0.02] transition-colors hover:!bg-white/5;
+  }
+
+  & .p-datatable-tbody>tr>td {
+    @apply !p-4;
+  }
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.crud-modal .p-dialog-header {
+  @apply !bg-zinc-900/80 !backdrop-blur-xl !text-white !p-6 !border-b !border-white/5 !rounded-t-[2rem];
+}
+
+.crud-modal .p-dialog-content {
+  @apply !bg-zinc-900/60 !backdrop-blur-xl !p-6 !border-x !border-white/5;
+}
+
+.crud-modal .p-dialog-content:last-of-type,
+.crud-modal:has(.p-dialog-footer:empty) .p-dialog-content {
+  @apply !rounded-b-[2rem] !border-b;
+}
+
+.crud-modal .p-dialog-footer {
+  @apply !bg-zinc-900/80 !backdrop-blur-xl !p-4 !border-x !border-b !border-white/5 !rounded-b-[2rem];
+}
+
+.crud-modal .p-dialog-footer:empty,
+.crud-modal .p-dialog-footer:has(*:empty) {
+  display: none !important;
+}
+
+.crud-modal p-tabs,
+.crud-modal p-tablist,
+.crud-modal p-tabpanels {
+  @apply !bg-transparent;
+}
+
+.crud-modal p-tablist {
+  @apply !border-b !border-white/5;
+}
+
+.crud-modal p-tab {
+  @apply !bg-transparent !text-zinc-500 hover:!text-white transition-colors;
+}
+
+.crud-modal p-tab[aria-selected="true"] {
+  @apply !text-primary;
 }
 
 
@@ -49,6 +117,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

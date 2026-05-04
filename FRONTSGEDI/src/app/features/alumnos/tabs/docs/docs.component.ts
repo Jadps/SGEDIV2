@@ -19,8 +19,7 @@ import { DocumentoEstadoUtils } from '../../../../core/utils/documento-estado-ut
   selector: 'app-alumno-docs-tab',
   standalone: true,
   imports: [CommonModule, TableModule, ButtonModule, StatusBadgeComponent, DialogModule, TextareaModule, FormsModule, SelectModule, FileUploaderComponent],
-  templateUrl: './docs.component.html',
-  styleUrl: './docs.component.css'
+  templateUrl: './docs.component.html'
 })
 export class AlumnoDocsTabComponent {
 

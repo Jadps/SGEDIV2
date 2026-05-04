@@ -1,5 +1,5 @@
 <aside
-    class="w-72 glass-dark border-r border-black/5 dark:border-white/5 flex flex-col min-h-[calc(100vh-76px)] transition-all duration-300">
+    class="w-72 glass-dark border-r border-black/5 dark:border-white/5 flex flex-col h-full transition-all duration-300">
     <div class="px-6 py-10 flex flex-col gap-1.5">
         <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.25em] mb-6 px-3">Navegación</p>
 
@@ -21,7 +21,7 @@
                 [style.grid-template-rows]="item.expanded ? '1fr' : '0fr'" [class.opacity-0]="!item.expanded">
                 <div class="overflow-hidden min-h-0 flex flex-col gap-1">
                     @for (sub of item.subModules; track sub.id) {
-                    <a [routerLink]="[sub.action]"
+                    <a [routerLink]="[sub.action]" (click)="layoutService.closeSidebar()"
                         routerLinkActive="bg-blue-600/10 text-blue-600 dark:text-blue-400 dark:border-blue-500/20"
                         class="group ml-6 px-4 py-2.5 rounded-xl text-zinc-500 hover:bg-black/5 dark:hover:bg-white/5 hover:text-blue-600 dark:hover:text-zinc-100 transition-all cursor-pointer flex items-center gap-3.5 border border-transparent">
                         <i class="{{sub.icon}} text-sm"></i>
@@ -32,7 +32,7 @@
             </div>
 
             } @else {
-            <a [routerLink]="[item.action]"
+            <a [routerLink]="[item.action]" (click)="layoutService.closeSidebar()"
                 routerLinkActive="bg-blue-600/10 text-blue-600 dark:text-blue-400 dark:border-blue-500/20 shadow-lg shadow-blue-500/5"
                 class="group px-4 py-3.5 rounded-2xl text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-blue-600 dark:hover:text-zinc-100 transition-all cursor-pointer flex items-center gap-3.5 border border-transparent">
                 <div class="w-5 h-5 flex items-center justify-center">

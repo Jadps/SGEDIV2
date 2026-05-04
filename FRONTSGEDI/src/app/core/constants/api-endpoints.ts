@@ -52,5 +52,8 @@ export const API_ENDPOINTS = {
     INTERNAL_TOGGLE_STATUS: '/users/internal/{id}/toggle-status',
     EXTERNAL: '/users/external',
     EXTERNAL_GET: '/users/external/{id}'
+  },
+  EVALUACIONES: {
+    BASE: '/evaluaciones/{id}'
   }
 };

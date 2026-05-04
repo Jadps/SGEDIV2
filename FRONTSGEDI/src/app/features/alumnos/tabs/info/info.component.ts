@@ -1,4 +1,4 @@
-import { Component, input, signal, inject, computed, output } from '@angular/core';
+import { Component, input, signal, inject, computed, output, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
@@ -61,7 +61,19 @@ export class AlumnoInfoTabComponent {
     externalAdvisorId: ['', Validators.required]
   });
 
-  selectedCompanyId = toSignal(this.activationForm.get('companyId')!.valueChanges);
+  selectedCompanyId = toSignal(this.activationForm.get('companyId')!.valueChanges, { initialValue: '' });
+
+  constructor() {
+    effect(() => {
+      const companyId = this.selectedCompanyId();
+      const control = this.activationForm.get('externalAdvisorId');
+      if (companyId) {
+        control?.enable();
+      } else {
+        control?.disable();
+      }
+    });
+  }
 
   externalAdvisorsResource = rxResource<AsesorExternoCatalogDto[], string | null | undefined>({
     params: () => this.selectedCompanyId(),
@@ -116,13 +128,13 @@ export class AlumnoInfoTabComponent {
         this.statusChanged.emit(2);
         this.toast.add({
           severity: 'success',
-          summary: 'Account Activated',
-          detail: `The account of ${this.student().name} was successfully activated.`
+          summary: 'Cuenta activada',
+          detail: `La cuenta de ${this.student().name} fue activada.`
         });
       },
       error: () => {
         this.isActivating.set(false);
-        this.toast.add({ severity: 'error', summary: 'Error', detail: 'Could not activate account.' });
+        this.toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo activar la cuenta.' });
       }
     });
   }

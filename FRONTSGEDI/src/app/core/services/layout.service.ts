@@ -1,12 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LayoutService {
+  sidebarOpen = signal(false);
 
-  constructor() {
-
+  toggleSidebar() {
+    this.sidebarOpen.update(v => !v);
   }
 
+  closeSidebar() {
+    this.sidebarOpen.set(false);
+  }
 }

@@ -9,6 +9,8 @@ import { AlumnoDetailDto } from '../../../core/models/alumno-detail.dto';
 import { AlumnoInfoTabComponent } from '../tabs/info/info.component';
 import { AlumnoDocsTabComponent } from '../tabs/docs/docs.component';
 import { AlumnoMateriaDocsTabComponent } from '../tabs/materia-docs/materia-docs.component';
+import { AlumnoEvaluacionesTabComponent } from '../tabs/evaluaciones/evaluaciones.component';
+import { AlumnoAsesoresTabComponent } from '../tabs/asesores/asesores.component';
 
 @Component({
   selector: 'app-alumno-detail-modal',
@@ -16,7 +18,8 @@ import { AlumnoMateriaDocsTabComponent } from '../tabs/materia-docs/materia-docs
   imports: [
     CommonModule, DialogModule, TabsModule,
     ProgressSpinnerModule, AlumnoInfoTabComponent,
-    AlumnoDocsTabComponent, AlumnoMateriaDocsTabComponent
+    AlumnoDocsTabComponent, AlumnoMateriaDocsTabComponent,
+    AlumnoEvaluacionesTabComponent
   ],
   templateUrl: './detail.component.html',
 })
@@ -38,9 +41,22 @@ export class AlumnoDetailModalComponent {
     return !!(a?.isAdmin || a?.isMyCareer);
   });
 
+  isAdvisor = computed(() => {
+    const a = this.alumno();
+    return !!(a?.isMyAdvisory);
+  });
+
   isProfessorOnly = computed(() => {
     const a = this.alumno();
     return !!(a?.isMyStudent && !this.isCoordinatorOrAdmin());
+  });
+
+  showEvaluacionesTab = computed(() => {
+    return this.isCoordinatorOrAdmin() || this.isAdvisor();
+  });
+
+  showAsesoresTab = computed(() => {
+    return this.alumno()?.id === this.alumnoId() && !this.isCoordinatorOrAdmin();
   });
 
   constructor() {

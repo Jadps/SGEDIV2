@@ -3,6 +3,7 @@ using System;
 using BACKSGEDI.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BACKSGEDI.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260504133256_AccordsTeacherStudent")]
+    partial class AccordsTeacherStudent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -450,13 +453,13 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("AlumnoId")
+                    b.Property<Guid>("AlumnoId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Calificacion")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("EvaluadorId")
+                    b.Property<Guid>("EvaluadorId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("FechaEvaluacion")
@@ -469,9 +472,6 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.Property<string>("Semestre")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -808,12 +808,14 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.HasOne("BACKSGEDI.Domain.Entities.Alumno", "Alumno")
                         .WithMany()
                         .HasForeignKey("AlumnoId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("BACKSGEDI.Domain.Entities.Usuario", "Evaluador")
                         .WithMany()
                         .HasForeignKey("EvaluadorId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Alumno");
 

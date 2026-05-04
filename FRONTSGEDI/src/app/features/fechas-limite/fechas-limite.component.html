@@ -31,9 +31,10 @@
           <tr class="transition-colors hover:bg-white/5">
             <td class="text-sm font-medium text-zinc-300">Anexo {{ fecha.tipoAcuerdo }}</td>
             <td>
-              <input type="datetime-local"
-                class="p-2 bg-zinc-800/50 border border-white/10 rounded-xl text-white outline-none focus:border-white/30 w-full max-w-sm"
-                [(ngModel)]="fecha.fechaLimiteStr" (ngModelChange)="markAsChanged()">
+              <p-datepicker [(ngModel)]="fecha.fechaLimiteDate" [showTime]="true" hourFormat="24"
+                (ngModelChange)="markAsChanged()" styleClass="w-full max-w-sm"
+                inputStyleClass="bg-zinc-800/50 border-white/10 rounded-xl text-white py-2 px-3"
+                appendTo="body" placeholder="Selecciona fecha y hora" />
             </td>
             <td>
               <p-tag *ngIf="fecha.isDefault && !fecha.changed" severity="info" value="Default" />

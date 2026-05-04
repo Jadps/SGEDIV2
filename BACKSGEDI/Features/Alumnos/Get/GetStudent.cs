@@ -22,6 +22,10 @@ public record AlumnoDetailDto
     public bool IsMyCareer { get; init; }
     public bool IsMyStudent { get; init; }
     public bool IsMyAdvisory { get; init; }
+
+    public string? AsesorInternoNombre { get; init; }
+    public string? AsesorExternoNombre { get; init; }
+    public string? EmpresaNombre { get; init; }
 }
 
 public class GetStudentEndpoint : EndpointWithoutRequest<AlumnoDetailDto>
@@ -33,7 +37,7 @@ public class GetStudentEndpoint : EndpointWithoutRequest<AlumnoDetailDto>
     {
         Get("/api/alumnos/{id}");
         Roles(SystemRoles.Admin, SystemRoles.Coordinador, SystemRoles.JefeDepartamento,
-              SystemRoles.Profesor, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno);
+              SystemRoles.Profesor, SystemRoles.AsesorInterno, SystemRoles.AsesorExterno, SystemRoles.Alumno);
     }
 
     public override async Task HandleAsync(CancellationToken ct)
@@ -91,6 +95,9 @@ public class GetStudentEndpoint : EndpointWithoutRequest<AlumnoDetailDto>
                 a.CarreraId,
                 a.AsesorInternoId,
                 a.AsesorExternoId,
+                AsesorInternoNombre = a.AsesorInterno != null ? a.AsesorInterno.Usuario.Name : null,
+                AsesorExternoNombre = a.AsesorExterno != null ? a.AsesorExterno.Usuario.Name : null,
+                EmpresaNombre = a.Empresa != null ? a.Empresa.Nombre : null,
             })
             .FirstOrDefaultAsync(ct);
 
@@ -128,6 +135,9 @@ public class GetStudentEndpoint : EndpointWithoutRequest<AlumnoDetailDto>
             IsMyCareer = isMyCareer,
             IsMyStudent = isMyStudent,
             IsMyAdvisory = isMyAdvisory,
+            AsesorInternoNombre = alumno.AsesorInternoNombre,
+            AsesorExternoNombre = alumno.AsesorExternoNombre,
+            EmpresaNombre = alumno.EmpresaNombre,
         };
 
         await Result<AlumnoDetailDto>.Success(dto).ToResult().ExecuteAsync(HttpContext);

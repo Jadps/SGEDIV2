@@ -8,14 +8,14 @@ import { FechasLimiteService, FechaLimiteDto } from '../../core/services/fechas-
 import { CatalogService } from '../../core/services/catalog.service';
 import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
+import { DatePickerModule } from 'primeng/datepicker';
 
 
 @Component({
   selector: 'app-fechas-limite',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, SelectModule, FormsModule, TagModule],
-  templateUrl: './fechas-limite.component.html',
-  styleUrl: './fechas-limite.component.css'
+  imports: [CommonModule, TableModule, ButtonModule, SelectModule, FormsModule, TagModule, DatePickerModule],
+  templateUrl: './fechas-limite.component.html'
 })
 export class FechasLimiteComponent implements OnInit {
   private readonly fechasLimiteService = inject(FechasLimiteService);
@@ -49,16 +49,9 @@ export class FechasLimiteComponent implements OnInit {
     this.fechasLimiteService.getFechasLimite(this.selectedCarrera()!).subscribe({
       next: (data: FechaLimiteDto[]) => {
         const mapped = data.map(d => {
-          const date = new Date(d.fechaLimite);
-          const year = date.getFullYear();
-          const month = String(date.getMonth() + 1).padStart(2, '0');
-          const day = String(date.getDate()).padStart(2, '0');
-          const hours = String(date.getHours()).padStart(2, '0');
-          const minutes = String(date.getMinutes()).padStart(2, '0');
-
           return {
             ...d,
-            fechaLimiteStr: `${year}-${month}-${day}T${hours}:${minutes}`,
+            fechaLimiteDate: new Date(d.fechaLimite),
             changed: false
           };
         });
@@ -76,13 +69,23 @@ export class FechasLimiteComponent implements OnInit {
   saveChanges() {
     if (!this.selectedCarrera()) return;
 
+    const invalidDates = this.fechas().filter(f => !f.fechaLimiteDate || isNaN(f.fechaLimiteDate.getTime()));
+    if (invalidDates.length > 0) {
+      this.messageService.add({ 
+        severity: 'error', 
+        summary: 'Fechas Inválidas', 
+        detail: 'Por favor, asegúrate de que todas las fechas sean válidas.' 
+      });
+      return;
+    }
+
     this.saving.set(true);
 
     const request = {
       carreraId: this.selectedCarrera()!,
       fechas: this.fechas().map(f => ({
         tipoAcuerdo: f.tipoAcuerdo,
-        fechaLimite: new Date(f.fechaLimiteStr).toISOString()
+        fechaLimite: f.fechaLimiteDate.toISOString()
       }))
     };
 

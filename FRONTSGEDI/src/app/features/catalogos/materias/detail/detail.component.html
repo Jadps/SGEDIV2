@@ -35,19 +35,19 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="flex flex-col gap-2 min-w-0">
                     <label for="creditos" class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Créditos</label>
-                    <p-inputNumber id="creditos" [(ngModel)]="materia()!.creditos" [min]="1" [showButtons]="true"
+                    <p-inputNumber id="creditos" [(ngModel)]="materia()!.creditos" [min]="1" 
                         styleClass="crud-input !py-0" inputStyleClass="!bg-transparent !border-0 !p-0" />
                 </div>
 
                 <div class="flex flex-col gap-2 min-w-0">
                     <label for="semestre" class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Semestre</label>
-                    <p-inputNumber id="semestre" [(ngModel)]="materia()!.semestre" [min]="1" [max]="12" [showButtons]="true"
+                    <p-inputNumber id="semestre" [(ngModel)]="materia()!.semestre" [min]="1" [max]="12" 
                         styleClass="crud-input !py-0" inputStyleClass="!bg-transparent !border-0 !p-0" />
                 </div>
             </div>
         </div>
 
-        <div class="flex justify-end gap-3 mt-8 p-6 bg-black/20 border-t border-white/5">
+        <div class="flex justify-end gap-3 mt-8 p-6 bg-zinc-950/40 border-t border-white/5">
             <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="onClose.emit()" styleClass="!text-zinc-400" />
             <p-button [label]="materiaId() ? 'Actualizar Materia' : 'Guardar Materia'" 
                       [icon]="materiaId() ? 'pi pi-save' : 'pi pi-check'" 

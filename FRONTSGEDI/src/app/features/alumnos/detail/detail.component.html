@@ -1,6 +1,6 @@
 <p-dialog [visible]="visible()" (visibleChange)="!$event && onClose.emit()" [modal]="true" [draggable]="false"
-    position="top" [style]="{ width: '900px', maxWidth: '95vw', marginTop: '2rem' }" [contentStyle]="{ padding: '0' }"
-    styleClass="crud-modal" maskStyleClass="backdrop-blur-md"
+    position="top" [style]="{ maxWidth: '95vw', marginTop: '2rem'}"
+    [contentStyle]="{ padding: '0', overflowX: 'hidden' }" styleClass="crud-modal" maskStyleClass="backdrop-blur-md"
     [header]="loading() ? 'Cargando...' : (alumno()?.name ?? '')">
 
     @if (loading()) {
@@ -21,6 +21,11 @@
             @if (isProfessorOnly()) {
             <p-tab value="materias">
                 <i class="pi pi-book mr-2"></i>Materias
+            </p-tab>
+            }
+            @if (showEvaluacionesTab()) {
+            <p-tab value="evaluaciones">
+                <i class="pi pi-star mr-2"></i>Evaluaciones
             </p-tab>
             }
         </p-tablist>
@@ -50,6 +55,19 @@
                 }
                 }
             </p-tabpanel>
+            <p-tabpanel value="evaluaciones">
+                @if (showEvaluacionesTab()) {
+                @defer (when activeTab() === 'evaluaciones'; prefetch on idle) {
+                <app-alumno-evaluaciones-tab [alumnoId]="alumnoId()" [isAdmin]="alumno()?.isAdmin ?? false"
+                    [isMyCareer]="alumno()?.isMyCareer ?? false" />
+                } @placeholder {
+                <div class="h-32 flex items-center justify-center">
+                    <p class="text-zinc-500">Cargando sección...</p>
+                </div>
+                }
+                }
+            </p-tabpanel>
+
         </p-tabpanels>
     </p-tabs>
     }

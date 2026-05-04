@@ -78,4 +78,12 @@ export class AuthService {
             })
         );
     }
+
+    getUserRoles(): string[] {
+        return this.currentUser()?.roles || [];
+    }
+
+    getUserId(): string | null {
+        return this.currentUser()?.id || null;
+    }
 }

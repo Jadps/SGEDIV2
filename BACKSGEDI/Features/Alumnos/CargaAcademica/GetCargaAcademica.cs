@@ -62,7 +62,7 @@ public class GetCargaAcademica : EndpointWithoutRequest<List<CargaAcademicaDto>>
             .AsNoTracking()
             .Where(ca => ca.AlumnoId == targetAlumnoId && ca.Semestre == semestreActual);
 
-        if (!roles.Contains(SystemRoles.Admin) && !roles.Contains(SystemRoles.Coordinador))
+        if (!roles.Contains(SystemRoles.Admin) && !roles.Contains(SystemRoles.Coordinador) && !roles.Contains(SystemRoles.Alumno))
         {
             query = query.Where(ca => ca.Profesor!.UsuarioId == userId);
         }

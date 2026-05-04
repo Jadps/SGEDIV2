@@ -41,8 +41,12 @@ public class ListInternalUsersEndpoint : EndpointWithoutRequest<List<InternalUse
                 u.Coordinador != null ? u.Coordinador.Carrera.Nombre
                     : u.JefeDepartamento != null ? u.JefeDepartamento.Carrera.Nombre
                     : null,
-                u.AsesorInterno != null ? u.AsesorInterno.NumeroEmpleado : null,
-                u.AsesorInterno != null ? u.AsesorInterno.Cubiculo : null
+                u.AsesorInterno != null ? u.AsesorInterno.NumeroEmpleado 
+                    : u.Profesor != null ? u.Profesor.NumeroEmpleado 
+                    : null,
+                u.AsesorInterno != null ? u.AsesorInterno.Cubiculo 
+                    : u.Profesor != null ? u.Profesor.Cubiculo 
+                    : null
             ))
             .ToListAsync(ct);
 
@@ -79,8 +83,12 @@ public class GetInternalUserEndpoint : Endpoint<GetInternalUserRequest, Internal
                 u.Coordinador != null ? u.Coordinador.Carrera.Nombre
                     : u.JefeDepartamento != null ? u.JefeDepartamento.Carrera.Nombre
                     : null,
-                u.AsesorInterno != null ? u.AsesorInterno.NumeroEmpleado : null,
-                u.AsesorInterno != null ? u.AsesorInterno.Cubiculo : null
+                u.AsesorInterno != null ? u.AsesorInterno.NumeroEmpleado 
+                    : u.Profesor != null ? u.Profesor.NumeroEmpleado 
+                    : null,
+                u.AsesorInterno != null ? u.AsesorInterno.Cubiculo 
+                    : u.Profesor != null ? u.Profesor.Cubiculo 
+                    : null
             ))
             .FirstOrDefaultAsync(ct);
 

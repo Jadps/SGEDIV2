@@ -12,4 +12,8 @@ export interface AlumnoDetailDto {
     isMyStudent: boolean;
     isMyAdvisory: boolean;
     isAdmin: boolean;
+
+    asesorInternoNombre?: string;
+    asesorExternoNombre?: string;
+    empresaNombre?: string;
 }

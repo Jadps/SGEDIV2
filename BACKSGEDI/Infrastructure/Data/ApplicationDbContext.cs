@@ -28,6 +28,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Empresa> Empresas { get; set; } = null!;
     public DbSet<Materia> Materias { get; set; } = null!;
     public DbSet<CargaAcademica> CargasAcademicas { get; set; } = null!;
+    public DbSet<EvaluacionDesempeño> EvaluacionesDesempeño { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -161,6 +162,21 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.ProfesorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+        });
+
+        modelBuilder.Entity<EvaluacionDesempeño>(entity =>
+        {
+            entity.HasOne(e => e.Alumno)
+                .WithMany()
+                .HasForeignKey(e => e.AlumnoId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Evaluador)
+                .WithMany()
+                .HasForeignKey(e => e.EvaluadorId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Usuario>().HasIndex(u => u.Email).IsUnique();
