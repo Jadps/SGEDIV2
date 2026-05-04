@@ -29,12 +29,11 @@ export const API_ENDPOINTS = {
   },
   ACUERDOS: {
     BASE: '/acuerdos',
-    UPLOAD: '/acuerdos/{id}/upload',
+    ADMINISTRATIVE_UPLOAD: '/acuerdos/administrative-upload',
     UPLOAD_STUDENT: '/alumnos/me/documentos/acuerdos',
     UPLOAD_PROFESOR: '/profesor/documentos/acuerdos',
     UPLOAD_ASESOR_INTERNO: '/asesor-interno/documentos/acuerdos',
     UPLOAD_ASESOR_EXTERNO: '/asesor-externo/documentos/acuerdos',
-    UPLOAD_COORDINADOR: '/coordinador/documentos/acuerdos',
     PRORROGA: '/acuerdos/prorroga'
   },
   CATALOGS: {

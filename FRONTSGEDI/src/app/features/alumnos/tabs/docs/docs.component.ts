@@ -52,6 +52,11 @@ export class AlumnoDocsTabComponent {
   adminSelectedFile = signal<File | null>(null);
   isUploadingAdmin = signal(false);
 
+  roleUploadVisible = signal(false);
+  selectedDocForRoleUpload = signal<any>(null);
+  roleSelectedFile = signal<File | null>(null);
+  isUploadingRole = signal(false);
+
   availableSemestres = signal<string[]>([]);
   selectedSemestre = model<string | null>(null);
 
@@ -166,6 +171,11 @@ export class AlumnoDocsTabComponent {
     this.adminUploadVisible.set(true);
   }
 
+  clearAdminUpload() {
+    this.adminSelectedFile.set(null);
+    this.selectedDocForAdminUpload.set(null);
+  }
+
   saveAdminUpload() {
     const doc = this.selectedDocForAdminUpload();
     const file = this.adminSelectedFile();
@@ -173,19 +183,64 @@ export class AlumnoDocsTabComponent {
 
     this.isUploadingAdmin.set(true);
     const upload$ = doc.esAcuerdo
-      ? this.uploadService.uploadAdministrativeAcuerdo(doc.archivo?.id, file)
+      ? this.uploadService.uploadAdministrativeAcuerdo(file, doc.archivo?.id, this.alumnoId(), doc.tipoId, doc.profesorId)
       : this.uploadService.uploadAdministrativePersonalDoc(this.alumnoId(), doc.tipoId, file);
 
     upload$.subscribe({
       next: () => {
         this.isUploadingAdmin.set(false);
         this.adminUploadVisible.set(false);
+        this.clearAdminUpload();
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Documento subido y validado correctamente' });
         this.loadDocs();
       },
       error: (err) => {
         this.isUploadingAdmin.set(false);
         this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || 'Error al subir el documento' });
+      }
+    });
+  }
+
+  openRoleUpload(doc: any) {
+    this.selectedDocForRoleUpload.set(doc);
+    this.roleSelectedFile.set(null);
+    this.roleUploadVisible.set(true);
+  }
+
+  clearRoleUpload() {
+    this.roleSelectedFile.set(null);
+    this.selectedDocForRoleUpload.set(null);
+  }
+
+  saveRoleUpload() {
+    const doc = this.selectedDocForRoleUpload();
+    const file = this.roleSelectedFile();
+    if (!doc || !file) return;
+
+    this.isUploadingRole.set(true);
+    let upload$;
+
+    if (doc.tipoId === 3 || doc.tipoId === 7) {
+      upload$ = this.uploadService.uploadProfesorAcuerdo(this.alumnoId(), doc.tipoId, file);
+    } else if (doc.tipoId === 5) {
+      upload$ = this.uploadService.uploadAsesorInternoAcuerdo(this.alumnoId(), doc.tipoId, file);
+    } else if (doc.tipoId === 6) {
+      upload$ = this.uploadService.uploadAsesorExternoAcuerdo(this.alumnoId(), doc.tipoId, file);
+    } else {
+      upload$ = this.uploadService.uploadStudentAcuerdo(doc.tipoId, file);
+    }
+
+    upload$.subscribe({
+      next: () => {
+        this.isUploadingRole.set(false);
+        this.roleUploadVisible.set(false);
+        this.clearRoleUpload();
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Documento subido correctamente. Esperando revisión.' });
+        this.loadDocs();
+      },
+      error: (err) => {
+        this.isUploadingRole.set(false);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.detail || err.error?.message || 'Error al subir el documento' });
       }
     });
   }

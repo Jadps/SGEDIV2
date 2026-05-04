@@ -15,6 +15,7 @@ public record ExtendDeadlineRequest
     public Guid? AlumnoId { get; init; }
     public TipoAcuerdo? TipoAcuerdo { get; init; }
     public string? Semestre { get; init; }
+    public Guid? MateriaId { get; init; }
     public DateTime NuevaFechaLimite { get; init; }
 }
 
@@ -40,8 +41,15 @@ public class ExtendAcuerdoDeadline : Endpoint<ExtendDeadlineRequest>
         }
         else if (req.AlumnoId.HasValue && req.TipoAcuerdo.HasValue && !string.IsNullOrEmpty(req.Semestre))
         {
-            acuerdo = await _db.DocumentosAcuerdos
-                .FirstOrDefaultAsync(a => a.AlumnoId == req.AlumnoId && a.TipoAcuerdo == req.TipoAcuerdo && a.Semestre == req.Semestre && a.EsVersionActual, ct);
+            var query = _db.DocumentosAcuerdos
+                .Where(a => a.AlumnoId == req.AlumnoId && a.TipoAcuerdo == req.TipoAcuerdo && a.Semestre == req.Semestre && a.EsVersionActual);
+
+            if (req.MateriaId.HasValue)
+            {
+                query = query.Where(a => a.MateriaId == req.MateriaId);
+            }
+
+            acuerdo = await query.FirstOrDefaultAsync(ct);
 
             if (acuerdo == null)
             {
@@ -49,6 +57,7 @@ public class ExtendAcuerdoDeadline : Endpoint<ExtendDeadlineRequest>
                 {
                     AlumnoId = req.AlumnoId.Value,
                     TipoAcuerdo = req.TipoAcuerdo.Value,
+                    MateriaId = req.MateriaId,
                     Semestre = req.Semestre,
                     FechaLimite = DateTime.SpecifyKind(req.NuevaFechaLimite, DateTimeKind.Utc),
                     Estado = EstadoDocumento.PendienteRevision,

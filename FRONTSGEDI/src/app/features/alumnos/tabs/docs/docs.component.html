@@ -30,8 +30,7 @@
         <td class="text-xs text-zinc-400">{{ doc.semestre || '--' }}</td>
         <td class="text-xs text-zinc-400">v{{ doc.version }}</td>
         <td>
-          <app-status-badge [severity]="doc.estadoSeverity"
-            [text]="doc.estadoText" />
+          <app-status-badge [severity]="doc.estadoSeverity" [text]="doc.estadoText" />
         </td>
         <td>
           @if (doc.fechaLimite) {
@@ -47,8 +46,8 @@
         <td class="text-xs text-zinc-500">{{ (doc.archivo?.fechaSubida | date:'shortDate') || '--' }}</td>
         <td class="flex gap-2">
           @if (doc.archivo) {
-          <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info" (onClick)="viewDocument(doc.archivo.id)"
-            pTooltip="Ver Documento" />
+          <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info"
+            (onClick)="viewDocument(doc.archivo.id)" pTooltip="Ver Documento" />
           }
 
           @if (canReview()) {
@@ -66,6 +65,11 @@
           <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="danger" (onClick)="review(doc, false)"
             pTooltip="Rechazar" />
           }
+          }
+
+          @if (doc.puedeSubir && !canReview()) {
+          <p-button icon="pi pi-upload" [rounded]="true" [text]="true" severity="success"
+            (onClick)="openRoleUpload(doc)" pTooltip="Subir Anexo" [disabled]="doc.estado === 0 || doc.estado === 1" />
           }
         </td>
       </tr>
@@ -96,12 +100,8 @@
     </div>
   </div>
 
-  <p-dialog [(visible)]="prorrogaDialogVisible" 
-    header="Otorgar Prórroga" 
-    [modal]="true" 
-    [draggable]="false"
-    position="top"
-    [style]="{ width: '400px', marginTop: '4rem' }"
+  <p-dialog [(visible)]="prorrogaDialogVisible" header="Otorgar Prórroga" [modal]="true" [draggable]="false"
+    position="top" [style]="{ width: '400px', marginTop: '4rem' }"
     styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
     <div class="flex flex-col gap-4 mt-2">
       <p class="text-zinc-400 text-sm">Selecciona la nueva fecha límite para la entrega de este anexo.</p>
@@ -115,12 +115,8 @@
     </ng-template>
   </p-dialog>
 
-  <p-dialog [(visible)]="rejectDialogVisible" 
-    header="Motivo de Rechazo" 
-    [modal]="true" 
-    [draggable]="false"
-    position="top"
-    [style]="{ width: '450px', marginTop: '4rem' }" 
+  <p-dialog [(visible)]="rejectDialogVisible" header="Motivo de Rechazo" [modal]="true" [draggable]="false"
+    position="top" [style]="{ width: '450px', marginTop: '4rem' }"
     styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
     <div class="flex flex-col gap-4 mt-2">
       <p class="text-zinc-400 text-sm">Por favor, indica el motivo por el cual estás rechazando este documento. El
@@ -137,39 +133,65 @@
     </ng-template>
   </p-dialog>
 
-  <p-dialog [visible]="adminUploadVisible()" (visibleChange)="adminUploadVisible.set($event)"
-    header="Subida Administrativa" 
-    [modal]="true" 
-    [draggable]="false" 
-    position="top"
-    [style]="{ width: '500px', marginTop: '4rem' }"
-    styleClass="glass-dark border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+  <p-dialog [(visible)]="adminUploadVisible" header="Subir Documento (Administrador)" [modal]="true"
+    [draggable]="false" position="top" [style]="{ width: '500px', marginTop: '4rem' }" appendTo="body"
+    styleClass="glass-dark border border-white/10 rounded-2xl shadow-2xl" (onHide)="clearAdminUpload()">
     @if (adminUploadVisible()) {
-    <div class="flex flex-col gap-6 mt-4">
-      <div class="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-        <div class="flex items-center gap-3">
-          <i class="pi pi-shield text-emerald-400"></i>
-          <p class="text-sm text-zinc-300">
-            Estás subiendo el documento <strong>{{ selectedDocForAdminUpload()?.label }}</strong>
-            en nombre
-            del alumno.
-            <span class="block mt-1 text-emerald-400 font-medium">El documento será marcado como APROBADO
-              automáticamente.</span>
-          </p>
+      <div class="flex flex-col gap-6 mt-2">
+        <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 shadow-inner">
+          <div class="flex items-start gap-4">
+            <i class="pi pi-shield text-emerald-400 text-lg mt-1"></i>
+            <div class="flex flex-col gap-0.5">
+              <p class="text-sm text-zinc-200 leading-relaxed">
+                Estás subiendo: <span class="text-white font-bold">{{ selectedDocForAdminUpload()?.label }}</span>
+              </p>
+              <span class="text-zinc-400 text-[11px]">Este documento será marcado como <span class="text-emerald-400 font-bold uppercase">Aprobado</span> automáticamente.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">Archivo PDF</label>
+          <app-file-uploader color="emerald" icon="pi-shield" label="Subir y Validar" accept="application/pdf"
+            description="Solo archivos PDF oficiales." [(selectedFile)]="adminSelectedFile" />
         </div>
       </div>
-
-      <div class="flex flex-col gap-2">
-        <label class="text-sm text-zinc-400">Archivo PDF</label>
-        <app-file-uploader color="emerald" icon="pi-shield" label="Subir y Validar" accept="application/pdf"
-          description="Solo archivos PDF oficiales." (fileSelected)="adminSelectedFile.set($event)" />
-      </div>
-    </div>
     }
     <ng-template pTemplate="footer">
       <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="adminUploadVisible.set(false)" />
       <p-button label="Subir y Aprobar" (onClick)="saveAdminUpload()" [loading]="isUploadingAdmin()"
         [disabled]="!adminSelectedFile()" severity="success" />
+    </ng-template>
+  </p-dialog>
+
+  <p-dialog [(visible)]="roleUploadVisible" header="Subir Documento" [modal]="true" [draggable]="false"
+    position="top" [style]="{ width: '500px', marginTop: '4rem' }" appendTo="body"
+    styleClass="glass-dark border border-white/10 rounded-2xl shadow-2xl" (onHide)="clearRoleUpload()">
+    @if (roleUploadVisible()) {
+      <div class="flex flex-col gap-6 mt-2">
+        <div class="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 shadow-inner">
+          <div class="flex items-start gap-4">
+            <i class="pi pi-info-circle text-blue-400 text-lg mt-1"></i>
+            <div class="flex flex-col gap-0.5">
+              <p class="text-sm text-zinc-200 leading-relaxed">
+                Estás subiendo: <span class="text-white font-bold">{{ selectedDocForRoleUpload()?.label }}</span>
+              </p>
+              <span class="text-zinc-400 text-[11px]">El documento pasará a estado Pendiente de Revisión.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">Archivo PDF</label>
+          <app-file-uploader color="blue" icon="pi-file-pdf" label="Seleccionar PDF" accept="application/pdf"
+            description="Asegúrate de que contenga las firmas correspondientes." [(selectedFile)]="roleSelectedFile" />
+        </div>
+      </div>
+    }
+    <ng-template pTemplate="footer">
+      <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="roleUploadVisible.set(false)" />
+      <p-button label="Subir Documento" (onClick)="saveRoleUpload()" [loading]="isUploadingRole()"
+        [disabled]="!roleSelectedFile()" severity="primary" />
     </ng-template>
   </p-dialog>
 </div>

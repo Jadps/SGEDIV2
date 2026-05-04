@@ -22,6 +22,7 @@ public record ExpedienteItemDto
     public bool EsAcuerdo { get; init; }
     public FileDetailsDto? Archivo { get; init; }
     public Guid? ProfesorId { get; init; }
+    public Guid? MateriaId { get; init; }
 }
 
 public record FileDetailsDto
@@ -60,6 +61,12 @@ public class GetExpediente : Endpoint<GetExpedienteRequest, List<ExpedienteItemD
         var semester = req.Semestre ?? SemestreHelper.GetSemestreActual();
         var roles    = User.GetRoles();
         var userId   = User.GetUserId();
+
+        var myProfesorId = await _db.Profesores
+            .AsNoTracking()
+            .Where(p => p.UsuarioId == userId)
+            .Select(p => (Guid?)p.Id)
+            .FirstOrDefaultAsync(ct);
 
         Guid alumnoId;
         if (req.AlumnoIdRaw.Equals("me", StringComparison.OrdinalIgnoreCase))
@@ -111,6 +118,7 @@ public class GetExpediente : Endpoint<GetExpedienteRequest, List<ExpedienteItemD
                 PuedeSubir = false,
                 EsAcuerdo = true,
                 ProfesorId = d.ProfesorId,
+                MateriaId = d.MateriaId,
                 Archivo = !string.IsNullOrEmpty(d.RutaArchivo) ? new FileDetailsDto { Id = d.Id, FechaSubida = d.FechaSubida ?? DateTime.MinValue } : null
             })
             .ToListAsync(ct);
@@ -131,6 +139,12 @@ public class GetExpediente : Endpoint<GetExpedienteRequest, List<ExpedienteItemD
             })
             .ToListAsync(ct);
 
+        var carga = await _db.CargasAcademicas
+            .AsNoTracking()
+            .Include(ca => ca.Materia)
+            .Where(ca => ca.AlumnoId == alumnoId && ca.Semestre == semester)
+            .ToListAsync(ct);
+
         var resultList = new List<ExpedienteItemDto>();
         var configs = await _db.ConfiguracionesFechasLimites
             .AsNoTracking()
@@ -139,26 +153,62 @@ public class GetExpediente : Endpoint<GetExpedienteRequest, List<ExpedienteItemD
 
         foreach (TipoAcuerdo tipo in Enum.GetValues(typeof(TipoAcuerdo)))
         {
+            var config = configs.FirstOrDefault(f => f.TipoAcuerdo == tipo);
             var matched = agreements.Where(a => a.TipoId == (int)tipo).ToList();
-            if (!matched.Any())
+
+            if (DocumentoPermissions.IsMultiInstance(tipo))
             {
-                var config = configs.FirstOrDefault(f => f.TipoAcuerdo == tipo);
-                resultList.Add(new ExpedienteItemDto
+                foreach (var m in carga)
                 {
-                    TipoId = (int)tipo,
-                    Label = tipo.ToString().Replace("Anexo", "Anexo "),
-                    Semestre = semester,
-                    Estado = -1,
-                    FechaLimite = config?.FechaLimite ?? _fechasLimiteService.CalculateDefault(tipo, semester),
-                    PuedeSubir = DocumentoPermissions.CanUpload(tipo, roles),
-                    EsAcuerdo = true
-                });
+                    if (roles.Contains(SystemRoles.Profesor) && !roles.Contains(SystemRoles.Admin) && !roles.Contains(SystemRoles.Coordinador))
+                    {
+                        if (m.ProfesorId != myProfesorId) continue;
+                    }
+
+                    var doc = matched.FirstOrDefault(a => a.MateriaId == m.MateriaId);
+                    if (doc != null)
+                    {
+                        bool puedeSubir = DocumentoPermissions.CanUpload(tipo, roles) || (doc.ProfesorId == myProfesorId);
+                        resultList.Add(doc with { PuedeSubir = puedeSubir });
+                    }
+                    else
+                    {
+                        resultList.Add(new ExpedienteItemDto
+                        {
+                            TipoId = (int)tipo,
+                            Label = $"{tipo.ToString().Replace("Anexo", "Anexo ")} - {m.Materia?.Nombre}",
+                            Semestre = semester,
+                            Estado = -1,
+                            FechaLimite = config?.FechaLimite ?? _fechasLimiteService.CalculateDefault(tipo, semester),
+                            PuedeSubir = DocumentoPermissions.CanUpload(tipo, roles) || (m.ProfesorId == myProfesorId),
+                            EsAcuerdo = true,
+                            MateriaId = m.MateriaId,
+                            ProfesorId = m.ProfesorId
+                        });
+                    }
+                }
             }
             else
             {
-                foreach (var doc in matched)
+                if (!matched.Any())
                 {
-                    resultList.Add(doc with { PuedeSubir = DocumentoPermissions.CanUpload(tipo, roles) });
+                    resultList.Add(new ExpedienteItemDto
+                    {
+                        TipoId = (int)tipo,
+                        Label = tipo.ToString().Replace("Anexo", "Anexo "),
+                        Semestre = semester,
+                        Estado = -1,
+                        FechaLimite = config?.FechaLimite ?? _fechasLimiteService.CalculateDefault(tipo, semester),
+                        PuedeSubir = DocumentoPermissions.CanUpload(tipo, roles),
+                        EsAcuerdo = true
+                    });
+                }
+                else
+                {
+                    foreach (var doc in matched)
+                    {
+                        resultList.Add(doc with { PuedeSubir = DocumentoPermissions.CanUpload(tipo, roles) });
+                    }
                 }
             }
         }

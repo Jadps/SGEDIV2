@@ -19,10 +19,11 @@ export class DocumentUploadService {
     );
   }
 
-  uploadProfesorAcuerdo(alumnoId: string, tipoAcuerdo: number, file: File, context?: HttpContext): Observable<void> {
+  uploadProfesorAcuerdo(alumnoId: string, tipoAcuerdo: number, file: File, materiaId?: string, context?: HttpContext): Observable<void> {
     const formData = new FormData();
     formData.append('AlumnoId', alumnoId);
     formData.append('TipoAcuerdo', tipoAcuerdo.toString());
+    if (materiaId) formData.append('MateriaId', materiaId);
     formData.append('File', file);
     return this.http.post<void>(
       `${environment.apiUrl}${API_ENDPOINTS.ACUERDOS.UPLOAD_PROFESOR}`,
@@ -55,24 +56,24 @@ export class DocumentUploadService {
     );
   }
 
-  uploadCoordinadorAcuerdo(alumnoId: string, tipoAcuerdo: number, file: File, context?: HttpContext): Observable<void> {
-    const formData = new FormData();
-    formData.append('AlumnoId', alumnoId);
-    formData.append('TipoAcuerdo', tipoAcuerdo.toString());
-    formData.append('File', file);
-    return this.http.post<void>(
-      `${environment.apiUrl}${API_ENDPOINTS.ACUERDOS.UPLOAD_COORDINADOR}`,
-      formData,
-      { context }
-    );
-  }
 
-  uploadAdministrativeAcuerdo(acuerdoId: string, file: File): Observable<void> {
+
+  uploadAdministrativeAcuerdo(
+    file: File,
+    acuerdoId?: string | null,
+    alumnoId?: string | null,
+    tipoAcuerdo?: number | null,
+    profesorId?: string | null
+  ): Observable<void> {
     const formData = new FormData();
-    formData.append('AcuerdoId', acuerdoId);
+    if (acuerdoId) formData.append('AcuerdoId', acuerdoId);
+    if (alumnoId) formData.append('AlumnoId', alumnoId);
+    if (tipoAcuerdo !== undefined && tipoAcuerdo !== null) formData.append('TipoAcuerdo', tipoAcuerdo.toString());
+    if (profesorId) formData.append('ProfesorId', profesorId);
     formData.append('File', file);
+
     return this.http.post<void>(
-      `${environment.apiUrl}${API_ENDPOINTS.ACUERDOS.UPLOAD.replace('{id}', acuerdoId)}`,
+      `${environment.apiUrl}${API_ENDPOINTS.ACUERDOS.ADMINISTRATIVE_UPLOAD}`,
       formData
     );
   }

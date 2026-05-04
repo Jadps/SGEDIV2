@@ -13,25 +13,41 @@
             <p-tab value="info">
                 <i class="pi pi-user mr-2"></i>Datos Generales
             </p-tab>
+            @if (isCoordinatorOrAdmin()) {
             <p-tab value="docs">
                 <i class="pi pi-file mr-2"></i>Documentos
             </p-tab>
+            }
+            @if (isProfessorOnly()) {
+            <p-tab value="materias">
+                <i class="pi pi-book mr-2"></i>Materias
+            </p-tab>
+            }
         </p-tablist>
         <p-tabpanels>
             <p-tabpanel value="info">
                 <app-alumno-info-tab [student]="alumno()!" (statusChanged)="statusChanged.emit($event)" />
             </p-tabpanel>
             <p-tabpanel value="docs">
+                @if (isCoordinatorOrAdmin()) {
                 @defer (when activeTab() === 'docs'; prefetch on idle) {
                 <app-alumno-docs-tab [alumnoId]="alumnoId()" [isMyCareer]="alumno()?.isMyCareer ?? false" />
                 } @placeholder {
                 <div class="h-32 flex items-center justify-center">
                     <p class="text-zinc-500">Cargando sección...</p>
                 </div>
-                } @loading (after 100ms; minimum 500ms) {
-                <div class="flex items-center justify-center py-20">
-                    <p-progressSpinner strokeWidth="3" styleClass="w-10 h-10" />
+                }
+                }
+            </p-tabpanel>
+            <p-tabpanel value="materias">
+                @if (isProfessorOnly()) {
+                @defer (when activeTab() === 'materias'; prefetch on idle) {
+                <app-alumno-materia-docs-tab [alumnoId]="alumnoId()" />
+                } @placeholder {
+                <div class="h-32 flex items-center justify-center">
+                    <p class="text-zinc-500">Cargando sección...</p>
                 </div>
+                }
                 }
             </p-tabpanel>
         </p-tabpanels>

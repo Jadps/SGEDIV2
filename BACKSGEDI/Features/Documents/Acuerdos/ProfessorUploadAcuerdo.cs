@@ -15,6 +15,7 @@ public record ProfessorUploadAcuerdoRequest
 {
     public Guid AlumnoId { get; set; }
     public TipoAcuerdo TipoAcuerdo { get; set; }
+    public Guid? MateriaId { get; set; }
     public IFormFile File { get; set; } = null!;
 }
 
@@ -75,9 +76,15 @@ public class ProfessorUploadAcuerdo : Endpoint<ProfessorUploadAcuerdoRequest>
 
         var semestreActual = SemestreHelper.GetSemestreActual();
 
-        var currentVersion = await _db.DocumentosAcuerdos
-            .Where(a => a.AlumnoId == req.AlumnoId && a.TipoAcuerdo == req.TipoAcuerdo && a.Semestre == semestreActual && a.ProfesorId == profesor.Id && a.EsVersionActual)
-            .FirstOrDefaultAsync(ct);
+        var query = _db.DocumentosAcuerdos
+            .Where(a => a.AlumnoId == req.AlumnoId && a.TipoAcuerdo == req.TipoAcuerdo && a.Semestre == semestreActual && a.ProfesorId == profesor.Id && a.EsVersionActual);
+
+        if (req.MateriaId.HasValue)
+        {
+            query = query.Where(a => a.MateriaId == req.MateriaId);
+        }
+
+        var currentVersion = await query.FirstOrDefaultAsync(ct);
 
         int nextVersion = 1;
         DateTime fechaLimite; 
@@ -112,6 +119,7 @@ public class ProfessorUploadAcuerdo : Endpoint<ProfessorUploadAcuerdoRequest>
         {
             AlumnoId = req.AlumnoId,
             ProfesorId = profesor.Id,
+            MateriaId = req.MateriaId,
             TipoAcuerdo = req.TipoAcuerdo,
             Semestre = semestreActual,
             RutaArchivo = path,

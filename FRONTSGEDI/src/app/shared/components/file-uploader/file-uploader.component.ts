@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed, HostListener } from '@angular/core';
+import { Component, input, output, signal, computed, HostListener, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -18,7 +18,7 @@ export class FileUploaderComponent {
 
   fileSelected = output<File | null>();
 
-  selectedFile = signal<File | null>(null);
+  selectedFile = model<File | null>(null);
   isDragging = signal(false);
 
   containerClasses = computed(() => {

@@ -9,12 +9,12 @@ public static class DocumentoPermissions
     {
         { TipoAcuerdo.AnexoI, new[] { SystemRoles.Alumno, SystemRoles.Admin, SystemRoles.Coordinador } },
         { TipoAcuerdo.AnexoII, new[] { SystemRoles.Coordinador, SystemRoles.JefeDepartamento, SystemRoles.Admin } },
-        { TipoAcuerdo.AnexoIII, new[] { SystemRoles.Profesor, SystemRoles.Admin } },
-        { TipoAcuerdo.AnexoIV, new[] { SystemRoles.Alumno, SystemRoles.Admin } },
-        { TipoAcuerdo.AnexoV, new[] { SystemRoles.AsesorInterno, SystemRoles.Admin } },
-        { TipoAcuerdo.AnexoVI, new[] { SystemRoles.AsesorExterno, SystemRoles.Admin } },
-        { TipoAcuerdo.AnexoVII, new[] { SystemRoles.Profesor, SystemRoles.Admin } },
-        { TipoAcuerdo.AnexoVIII, new[] { SystemRoles.Alumno, SystemRoles.Admin } }
+        { TipoAcuerdo.AnexoIII, new[] { SystemRoles.Profesor, SystemRoles.Admin, SystemRoles.Coordinador } },
+        { TipoAcuerdo.AnexoIV, new[] { SystemRoles.Alumno, SystemRoles.Admin, SystemRoles.Coordinador } },
+        { TipoAcuerdo.AnexoV, new[] { SystemRoles.AsesorInterno, SystemRoles.Admin, SystemRoles.Coordinador } },
+        { TipoAcuerdo.AnexoVI, new[] { SystemRoles.AsesorExterno, SystemRoles.Admin, SystemRoles.Coordinador } },
+        { TipoAcuerdo.AnexoVII, new[] { SystemRoles.Profesor, SystemRoles.Admin, SystemRoles.Coordinador } },
+        { TipoAcuerdo.AnexoVIII, new[] { SystemRoles.Alumno, SystemRoles.Admin, SystemRoles.Coordinador } }
     };
 
     private static readonly Dictionary<TipoDocumentoAlumno, string[]> StudentUploadPermissions = new()

@@ -27,17 +27,17 @@ public class GetCargaAcademica : EndpointWithoutRequest<List<CargaAcademicaDto>>
     public override void Configure()
     {
         Get("/api/alumnos/{alumnoId}/carga-academica");
-        Roles(SystemRoles.Alumno, SystemRoles.Coordinador, SystemRoles.Admin);
+        Roles(SystemRoles.Alumno, SystemRoles.Coordinador, SystemRoles.Admin, SystemRoles.Profesor);
     }
 
     public override async Task HandleAsync(CancellationToken ct)
     {
         var alumnoIdStr = Route<string>("alumnoId");
+        var userId = User.GetUserId();
         Guid targetAlumnoId;
 
         if (alumnoIdStr == "me")
         {
-            var userId = User.GetUserId();
             var alumno = await _db.Alumnos.FirstOrDefaultAsync(a => a.UsuarioId == userId, ct);
             if (alumno == null)
             {
@@ -56,9 +56,18 @@ public class GetCargaAcademica : EndpointWithoutRequest<List<CargaAcademicaDto>>
         }
 
         var semestreActual = SemestreHelper.GetSemestreActual();
+        var roles = User.GetRoles();
 
-        var carga = await _db.CargasAcademicas
-            .Where(ca => ca.AlumnoId == targetAlumnoId && ca.Semestre == semestreActual)
+        var query = _db.CargasAcademicas
+            .AsNoTracking()
+            .Where(ca => ca.AlumnoId == targetAlumnoId && ca.Semestre == semestreActual);
+
+        if (!roles.Contains(SystemRoles.Admin) && !roles.Contains(SystemRoles.Coordinador))
+        {
+            query = query.Where(ca => ca.Profesor!.UsuarioId == userId);
+        }
+
+        var carga = await query
             .Select(ca => new CargaAcademicaDto(
                 ca.Id,
                 ca.MateriaId,

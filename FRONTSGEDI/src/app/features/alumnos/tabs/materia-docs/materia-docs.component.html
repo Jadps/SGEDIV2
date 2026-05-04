@@ -1,0 +1,86 @@
+<div class="p-6">
+  <div class="mb-6 flex flex-col gap-2">
+    <label class="text-xs text-zinc-500 uppercase tracking-wider font-medium">Selecciona la Materia:</label>
+    <p-select [options]="materias()" [(ngModel)]="selectedMateriaId" optionLabel="materiaNombre" optionValue="materiaId"
+      placeholder="Selecciona una materia" styleClass="w-full bg-zinc-900/50 border-white/10"
+      (onChange)="onMateriaChange()" />
+  </div>
+
+  @if (selectedMateriaId()) {
+  <p-table [value]="filteredDocs()" styleClass="p-datatable-sm glass-table" [loading]="loading()">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Documento</th>
+        <th>Estado</th>
+        <th>Fecha Límite</th>
+        <th class="w-32"></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-doc>
+      <tr class="transition-colors hover:bg-white/5">
+        <td class="text-sm font-medium text-zinc-300">{{ doc.label }}</td>
+        <td>
+          <app-status-badge [severity]="doc.estadoSeverity" [text]="doc.estadoText" />
+        </td>
+        <td>
+          @if (doc.fechaLimite) {
+          <span class="text-xs font-medium"
+            [class.text-red-400]="isDeadlineExpired(doc.fechaLimite) && doc.estado !== 1">
+            {{ doc.fechaLimite | date:'dd/MM/yyyy' }}
+          </span>
+          } @else {
+          <span class="text-xs text-zinc-600">--</span>
+          }
+        </td>
+        <td class="flex gap-2">
+          @if (doc.archivo) {
+          <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info"
+            (onClick)="viewDocument(doc.archivo.id)" pTooltip="Ver Documento" />
+          }
+
+          @if (doc.puedeSubir) {
+          <p-button icon="pi pi-upload" [rounded]="true" [text]="true" severity="success" (onClick)="openUpload(doc)"
+            pTooltip="Subir Anexo" [disabled]="doc.estado === 0 || doc.estado === 1" />
+          }
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  } @else {
+  <div class="py-20 text-center border border-dashed border-white/5 rounded-2xl">
+    <i class="pi pi-book text-3xl text-zinc-700 mb-3"></i>
+    <p class="text-zinc-500">Selecciona una materia para ver y subir tus anexos correspondientes.</p>
+  </div>
+  }
+
+  <p-dialog [(visible)]="uploadVisible" header="Subir Documento" [modal]="true" [draggable]="false" position="top"
+    [style]="{ width: '500px', marginTop: '4rem' }" appendTo="body"
+    styleClass="glass-dark border border-white/10 rounded-2xl shadow-2xl" (onHide)="clearUpload()">
+    @if (uploadVisible()) {
+      <div class="flex flex-col gap-6 mt-2">
+        <div class="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+          <div class="flex items-start gap-4">
+            <i class="pi pi-info-circle text-blue-400 text-lg mt-1"></i>
+            <div class="flex flex-col gap-0.5">
+              <p class="text-sm text-zinc-200">
+                Estás subiendo: <span class="text-white font-bold">{{ selectedDoc()?.label }}</span>
+              </p>
+              <span class="text-zinc-400 text-[11px]">El documento pasará a estado Pendiente de Revisión.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">Archivo PDF del Anexo</label>
+          <app-file-uploader color="blue" icon="pi-file-pdf" label="Seleccionar PDF" accept="application/pdf"
+            [(selectedFile)]="selectedFile" />
+        </div>
+      </div>
+    }
+    <ng-template pTemplate="footer">
+      <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="uploadVisible.set(false)" />
+      <p-button label="Subir Documento" (onClick)="saveUpload()" [loading]="isUploading()"
+        [disabled]="!selectedFile()" severity="primary" />
+    </ng-template>
+  </p-dialog>
+</div>

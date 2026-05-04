@@ -11,4 +11,5 @@ export interface AlumnoDetailDto {
     isMyCareer: boolean;
     isMyStudent: boolean;
     isMyAdvisory: boolean;
+    isAdmin: boolean;
 }

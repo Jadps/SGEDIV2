@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal, effect, untracked } from '@angular/core';
+import { Component, inject, input, output, signal, effect, untracked, computed } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
@@ -8,6 +8,7 @@ import { AlumnoService } from '../../../core/services/alumno.service';
 import { AlumnoDetailDto } from '../../../core/models/alumno-detail.dto';
 import { AlumnoInfoTabComponent } from '../tabs/info/info.component';
 import { AlumnoDocsTabComponent } from '../tabs/docs/docs.component';
+import { AlumnoMateriaDocsTabComponent } from '../tabs/materia-docs/materia-docs.component';
 
 @Component({
   selector: 'app-alumno-detail-modal',
@@ -15,7 +16,7 @@ import { AlumnoDocsTabComponent } from '../tabs/docs/docs.component';
   imports: [
     CommonModule, DialogModule, TabsModule,
     ProgressSpinnerModule, AlumnoInfoTabComponent,
-    AlumnoDocsTabComponent
+    AlumnoDocsTabComponent, AlumnoMateriaDocsTabComponent
   ],
   templateUrl: './detail.component.html',
 })
@@ -31,6 +32,16 @@ export class AlumnoDetailModalComponent {
   alumno = signal<AlumnoDetailDto | null>(null);
   loading = signal(false);
   activeTab = signal<string>('info');
+
+  isCoordinatorOrAdmin = computed(() => {
+    const a = this.alumno();
+    return !!(a?.isAdmin || a?.isMyCareer);
+  });
+
+  isProfessorOnly = computed(() => {
+    const a = this.alumno();
+    return !!(a?.isMyStudent && !this.isCoordinatorOrAdmin());
+  });
 
   constructor() {
     effect(() => {
