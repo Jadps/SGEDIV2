@@ -10,7 +10,9 @@ import { MessageService } from 'primeng/api';
 import { AlumnoService } from '../../../../core/services/alumno.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ContratoService } from '../../../../core/services/contrato.service';
+import { ExpedienteService } from '../../../../core/services/expediente.service';
 import { ContratoDto } from '../../../../core/models/contrato.dto';
+import { DocumentoEstadoUtils } from '../../../../core/utils/documento-estado-utils';
 import { ContratoResumenComponent } from '../contrato-profesor/contrato-resumen.component';
 import { ContratoFormComponent } from '../contrato-profesor/contrato-form.component';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
@@ -38,12 +40,14 @@ export class AlumnoMateriaDocsTabComponent {
   private readonly alumnoService = inject(AlumnoService);
   private readonly authService = inject(AuthService);
   private readonly contratoService = inject(ContratoService);
+  private readonly expedienteService = inject(ExpedienteService);
   private readonly messageService = inject(MessageService);
 
   alumnoId = input.required<string>();
   materias = signal<any[]>([]);
   selectedMateriaId = signal<string | null>(null);
   contratoActual = signal<ContratoDto | null>(null);
+  expediente = signal<any[]>([]);
   loadingAcuerdo = signal(false);
   loading = signal(false);
   editMode = signal(false);
@@ -64,6 +68,13 @@ export class AlumnoMateriaDocsTabComponent {
         this.selectedMateriaId.set(carga[0].materiaId);
         this.loadContrato(carga[0].materiaId);
       }
+    });
+    this.loadExpediente(id);
+  }
+
+  loadExpediente(alumnoId: string) {
+    this.expedienteService.getExpediente(alumnoId).subscribe(items => {
+      this.expediente.set(DocumentoEstadoUtils.mapExpediente(items));
     });
   }
 
@@ -98,15 +109,10 @@ export class AlumnoMateriaDocsTabComponent {
   });
 
   filteredDocs = computed(() => {
-    const contrato = this.contratoActual();
-    if (!contrato) return [];
-    
-    // Logic to return annexes based on materiaId and alumnoId
-    // For now returning mock data or fetching from service if implemented
-    return [
-      { label: 'Anexo III - ' + contrato.materiaNombre, estado: 0, estadoText: 'NO SUBIDO', estadoSeverity: 'secondary', fechaLimite: '2026-03-01', puedeSubir: true },
-      { label: 'Anexo VII - ' + contrato.materiaNombre, estado: 0, estadoText: 'NO SUBIDO', estadoSeverity: 'secondary', fechaLimite: '2026-06-01', puedeSubir: true }
-    ];
+    const materiaId = this.selectedMateriaId();
+    const docs = this.expediente();
+    if (!materiaId || !docs.length) return [];
+    return docs.filter((d: any) => d.esAcuerdo && d.materiaId === materiaId);
   });
 
   isDeadlineExpired(date: string) {
