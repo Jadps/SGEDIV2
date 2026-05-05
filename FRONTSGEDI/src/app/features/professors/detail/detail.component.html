@@ -1,19 +1,17 @@
 <p-dialog [visible]="visible()" (visibleChange)="!$event && onClose.emit()" [modal]="true" [draggable]="false"
-    position="top"
-    [header]="data()?.materiaNombre" [style]="{ width: '700px', marginTop: '4rem' }" 
-    styleClass="crud-modal" maskStyleClass="backdrop-blur-md"
-    [contentStyle]="{ padding: '0' }">
-    
+    position="top" [style]="{ width: '850px', marginTop: '2rem' }" styleClass="glass-dark border border-white/10 rounded-2xl shadow-2xl"
+    [header]="data()?.profesorNombre">
+
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)">
         <p-tablist>
             <p-tab value="info">
                 <i class="pi pi-info-circle mr-2"></i>Detalles
             </p-tab>
             <p-tab value="contracts">
-                <i class="pi pi-file-pdf mr-2"></i>Contratos
+                <i class="pi pi-file mr-2"></i>Contratos
             </p-tab>
         </p-tablist>
-
+        
         <p-tabpanels>
             <p-tabpanel value="info">
                 @if (activeTab() === 'info') {

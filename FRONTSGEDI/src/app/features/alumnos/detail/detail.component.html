@@ -18,7 +18,7 @@
                 <i class="pi pi-file mr-2"></i>Documentos
             </p-tab>
             }
-            @if (isProfessorOnly()) {
+            @if (showMateriasTab()) {
             <p-tab value="materias">
                 <i class="pi pi-book mr-2"></i>Materias
             </p-tab>
@@ -45,7 +45,7 @@
                 }
             </p-tabpanel>
             <p-tabpanel value="materias">
-                @if (isProfessorOnly()) {
+                @if (showMateriasTab()) {
                 @defer (when activeTab() === 'materias'; prefetch on idle) {
                 <app-alumno-materia-docs-tab [alumnoId]="alumnoId()" />
                 } @placeholder {

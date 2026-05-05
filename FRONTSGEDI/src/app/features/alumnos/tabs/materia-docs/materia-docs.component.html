@@ -7,52 +7,103 @@
   </div>
 
   @if (selectedMateriaId()) {
-  <p-table [value]="filteredDocs()" styleClass="p-datatable-sm glass-table" [loading]="loading()">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Documento</th>
-        <th>Estado</th>
-        <th>Fecha Límite</th>
-        <th class="w-32"></th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-doc>
-      <tr class="transition-colors hover:bg-white/5">
-        <td class="text-sm font-medium text-zinc-300">{{ doc.label }}</td>
-        <td>
-          <app-status-badge [severity]="doc.estadoSeverity" [text]="doc.estadoText" />
-        </td>
-        <td>
-          @if (doc.fechaLimite) {
-          <span class="text-xs font-medium"
-            [class.text-red-400]="isDeadlineExpired(doc.fechaLimite) && doc.estado !== 1">
-            {{ doc.fechaLimite | date:'dd/MM/yyyy' }}
-          </span>
-          } @else {
-          <span class="text-xs text-zinc-600">--</span>
-          }
-        </td>
-        <td class="flex gap-2">
-          @if (doc.archivo) {
-          <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info"
-            (onClick)="viewDocument(doc.archivo.id)" pTooltip="Ver Documento" />
-          }
+    @if (loadingAcuerdo()) {
+      <div class="py-10 text-center">
+        <i class="pi pi-spin pi-spinner text-2xl text-blue-400"></i>
+        <p class="text-zinc-500 text-sm mt-2">Cargando contrato...</p>
+      </div>
+    } @else {
+      @if (contratoActual() && !editMode()) {
+        <!-- Resumen del Contrato -->
+        <app-contrato-resumen 
+          [contrato]="contratoActual()!" 
+          [canRespond]="canStudentRespond()"
+          (onEdit)="editMode.set(true)"
+          (onResponded)="loadContrato(selectedMateriaId()!)" />
 
-          @if (doc.puedeSubir) {
-          <p-button icon="pi pi-upload" [rounded]="true" [text]="true" severity="success" (onClick)="openUpload(doc)"
-            pTooltip="Subir Anexo" [disabled]="doc.estado === 0 || doc.estado === 1" />
-          }
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+        <!-- Listado de Anexos (Solo si el contrato está aceptado) -->
+        <div class="mt-8" [class.opacity-50]="contratoActual()?.estado !== 'Aceptado'">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Documentación Relacionada (Anexos)</h4>
+            @if (contratoActual()?.estado !== 'Aceptado') {
+              <span class="text-[10px] bg-amber-500/10 text-amber-500 px-3 py-1 rounded-lg border border-amber-500/20 flex items-center gap-2">
+                @if (contratoActual()?.estado === 'Pendiente') {
+                  <i class="pi pi-clock animate-pulse"></i> ESPERA: El alumno debe aceptar el contrato para habilitar anexos.
+                } @else {
+                  <i class="pi pi-lock"></i> BLOQUEADO: El contrato no está aceptado.
+                }
+              </span>
+            }
+          </div>
+
+          <p-table [value]="filteredDocs()" styleClass="p-datatable-sm glass-table" [loading]="loading()">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Documento</th>
+                <th>Estado</th>
+                <th>Fecha Límite</th>
+                <th class="w-32"></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-doc>
+              <tr class="transition-colors hover:bg-white/5">
+                <td class="text-sm font-medium text-zinc-300">{{ doc.label }}</td>
+                <td>
+                  <app-status-badge [severity]="doc.estadoSeverity" [text]="doc.estadoText" />
+                </td>
+                <td>
+                  @if (doc.fechaLimite) {
+                  <span class="text-xs font-medium"
+                    [class.text-red-400]="isDeadlineExpired(doc.fechaLimite) && doc.estado !== 1">
+                    {{ doc.fechaLimite | date:'dd/MM/yyyy' }}
+                  </span>
+                  } @else {
+                  <span class="text-xs text-zinc-600">--</span>
+                  }
+                </td>
+                <td class="flex gap-2">
+                  @if (doc.archivo) {
+                  <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info"
+                    (onClick)="viewDocument(doc.archivo.id)" pTooltip="Ver Documento" />
+                  }
+
+                  @if (doc.puedeSubir) {
+                  <p-button icon="pi pi-upload" [rounded]="true" [text]="true" severity="success" (onClick)="openUpload(doc)"
+                    pTooltip="Subir Anexo" [disabled]="contratoActual()?.estado !== 'Aceptado' || doc.estado === 1" />
+                  }
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      } @else if (isProfessor()) {
+        <!-- Si no hay contrato o estamos en EDIT MODE, mostramos el formulario -->
+        <app-contrato-form 
+          [alumnoId]="alumnoId()" 
+          [materiaId]="selectedMateriaId()!" 
+          [existingContrato]="contratoActual()"
+          (onSaved)="editMode.set(false); loadContrato(selectedMateriaId()!)" />
+          
+        @if (editMode()) {
+          <div class="mt-4 flex justify-center">
+            <p-button label="Cancelar Edición" icon="pi pi-times" [text]="true" severity="secondary" (onClick)="editMode.set(false)" />
+          </div>
+        }
+      } @else {
+        <div class="py-20 text-center border border-dashed border-white/5 rounded-2xl">
+          <i class="pi pi-info-circle text-3xl text-zinc-700 mb-3"></i>
+          <p class="text-zinc-500 max-w-sm mx-auto">El profesor aún no ha definido los criterios de evaluación para esta materia. Una vez generados, podrás verlos y aceptarlos aquí.</p>
+        </div>
+      }
+    }
   } @else {
-  <div class="py-20 text-center border border-dashed border-white/5 rounded-2xl">
-    <i class="pi pi-book text-3xl text-zinc-700 mb-3"></i>
-    <p class="text-zinc-500">Selecciona una materia para ver y subir tus anexos correspondientes.</p>
-  </div>
+    <div class="py-20 text-center border border-dashed border-white/5 rounded-2xl">
+      <i class="pi pi-book text-3xl text-zinc-700 mb-3"></i>
+      <p class="text-zinc-500">Selecciona una materia para gestionar el contrato y anexos correspondientes.</p>
+    </div>
   }
 
+  <!-- ... dialog upload ... -->
   <p-dialog [(visible)]="uploadVisible" header="Subir Documento" [modal]="true" [draggable]="false" position="top"
     [style]="{ width: '500px', marginTop: '4rem' }" appendTo="body"
     styleClass="glass-dark border border-white/10 rounded-2xl shadow-2xl" (onHide)="clearUpload()">

@@ -1,0 +1,80 @@
+<div class="p-6 rounded-2xl bg-white/5 border border-white/10 shadow-xl mb-6">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+      <i class="pi pi-file-edit text-blue-400"></i>
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-white">Generar Nuevo Contrato</h3>
+      <p class="text-xs text-zinc-500">Define cómo se evaluará esta materia para el alumno.</p>
+    </div>
+  </div>
+
+  <form [formGroup]="contratoForm" (ngSubmit)="save()" class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="flex flex-col gap-2">
+        <label class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Modalidad</label>
+        <p-select [options]="modalidades()" formControlName="modalidad" optionLabel="label" optionValue="value"
+          styleClass="w-full bg-zinc-900/50 border-white/10" />
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Descripción General (Opcional)</label>
+      <textarea pTextarea formControlName="descripcion" [autoResize]="true" rows="3"
+        placeholder="Instrucciones generales, objetivos, etc."
+        class="w-full p-4 bg-zinc-900/50 border border-white/10 rounded-xl text-white outline-none focus:border-blue-500/50"></textarea>
+    </div>
+
+    <div class="space-y-4">
+      <div class="flex justify-between items-center">
+        <label class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Criterios de Evaluación</label>
+        <p-button label="Añadir Criterio" icon="pi pi-plus" [text]="true" size="small" (onClick)="addCriterio()" />
+      </div>
+
+      <div formArrayName="criterios" class="space-y-3">
+        @for (ctrl of criterios.controls; track $index) {
+          <div [formGroupName]="$index" class="p-4 rounded-xl bg-zinc-900/30 border border-white/5 flex flex-wrap md:flex-nowrap gap-3 items-end">
+            <div class="flex flex-col gap-1.5 flex-1 min-w-[150px]">
+              <label class="text-[10px] text-zinc-500 uppercase">Tipo</label>
+              <p-select [options]="tiposCriterio()" formControlName="tipo" optionLabel="label" optionValue="value"
+                styleClass="w-full bg-zinc-900/50 border-white/10 text-sm" />
+            </div>
+
+            <div class="flex flex-col gap-1.5 flex-[2] min-w-[200px]">
+              <label class="text-[10px] text-zinc-500 uppercase">Detalle / Nombre</label>
+              <input pInputText formControlName="detalle" placeholder="Ej: Tareas semanales"
+                class="w-full bg-zinc-900/50 border-white/10 text-sm h-10" />
+            </div>
+
+            <div class="flex flex-col gap-1.5 w-24">
+              <label class="text-[10px] text-zinc-500 uppercase">Peso (%)</label>
+              <p-inputNumber formControlName="porcentaje" suffix="%" [min]="0" [max]="100"
+                inputStyleClass="w-full bg-zinc-900/50 border-white/10 text-sm text-center h-10" />
+            </div>
+
+            @if (criterios.length > 1) {
+              <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="removeCriterio($index)" />
+            }
+          </div>
+        }
+      </div>
+
+      <div class="flex justify-between items-center p-4 rounded-xl border border-dashed"
+        [class.border-blue-500/30]="totalPorcentaje() === 100"
+        [class.border-red-500/30]="totalPorcentaje() !== 100"
+        [class.bg-blue-500/5]="totalPorcentaje() === 100"
+        [class.bg-red-500/5]="totalPorcentaje() !== 100">
+        <span class="text-sm font-medium" [class.text-blue-400]="totalPorcentaje() === 100" [class.text-red-400]="totalPorcentaje() !== 100">
+          Total: {{ totalPorcentaje() }}%
+        </span>
+        @if (totalPorcentaje() !== 100) {
+          <span class="text-[10px] text-red-400 italic">La suma debe ser exactamente 100%</span>
+        }
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 pt-4">
+      <p-button label="Guardar Contrato" icon="pi pi-save" severity="primary" type="submit" [loading]="isSubmitting()" />
+    </div>
+  </form>
+</div>

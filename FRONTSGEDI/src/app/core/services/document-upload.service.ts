@@ -13,7 +13,7 @@ export class DocumentUploadService {
     formData.append('TipoAcuerdo', tipoAcuerdo.toString());
     formData.append('File', file);
     return this.http.post<void>(
-      `${environment.apiUrl}${API_ENDPOINTS.ACUERDOS.UPLOAD_STUDENT}`,
+      `${environment.apiUrl}${API_ENDPOINTS.CONTRATOS.UPLOAD_STUDENT}`,
       formData,
       { context }
     );
@@ -26,7 +26,7 @@ export class DocumentUploadService {
     if (materiaId) formData.append('MateriaId', materiaId);
     formData.append('File', file);
     return this.http.post<void>(
-      `${environment.apiUrl}${API_ENDPOINTS.ACUERDOS.UPLOAD_PROFESOR}`,
+      `${environment.apiUrl}${API_ENDPOINTS.CONTRATOS.UPLOAD_PROFESOR}`,
       formData,
       { context }
     );
@@ -38,7 +38,7 @@ export class DocumentUploadService {
     formData.append('TipoAcuerdo', tipoAcuerdo.toString());
     formData.append('File', file);
     return this.http.post<void>(
-      `${environment.apiUrl}${API_ENDPOINTS.ACUERDOS.UPLOAD_ASESOR_INTERNO}`,
+      `${environment.apiUrl}${API_ENDPOINTS.CONTRATOS.UPLOAD_ASESOR_INTERNO}`,
       formData,
       { context }
     );
@@ -50,7 +50,7 @@ export class DocumentUploadService {
     formData.append('TipoAcuerdo', tipoAcuerdo.toString());
     formData.append('File', file);
     return this.http.post<void>(
-      `${environment.apiUrl}${API_ENDPOINTS.ACUERDOS.UPLOAD_ASESOR_EXTERNO}`,
+      `${environment.apiUrl}${API_ENDPOINTS.CONTRATOS.UPLOAD_ASESOR_EXTERNO}`,
       formData,
       { context }
     );
@@ -73,7 +73,7 @@ export class DocumentUploadService {
     formData.append('File', file);
 
     return this.http.post<void>(
-      `${environment.apiUrl}${API_ENDPOINTS.ACUERDOS.ADMINISTRATIVE_UPLOAD}`,
+      `${environment.apiUrl}${API_ENDPOINTS.CONTRATOS.ADMINISTRATIVE_UPLOAD}`,
       formData
     );
   }
@@ -108,3 +108,4 @@ export class DocumentUploadService {
     );
   }
 }
+

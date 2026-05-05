@@ -67,6 +67,7 @@ export class AuthService {
     }
 
     getProfile(): Observable<boolean> {
+        if (this.currentUser()) return of(true);
         return this.http.get<UserDto>(`${environment.apiUrl}${API_ENDPOINTS.USERS.ME}`).pipe(
             tap((user) => {
                 this.currentUser.set(user);

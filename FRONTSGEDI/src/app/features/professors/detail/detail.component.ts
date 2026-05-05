@@ -2,8 +2,8 @@ import { Component, input, output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { TabsModule } from 'primeng/tabs';
-import { ProfessorInfoTabComponent } from './tabs/info-tab.component';
-import { ProfessorContractsTabComponent } from './tabs/contracts-tab.component';
+import { ProfessorInfoTabComponent } from './tabs/info/info-tab.component';
+import { ProfessorContractsTabComponent } from './tabs/contracts/contracts-tab.component';
 
 @Component({
   selector: 'app-professor-detail',

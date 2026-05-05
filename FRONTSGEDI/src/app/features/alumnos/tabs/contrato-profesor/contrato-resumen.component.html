@@ -1,0 +1,77 @@
+<div class="p-6 rounded-2xl bg-white/5 border border-white/10 shadow-xl mb-6">
+  <div class="flex justify-between items-start mb-6">
+    <div>
+      <div class="flex items-center gap-3 mb-1">
+        <h3 class="text-xl font-bold text-white">Contrato de Evaluación</h3>
+        <app-status-badge [severity]="'info'" [text]="contrato().estado" />
+      </div>
+      <p class="text-sm text-zinc-400">Definido por el profesor: <span class="text-zinc-200 font-medium">{{ contrato().profesorNombre }}</span></p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      @if (canRespond() && contrato().estado.toLowerCase() === 'pendiente') {
+        <p-button label="Aceptar Contrato" icon="pi pi-check" severity="success" (onClick)="accept()" [loading]="isSubmitting()" styleClass="h-10 px-4" />
+        <p-button label="Rechazar" icon="pi pi-times" severity="danger" [outlined]="true" (onClick)="showRejectDialog.set(true)" [disabled]="isSubmitting()" styleClass="h-10 px-4" />
+      }
+      
+      @if (canProfessorEdit()) {
+        <p-button label="Editar Criterios" icon="pi pi-pencil" [outlined]="true" severity="info" (onClick)="onEdit.emit()" styleClass="h-10 px-4" />
+      }
+    </div>
+  </div>
+
+  @if (contrato().descripcion) {
+    <div class="mb-6">
+      <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Descripción General</h4>
+      <p class="text-sm text-zinc-300 leading-relaxed">{{ contrato().descripcion }}</p>
+    </div>
+  }
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="space-y-4">
+      <h4 class="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Criterios de Evaluación</h4>
+      @for (criterio of contrato().criterios; track criterio.id) {
+        <div class="p-4 rounded-xl bg-zinc-900/50 border border-white/5 flex justify-between items-center">
+          <div>
+            <span class="block text-sm font-medium text-white">{{ criterio.detalle }}</span>
+            <span class="text-[10px] text-zinc-500 uppercase">{{ criterio.tipoLabel }}</span>
+          </div>
+          <div class="text-right">
+            <span class="text-lg font-bold text-blue-400">{{ criterio.porcentaje }}%</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="p-6 rounded-xl bg-blue-500/5 border border-blue-500/10 flex flex-col justify-center items-center text-center">
+      <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mb-3">
+        <i class="pi pi-info-circle text-blue-400 text-xl"></i>
+      </div>
+      <p class="text-sm text-zinc-300 mb-2">Modalidad: <span class="text-white font-bold">{{ contrato().modalidadLabel }}</span></p>
+      <p class="text-[11px] text-zinc-500">Este contrato es la base para la generación de los Anexos correspondientes.</p>
+    </div>
+  </div>
+
+  @if (contrato().estado === 'Rechazado' && contrato().motivoRechazo) {
+    <div class="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+      <h4 class="text-xs font-bold text-red-400 uppercase tracking-widest mb-1">Motivo del Rechazo</h4>
+      <p class="text-sm text-zinc-300 italic">"{{ contrato().motivoRechazo }}"</p>
+    </div>
+  }
+</div>
+
+<p-dialog [(visible)]="showRejectDialog" header="Rechazar Contrato" [modal]="true" [draggable]="false" position="top"
+  [style]="{ width: '450px', marginTop: '4rem' }" styleClass="glass-dark border border-white/10 rounded-2xl shadow-2xl">
+  <div class="flex flex-col gap-4 mt-2">
+    <p class="text-zinc-400 text-sm">Indica el motivo por el cual rechazas los criterios propuestos por el profesor. Él podrá ajustarlos y enviarlos de nuevo.</p>
+    <textarea pTextarea [autoResize]="true" rows="5"
+      class="w-full p-4 bg-zinc-800/50 border border-white/10 rounded-xl text-white outline-none focus:border-white/30 placeholder:text-zinc-600"
+      [(ngModel)]="observaciones" placeholder="Ej: No estoy de acuerdo con el porcentaje asignado al proyecto final.">
+    </textarea>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="showRejectDialog.set(false)" />
+    <p-button label="Confirmar Rechazo" severity="danger" (onClick)="reject()"
+      [disabled]="!observaciones() || observaciones().length < 5 || isSubmitting()" />
+  </ng-template>
+</p-dialog>

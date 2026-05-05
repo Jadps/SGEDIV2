@@ -27,8 +27,12 @@ export const API_ENDPOINTS = {
     BASE: '/plantillas',
     DOWNLOAD: '/plantillas/{id}/download'
   },
-  ACUERDOS: {
-    BASE: '/acuerdos',
+  CONTRATOS: {
+    BASE: '/contratos',
+    GET: '/contratos/{alumnoId}/{materiaId}',
+    CREATE: '/contratos',
+    RESPOND: '/contratos/{id}/responder',
+    CATALOGS: '/contratos/catalogs',
     ADMINISTRATIVE_UPLOAD: '/acuerdos/administrative-upload',
     UPLOAD_STUDENT: '/alumnos/me/documentos/acuerdos',
     UPLOAD_PROFESOR: '/profesor/documentos/acuerdos',

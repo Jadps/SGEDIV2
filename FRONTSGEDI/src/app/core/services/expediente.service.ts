@@ -35,7 +35,7 @@ export class ExpedienteService {
     nuevaFechaLimite: Date;
   }): Observable<void> {
     return this.http.patch<void>(
-      `${environment.apiUrl}${API_ENDPOINTS.ACUERDOS.PRORROGA}`,
+      `${environment.apiUrl}${API_ENDPOINTS.CONTRATOS.PRORROGA}`,
       { ...payload, nuevaFechaLimite: payload.nuevaFechaLimite.toISOString() }
     );
   }

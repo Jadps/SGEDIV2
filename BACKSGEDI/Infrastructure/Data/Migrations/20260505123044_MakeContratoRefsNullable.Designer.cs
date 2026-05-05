@@ -3,6 +3,7 @@ using System;
 using BACKSGEDI.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BACKSGEDI.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260505123044_MakeContratoRefsNullable")]
+    partial class MakeContratoRefsNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -277,7 +280,7 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("AlumnoId")
+                    b.Property<Guid?>("AlumnoId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("CarreraId")
@@ -295,7 +298,7 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("MateriaId")
+                    b.Property<Guid?>("MateriaId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Modalidad")
@@ -304,11 +307,8 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.Property<string>("MotivoRechazo")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("ProfesorId")
+                    b.Property<Guid?>("ProfesorId")
                         .HasColumnType("uuid");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -362,9 +362,6 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("Porcentaje")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Status")
                         .HasColumnType("integer");
 
                     b.Property<int>("Tipo")
@@ -838,8 +835,7 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.HasOne("BACKSGEDI.Domain.Entities.Alumno", "Alumno")
                         .WithMany()
                         .HasForeignKey("AlumnoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("BACKSGEDI.Domain.Entities.CatCarrera", "Carrera")
                         .WithMany()
@@ -850,14 +846,11 @@ namespace BACKSGEDI.Infrastructure.Data.Migrations
                     b.HasOne("BACKSGEDI.Domain.Entities.Materia", "Materia")
                         .WithMany()
                         .HasForeignKey("MateriaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("BACKSGEDI.Domain.Entities.Profesor", "Profesor")
                         .WithMany()
-                        .HasForeignKey("ProfesorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProfesorId");
 
                     b.Navigation("Alumno");
 

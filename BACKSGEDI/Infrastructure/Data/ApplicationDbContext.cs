@@ -29,6 +29,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Materia> Materias { get; set; } = null!;
     public DbSet<CargaAcademica> CargasAcademicas { get; set; } = null!;
     public DbSet<EvaluacionDesempeño> EvaluacionesDesempeño { get; set; } = null!;
+    public DbSet<ContratoProfesor> ContratosProfesores { get; set; } = null!;
+    public DbSet<CriterioEvaluacion> CriteriosEvaluacion { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -177,6 +179,22 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey(e => e.EvaluadorId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<ContratoProfesor>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasOne(e => e.Alumno).WithMany().HasForeignKey(e => e.AlumnoId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.Materia).WithMany().HasForeignKey(e => e.MateriaId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasMany(e => e.Criterios).WithOne().OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CriterioEvaluacion>(entity =>
+        {
+            entity.HasOne(c => c.Contrato)
+                .WithMany(a => a.Criterios)
+                .HasForeignKey(c => c.ContratoId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Usuario>().HasIndex(u => u.Email).IsUnique();

@@ -10,7 +10,7 @@ import { AlumnoInfoTabComponent } from '../tabs/info/info.component';
 import { AlumnoDocsTabComponent } from '../tabs/docs/docs.component';
 import { AlumnoMateriaDocsTabComponent } from '../tabs/materia-docs/materia-docs.component';
 import { AlumnoEvaluacionesTabComponent } from '../tabs/evaluaciones/evaluaciones.component';
-import { AlumnoAsesoresTabComponent } from '../tabs/asesores/asesores.component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-alumno-detail-modal',
@@ -26,6 +26,7 @@ import { AlumnoAsesoresTabComponent } from '../tabs/asesores/asesores.component'
 export class AlumnoDetailModalComponent {
 
   private readonly alumnoService = inject(AlumnoService);
+  private readonly authService = inject(AuthService);
 
   alumnoId = input.required<string>();
   visible = input.required<boolean>();
@@ -46,17 +47,17 @@ export class AlumnoDetailModalComponent {
     return !!(a?.isMyAdvisory);
   });
 
-  isProfessorOnly = computed(() => {
+  isStudentViewingSelf = computed(() => {
+    return this.authService.getUserId() === this.alumnoId() && this.authService.getUserRoles().includes('Alumno');
+  });
+
+  showMateriasTab = computed(() => {
     const a = this.alumno();
-    return !!(a?.isMyStudent && !this.isCoordinatorOrAdmin());
+    return !!(a?.isMyStudent || this.isStudentViewingSelf());
   });
 
   showEvaluacionesTab = computed(() => {
-    return this.isCoordinatorOrAdmin() || this.isAdvisor();
-  });
-
-  showAsesoresTab = computed(() => {
-    return this.alumno()?.id === this.alumnoId() && !this.isCoordinatorOrAdmin();
+    return this.isCoordinatorOrAdmin() || this.isAdvisor() || this.isStudentViewingSelf();
   });
 
   constructor() {

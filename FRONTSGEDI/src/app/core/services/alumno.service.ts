@@ -7,10 +7,12 @@ import { AlumnoDto } from '../models/alumno.dto';
 import { AlumnoDetailDto } from '../models/alumno-detail.dto';
 import { PagedResponse } from '../models/paged-response.dto';
 import { MyAlumnoProfileDto } from '../models/my-alumno-profile.dto';
+import { of, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AlumnoService {
   private readonly http = inject(HttpClient);
+  private _myProfile: MyAlumnoProfileDto | null = null;
 
   getAlumnos(
     page: number = 1,
@@ -38,7 +40,10 @@ export class AlumnoService {
   }
 
   getMyProfile(): Observable<MyAlumnoProfileDto> {
-    return this.http.get<MyAlumnoProfileDto>(`${environment.apiUrl}${API_ENDPOINTS.STUDENTS.ME}`);
+    if (this._myProfile) return of(this._myProfile);
+    return this.http.get<MyAlumnoProfileDto>(`${environment.apiUrl}${API_ENDPOINTS.STUDENTS.ME}`).pipe(
+      tap(p => this._myProfile = p)
+    );
   }
 
   suspendStudent(id: string): Observable<void> {
