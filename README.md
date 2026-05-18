@@ -67,6 +67,7 @@ The platform uses a role-based permission matrix with career-scoped access rules
 - Asesor Interno
 - Asesor Externo
 - Jefe de Departamento
+- And multi role for each user
 
 ### Document Security Model
 The system manages three document silos:
